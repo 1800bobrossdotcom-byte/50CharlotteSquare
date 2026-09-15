@@ -11,7 +11,7 @@ No framework, no build step. Plain HTML, one stylesheet, one script. Open `index
 | **Brick & Stone** (default) | Warm stone ground, bold grotesk, rounded cards | Bricolage Grotesque + Manrope | Brick `#D2452D` |
 | **Gallery** | Editorial: white space, hairlines, serif italics, framed photography | Instrument Serif + DM Sans | Oxblood `#7A1F12` |
 | **Atelier** | Bone paper, hairline structure, editorial serif over grotesk. The headline sits on a paper banner that wipes in over the photograph while everything else stays condensed on the image. Scrolls differently: the amenity grid is a horizontal snap rail, amenity images pin beside their text, sections are numbered in the margin, and a hairline tracks page progress | Instrument Serif + Manrope | Clay `#A8482A` |
-| **Dusk** | The dark option, with Atelier's restraint rather than volume. Warm espresso ground rather than blue-black, a trace of film grain so the dark fields stay photographic, and the brick warmed to an ember so it sits on dark without vibrating | Bricolage Grotesque + DM Sans | Ember `#E0734A` |
+| **Dusk** | The dark option. Composed the other way round from the rest: the photograph runs as a film still across the top and the type sits beneath it on a warm espresso ground, with the slide caption between them. Nothing overlays the picture, a trace of film grain keeps the dark fields photographic, and the brick is warmed to an ember so it holds on dark without vibrating | Bricolage Grotesque + DM Sans | Ember `#E0734A` |
 
 You can also link straight to a style with `?style=gallery`, `?style=atelier` or `?style=dusk` on any page. An earlier dark direction called Night was replaced by Atelier; a saved `night` preference maps to Atelier automatically.
 
