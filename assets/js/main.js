@@ -183,12 +183,14 @@
   /* ---- Style switcher (mock-up review tool) ------------------------------ */
   const styler = $('[data-styler]');
   if (styler) {
-    const NAMES = { brick: 'Brick & Stone', gallery: 'Gallery', night: 'Night' };
+    const NAMES = { brick: 'Brick & Stone', gallery: 'Gallery', atelier: 'Atelier' };
+    const LEGACY = { night: 'atelier' };  // an earlier direction this one replaced
     const btn = $('.styler__btn', styler);
     const menu = $('.styler__menu', styler);
     const nameEl = $('[data-styler-name]', styler);
     const setOpen = (open) => { menu.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
     const apply = (s, persist) => {
+      s = LEGACY[s] || s;
       if (!NAMES[s]) s = 'brick';
       if (s === 'brick') document.documentElement.removeAttribute('data-style');
       else document.documentElement.setAttribute('data-style', s);

@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="assets/css/main.css">
 <script>document.documentElement.classList.add('js')</script>
-<script>(function(){try{var s=new URLSearchParams(location.search).get('style')||localStorage.getItem('cs-style');if(s&&s!=='brick')document.documentElement.setAttribute('data-style',s)}catch(e){}})()</script>
+<script>(function(){try{var s=new URLSearchParams(location.search).get('style')||localStorage.getItem('cs-style');if(s==='night')s='atelier';if(s&&s!=='brick')document.documentElement.setAttribute('data-style',s)}catch(e){}})()</script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -103,10 +103,10 @@
   <div class="container">
     <div class="stats">
       <div class="stat reveal"><div class="stat__value">72</div><div class="stat__label">Residences across four stories</div></div>
-      <div class="stat reveal" data-delay="1"><div class="stat__value">1–3<small>BR</small></div><div class="stat__label">One-, two- and three-bedroom homes</div></div>
-      <div class="stat reveal" data-delay="2"><div class="stat__value">1,640<small>sq ft</small></div><div class="stat__label">Homes from 765 up to 1,640 square feet</div></div>
+      <div class="stat reveal" data-delay="1"><div class="stat__value">1–3</div><div class="stat__label">One-, two- and three-bedroom homes</div></div>
+      <div class="stat reveal" data-delay="2"><div class="stat__value">1,640<small>sq ft</small></div><div class="stat__label">Largest homes; plans start at 765</div></div>
       <div class="stat reveal" data-delay="3"><div class="stat__value">2016</div><div class="stat__label">Built new, LEED-designed, rooftop solar</div></div>
-      <div class="stat reveal" data-delay="3"><div class="stat__value">24<small>/7</small></div><div class="stat__label">Emergency maintenance with an onsite team</div></div>
+      <div class="stat reveal" data-delay="3"><div class="stat__value">24/7</div><div class="stat__label">Emergency maintenance with an onsite team</div></div>
     </div>
   </div>
 </section>
@@ -274,7 +274,7 @@
     <p class="styler__title">Mock-up styles</p>
     <button type="button" class="styler__opt" data-style-pick="brick" aria-pressed="true"><span class="styler__sw" style="--a:#F4F1EB;--b:#D2452D;--c:#121316"></span><span><b>Brick &amp; Stone</b><small>Warm stone, brick accent, bold grotesk</small></span></button>
     <button type="button" class="styler__opt" data-style-pick="gallery" aria-pressed="false"><span class="styler__sw" style="--a:#FFFFFF;--b:#7A1F12;--c:#1A1A1A"></span><span><b>Gallery</b><small>Editorial serif, white space, oxblood</small></span></button>
-    <button type="button" class="styler__opt" data-style-pick="night" aria-pressed="false"><span class="styler__sw" style="--a:#0E0F12;--b:#E4B84A;--c:#F2EFE9"></span><span><b>Night</b><small>Dark ground, gold accent, wide geometric type</small></span></button>
+    <button type="button" class="styler__opt" data-style-pick="atelier" aria-pressed="false"><span class="styler__sw" style="--a:#EFEAE1;--b:#A8482A;--c:#241E19"></span><span><b>Atelier</b><small>Bone paper, clay accent, serif and grotesk. Pinned headings, a scrolling amenity rail</small></span></button>
     <p class="styler__foot">Your pick is remembered on this device.</p>
   </div>
 </div>

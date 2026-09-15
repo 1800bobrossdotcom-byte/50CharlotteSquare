@@ -10,9 +10,9 @@ No framework, no build step. Plain HTML, one stylesheet, one script. Open `index
 |---|---|---|---|
 | **Brick & Stone** (default) | Warm stone ground, bold grotesk, rounded cards | Bricolage Grotesque + Manrope | Brick `#D2452D` |
 | **Gallery** | Editorial: white space, hairlines, serif italics, framed photography | Instrument Serif + DM Sans | Oxblood `#7A1F12` |
-| **Night** | Dark ground, glassy cards, wide geometric type, gold | Syne + DM Sans | Gold `#E4B84A` |
+| **Atelier** | Bone paper, hairline structure, editorial serif over grotesk. Scrolls differently: the amenity grid is a horizontal snap rail, amenity images pin beside their text, sections are numbered in the margin, and a hairline tracks page progress | Instrument Serif + Manrope | Clay `#A8482A` |
 
-You can also link straight to a style with `?style=gallery` or `?style=night` on any page.
+You can also link straight to a style with `?style=gallery` or `?style=atelier` on any page. An earlier dark direction called Night was replaced by Atelier; a saved `night` preference maps to Atelier automatically.
 
 ## Pages
 
