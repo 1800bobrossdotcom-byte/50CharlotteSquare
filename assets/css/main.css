@@ -17,18 +17,28 @@
   --brick-600:  #B5371F;
   --brick-700:  #8E2A19;
   --brick-100:  #FBE7E2;
-  --ink:        #121316;
-  --ink-800:    #1B1D21;
-  --ink-700:    #26282D;
-  --ink-500:    #4A4D55;
-  --steel:      #6E727A;
-  --stone:      #F4F1EB;
-  --stone-200:  #E9E4DA;
-  --stone-300:  #D9D2C5;
+  /* Warm charcoals, not blue-blacks: the dark sections should read like dusk on
+     brick, not like a screen turned off. */
+  --ink:        #1A1613;
+  --ink-800:    #241F1A;
+  --ink-700:    #322B24;
+  --ink-500:    #564E46;
+  --steel:      #736C64;
+  --stone:      #F5F1E9;
+  --stone-200:  #EBE4D6;
+  --stone-300:  #DCD3C1;
   --paper:      #FFFFFF;
-  --sage:       #5E7A70;
+  /* Supporting hues, all drawn from the building and its block */
+  --sage:       #5E7A70;   /* landscaping and the lounge walls */
   --sage-100:   #E3EBE7;
   --sage-900:   #2E473F;
+  --sand:       #D2914E;   /* the cedar pergola and the limestone podium */
+  --sand-100:   #FAEBD7;
+  --sand-700:   #A96A2C;
+  --sand-900:   #6E4315;
+  --sky:        #5C7F9E;   /* the steel cladding and the sky above it */
+  --sky-100:    #E4ECF3;
+  --sky-900:    #2A4358;
 
   /* Semantic */
   --bg:           var(--stone);
@@ -83,10 +93,10 @@
   :root:not([data-theme="light"]) {
     --bg:          var(--ink);
     --bg-elev:     var(--ink-800);
-    --bg-sunken:   #0D0E10;
+    --bg-sunken:   #120F0C;
     --fg:          var(--stone);
-    --fg-muted:    #B9B4AA;
-    --fg-subtle:   #8E9096;
+    --fg-muted:    #BDB4A6;
+    --fg-subtle:   #948A7E;
     --line:        rgba(244, 241, 235, .12);
     --line-strong: rgba(244, 241, 235, .3);
     --accent-tint: rgba(210, 69, 45, .2);
@@ -99,10 +109,10 @@
 :root[data-theme="dark"] {
   --bg:          var(--ink);
   --bg-elev:     var(--ink-800);
-  --bg-sunken:   #0D0E10;
+  --bg-sunken:   #120F0C;
   --fg:          var(--stone);
-  --fg-muted:    #B9B4AA;
-  --fg-subtle:   #8E9096;
+  --fg-muted:    #BDB4A6;
+  --fg-subtle:   #948A7E;
   --line:        rgba(244, 241, 235, .12);
   --line-strong: rgba(244, 241, 235, .3);
   --accent-tint: rgba(210, 69, 45, .2);
@@ -156,7 +166,13 @@ button { font: inherit; color: inherit; }
 .section--flush-top { padding-top: 0; }
 .section--sunken { background: var(--bg-sunken); }
 .section--elev { background: var(--bg-elev); }
-.section--ink { background: var(--ink); color: var(--stone); }
+.section--ink {
+  background:
+    radial-gradient(80% 60% at 88% 0%, rgba(210, 145, 78, .16), transparent 62%),
+    radial-gradient(70% 55% at 0% 100%, rgba(94, 122, 112, .16), transparent 60%),
+    var(--ink);
+  color: var(--stone);
+}
 .section--ink .lead { color: rgba(244, 241, 235, .72); }
 .section--ink .eyebrow { color: var(--accent-on-dark); }
 .grid { display: grid; gap: var(--gap); }
@@ -406,7 +422,12 @@ body.menu-open { overflow: hidden; }
 .tile--solid .tile__title { font-size: clamp(1.3rem, 1.8vw, 1.8rem); }
 .tile--stone { background: var(--bg-sunken); color: var(--fg); }
 .tile--stone::after { display: none; }
-.tile--sage { background: var(--sage); }
+.tile--sage { background: linear-gradient(150deg, #6D8C81, var(--sage-900)); }
+.tile--sand { background: linear-gradient(150deg, var(--sand), var(--sand-700)); color: #fff; }
+.tile--sand::after { display: none; }
+.tile--sky { background: linear-gradient(150deg, #6E93B2, var(--sky-900)); color: #fff; }
+.tile--sky::after { display: none; }
+.tile--sand .tile__icon, .tile--sky .tile__icon { color: #fff; }
 .tile--sage::after { display: none; }
 .tile__icon { width: 2.2rem; height: 2.2rem; margin-bottom: auto; opacity: .9; }
 .tile--stone .tile__icon { color: var(--accent); }
@@ -427,8 +448,15 @@ body.menu-open { overflow: hidden; }
 /* ---------- Feature columns ------------------------------------------------- */
 .feature { display: grid; gap: .6rem; align-content: start; }
 .feature__icon { width: 2.6rem; height: 2.6rem; border-radius: .8rem; display: grid; place-items: center; background: var(--accent-tint); color: var(--accent); margin-bottom: .4rem; }
+/* Rotate the icon tints so a row of features carries the whole palette */
+.feature:nth-child(4n + 2) .feature__icon { background: var(--sage-100); color: var(--sage-900); }
+.feature:nth-child(4n + 3) .feature__icon { background: var(--sand-100); color: var(--sand-900); }
+.feature:nth-child(4n + 4) .feature__icon { background: var(--sky-100); color: var(--sky-900); }
 .feature__icon svg { width: 1.3rem; height: 1.3rem; }
 .section--ink .feature__icon { background: rgba(255, 255, 255, .08); color: var(--accent-on-dark); }
+.section--ink .feature:nth-child(4n + 2) .feature__icon { background: rgba(126, 163, 149, .18); color: #A8CBBC; }
+.section--ink .feature:nth-child(4n + 3) .feature__icon { background: rgba(210, 145, 78, .18); color: #EBB77C; }
+.section--ink .feature:nth-child(4n + 4) .feature__icon { background: rgba(92, 127, 158, .2); color: #A8C6DE; }
 .feature h3 { font-size: 1.2rem; margin: 0; }
 .feature p { color: var(--fg-muted); font-size: .97rem; margin: 0; }
 .section--ink .feature p { color: rgba(244, 241, 235, .7); }
@@ -534,7 +562,7 @@ body.menu-open { overflow: hidden; }
 .legend span { color: var(--fg-muted); font-size: .95rem; }
 
 /* ---------- CTA band -------------------------------------------------------- */
-.band { background: var(--brick); color: #fff; padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; overflow: hidden; }
+.band { background: linear-gradient(115deg, var(--brick-600) 0%, var(--brick) 46%, #D97A3C 100%); color: #fff; padding-block: clamp(3.5rem, 8vw, 6.5rem); position: relative; overflow: hidden; }
 .band::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(60% 80% at 100% 0%, rgba(255, 255, 255, .18), transparent 60%), radial-gradient(50% 60% at 0% 100%, rgba(0, 0, 0, .2), transparent 60%);
@@ -576,7 +604,13 @@ body.menu-open { overflow: hidden; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
 /* ---------- Footer ---------------------------------------------------------- */
-.footer { background: var(--ink); color: var(--stone); padding-block: clamp(3.5rem, 7vw, 6rem) 2rem; }
+.footer {
+  background:
+    radial-gradient(60% 70% at 100% 0%, rgba(210, 145, 78, .13), transparent 60%),
+    radial-gradient(50% 60% at 0% 20%, rgba(92, 127, 158, .12), transparent 60%),
+    var(--ink);
+  color: var(--stone); padding-block: clamp(3.5rem, 7vw, 6rem) 2rem;
+}
 .footer__grid { display: grid; gap: 2.5rem; }
 @media (min-width: 800px) { .footer__grid { grid-template-columns: 1.6fr 1fr 1fr 1.2fr; } }
 .footer .brand { color: #fff; font-size: 1.3rem; }
@@ -1025,10 +1059,10 @@ p, .lead, .hero__lead, .prose p, .feature p, .card p, .step p, .tile__sub,
 .evo-logo { display: inline-block; line-height: 0; text-decoration: none; transition: opacity .2s; }
 .evo-logo:hover { opacity: .75; }
 .evo-logo:focus-visible { border-radius: var(--radius-xs); }
-.evo-logo img { width: auto; height: 2.4rem; object-fit: contain; }
-.evo-logo--sm img { height: 2.1rem; }
-.evo-logo--lg img { height: 4.2rem; }
-.evo-logo--card img { height: 2.9rem; }
+.evo-logo img { width: auto; height: 2.9rem; object-fit: contain; }
+.evo-logo--sm img { height: 3.4rem; }
+.evo-logo--lg img { height: 5rem; }
+.evo-logo--card img { height: 3.6rem; }
 .footer__mgmt { align-items: center; gap: .6rem 1rem; }
 /* Two pieces of art ship together where the ground changes with the style: the
    knockout version for dark footers, the full-color one for the Gallery style's
@@ -1037,6 +1071,7 @@ p, .lead, .hero__lead, .prose p, .feature p, .card p, .step p, .tile__sub,
 [data-style="gallery"] .footer .evo-logo .on-dark { display: none; }
 [data-style="gallery"] .footer .evo-logo .on-light { display: block; }
 .card .evo-logo { margin-bottom: .35rem; }
+.section--ink .evo-logo--sm { display: inline-block; padding: .7rem 1.1rem; border: 1px solid rgba(255, 255, 255, .16); border-radius: var(--radius-sm); }
 
 /* =============================================================================
    REDUCED MOTION — last block in the file so it overrides every rule above.

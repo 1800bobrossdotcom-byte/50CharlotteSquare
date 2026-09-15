@@ -149,6 +149,7 @@
       const data = new FormData(form);
       data.delete('website');
       const endpoint = (form.dataset.endpoint || '').trim();
+      const to = (form.dataset.email || '').trim();
 
       try {
         if (endpoint) {
@@ -157,6 +158,9 @@
           if (!res.ok) throw new Error('Request failed: ' + res.status);
           form.reset();
           showStatus(true, 'Thanks — your message is on its way. We typically reply within one business day.');
+        } else if (!to) {
+          // Nowhere to deliver to yet: say so plainly and hand over the phone number.
+          showStatus(false, `We can't send messages from the site just yet. Please call ${phone} and we'll take your details.`);
         } else {
           // No endpoint configured yet: open the visitor's email app with the message pre-filled.
           const lines = [];
@@ -164,7 +168,7 @@
           const who = `${data.get('first_name') || ''} ${data.get('last_name') || ''}`.trim();
           const subject = encodeURIComponent(`Charlotte Square inquiry — ${who}`);
           const body = encodeURIComponent(lines.join('\n'));
-          window.location.href = `mailto:${form.dataset.email || ''}?subject=${subject}&body=${body}`;
+          window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
           showStatus(true, `Your email app should open with your message ready to send. If it doesn't, call us at ${phone}.`);
         }
       } catch (err) {

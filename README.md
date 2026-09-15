@@ -67,7 +67,7 @@ What is in the slots right now:
 - **Building, amenities and a model kitchen** (hero slides, lobby, community room, pocket park, rooftop, aerial, plan card one, residence kitchen): professional photographs published on the architect's project page ([SWBR: Charlotte Square at the East End](https://www.swbr.com/design/home-leasing-charlotte-square-apartments/)), originally 2,400 px wide and resized here to 1,200 to 2,000 px. SWBR and Home Leasing commissioned this photography; ask them for the originals and usage rights before launch.
 - **Model apartment interiors** (plan cards two and three, residence living room, gallery): three frames from Home Leasing's "Charlotte Square" photo shoot as served on homeleasing.net at 1,800 px. Confirm with Home Leasing that these show the East End building rather than the On the Loop phase.
 - **Fitness center**: still the photo from the previous website, about 780 px wide. No higher-resolution frame exists online; this is the one slot that needs a reshoot.
-- **Neighborhood** (East End photo on the home page, neighborhood hero, East Avenue, skyline view in the gallery): Creative Commons photographs from Wikimedia Commons, credited on the privacy page and below. The cropped versions in this repo are shared under the same licenses.
+- **Neighborhood** (East End photo on the home page, neighborhood hero): two Creative Commons photographs from Wikimedia Commons, credited on the privacy page and below. The cropped versions in this repo are shared under the same licenses.
 
 Recommended: JPG, 2000px on the long edge for heroes, 1600px for everything else, under 400 KB each.
 
@@ -96,9 +96,9 @@ Recommended: JPG, 2000px on the long edge for heroes, 1600px for everything else
 | `gallery-03.jpg` | Amenities | Gallery · community lounge seating | 4:3 |
 | `gallery-04.jpg` | Amenities | Gallery · rooftop pergola | 4:3 |
 | `gallery-05.jpg` | Amenities | Gallery · building exterior and pocket park | 4:3 |
-| `gallery-06.jpg` | Amenities | Gallery · residence balcony view | 4:3 |
+| `gallery-06.jpg` | Amenities | Gallery · the building from above, solar roof | 4:3 |
 | `neighborhood-hero.jpg` | Neighborhood | Neighborhood hero · East Ave at night | wide (16:9+), full-bleed |
-| `inner-loop-greenway.jpg` | Neighborhood | Neighborhood · Inner Loop greenway path | 4:5 |
+| `neighborhood-streets.jpg` | Neighborhood | Neighborhood · bike lanes and crosswalks on the block | 4:5 |
 | `story-hero.jpg` | Story | Story hero · exterior detail, brick panels and steel | wide (16:9+), full-bleed |
 | `contact-hero.jpg` | Contact | Contact hero · lobby entrance on Charlotte St | wide (16:9+), full-bleed |
 | `legal-hero.jpg` | Privacy | Legal hero · exterior detail | wide (16:9+), full-bleed |
@@ -109,8 +109,6 @@ Recommended: JPG, 2000px on the long edge for heroes, 1600px for everything else
 |---|---|---|---|
 | [Eastman Theatre before the show (2021)](https://commons.wikimedia.org/wiki/File:EastmanTheatre2021BeforeTheShow.jpg) | DanielPenfield | CC BY-SA 4.0 | `east-end-street.jpg` (cropped) |
 | [Part of Rochester's skyline at night](https://commons.wikimedia.org/wiki/File:Part_of_Rochester%27s_Skyline_at_Nigh.jpg) | Factord3r | CC BY-SA 4.0 | `neighborhood-hero.jpg` (cropped) |
-| [779 East Avenue, Rochester](https://commons.wikimedia.org/wiki/File:779_East_Avenue,_Rochester,_New_York.jpg) | Kenneth C. Zirkel | CC BY 4.0 | `inner-loop-greenway.jpg` (cropped) |
-| [Downtown Rochester at dawn](https://commons.wikimedia.org/wiki/File:DowntownRochesterAtDawn.jpg) | DanielPenfield | CC BY-SA 4.0 | `gallery-06.jpg` (cropped) |
 
 ## Hero gallery and lightbox
 
@@ -130,7 +128,7 @@ The footer carries both files and lets CSS pick: the knockout art on the dark fo
 
 - **Copy** lives directly in each page's HTML. Search for the text you want to change.
 - **Header and footer** are repeated in every page for zero-dependency hosting. Change them in one page, then copy the block to the others (or search-and-replace across files).
-- **Leasing contact**: Vicki Barone, (585) 748-5588, appears in the hero, tour buttons, contact page, footer and structured data. Search for `748-5588` to change it. The Evolution24 office line (585) 245-3071 appears only on the contact page's management office card. Email: search for `tesacoleman9@gmail.com`.
+- **Leasing contact**: Vicki Barone, (585) 748-5588, appears in the hero, tour buttons, contact page, footer and structured data. Search for `748-5588` to change it. The Evolution24 office line (585) 245-3071 appears only on the contact page's management office card. No email address is published anywhere on the site yet.
 - **Floor plans**: each card is an `<article class="plan" data-beds="…">` in `residences/index.html` and `index.html`. Edit square footage, bullets and the price line there. The filter chips work off `data-beds`.
 - **Resident portal links** point at `https://evolution.twa.rentmanager.com/`.
 
@@ -139,7 +137,8 @@ The footer carries both files and lets CSS pick: the knockout art on the dark fo
 The form in `contact/index.html` validates in the browser and then does one of two things:
 
 - If `data-endpoint` on the `<form>` is set (Formspree, Basin, Netlify Forms, or your own handler), it POSTs there and shows an inline success or error message.
-- If it is empty (the default), it opens the visitor's email app with the message pre-filled, addressed to `data-email`.
+- If `data-endpoint` is empty but `data-email` holds an address, it opens the visitor's email app with the message pre-filled.
+- If both are empty, which is how the site ships today, it tells the visitor the form is not connected yet and gives them the leasing phone number. Fill in one of the two before launch.
 
 To go live with a real inbox: create a form at Formspree (or similar), paste its URL into `data-endpoint`, done. A honeypot field is already included. Query strings pre-select fields, so `contact/?plan=2&interest=tour` opens the form ready for a two-bedroom tour request; the residences cards and every "Schedule a tour" button already use this.
 
@@ -149,11 +148,15 @@ Everything is a token in `assets/css/main.css`:
 
 | Token | Value | Use |
 |---|---|---|
-| `--brick` | `#D2452D` | Accent: buttons, eyebrows, marks. From the building's red panels |
+| `--brick` | `#D2452D` | Primary accent: buttons, eyebrows, marks. From the building's red panels |
 | `--ink` | `#121316` | Heroes, footer, dark sections |
 | `--stone` | `#F4F1EB` | Page background. From the limestone podium |
-| `--sage` | `#5E7A70` | Secondary accent. From the lounge interiors |
-| `--steel` | `#6E727A` | Subtle text. From the metal cladding |
+| `--sage` | `#5E7A70` | Supporting accent. From the landscaping and lounge walls |
+| `--sand` | `#D2914E` | Supporting accent. From the cedar pergola and limestone podium |
+| `--sky` | `#5C7F9E` | Supporting accent. From the steel cladding and the sky above it |
+| `--steel` | `#736C64` | Subtle text. A warm grey, not a cool one |
+
+Red on near-black alone reads stark, so the three supporting hues carry real work rather than sitting in a swatch: they color the amenity tiles, cycle through the feature icons, and warm the dark sections and the closing call-to-action band. The charcoals are warm (`#1A1613`, not a blue-black), so dark sections read like dusk on brick.
 
 Type: **Bricolage Grotesque** for display, **Manrope** for body, self-hosted in `assets/fonts/` (SIL Open Font License, no third-party requests). Fluid sizes via `clamp()`. Dark mode follows the visitor's system setting automatically. Motion respects `prefers-reduced-motion`.
 
@@ -171,7 +174,7 @@ The switcher is a review tool. Once a direction is chosen:
 
 These came from public listings or the previous site and should be verified with the leasing team:
 
-- [ ] A branded leasing email address for Vicki Barone (the form currently emails the Evolution24 address)
+- [ ] A branded leasing email address for Vicki Barone, then set it as `EMAIL` (or point `data-endpoint` at a form service). Until one of those is set, the contact form cannot deliver messages
 - [ ] Office hours and tour availability
 - [ ] Two-bedroom square footage range (shown as approximate) and current pricing
 - [ ] Exact list of included utilities
