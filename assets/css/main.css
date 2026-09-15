@@ -913,11 +913,14 @@ html.no-smooth, html.no-smooth body { scroll-behavior: auto !important; }
 [data-style="night"] .hero__seg i { background: var(--accent); }
 [data-style="night"] .hero__btn:hover { border-color: var(--accent); }
 
-/* Headline rises line by line on load */
-.hero__line { display: block; overflow: hidden; padding-bottom: .14em; margin-bottom: -.14em; }
-.hero__line > span { display: block; transform: translateY(110%); animation: rise 1s var(--ease) .1s forwards; }
+/* Headline rises line by line on load. The mask is a clip-path that reaches past
+   the line box so the blurred text shadow is not cut into a hard band, and it is
+   released once the rise has finished. */
+.hero__line { display: block; overflow: visible; padding-bottom: .14em; margin-bottom: -.14em; clip-path: inset(-.7em -2em -.28em -2em); animation: unclip 1ms linear 1.4s forwards; }
+.hero__line > span { display: block; transform: translateY(128%); animation: rise 1s var(--ease) .1s forwards; }
 .hero__line:nth-child(2) > span { animation-delay: .25s; }
 @keyframes rise { to { transform: none; } }
+@keyframes unclip { to { clip-path: none; } }
 
 /* Amenities gallery → lightbox */
 .gallery__item { display: block; text-decoration: none; color: inherit; border-radius: var(--radius); cursor: zoom-in; }
@@ -987,11 +990,6 @@ body.lightbox-open { overflow: hidden; }
   .menu-btn { padding: .5rem .85rem; }
 }
 
-/* Shadow fix: the headline's rise-in mask no longer clips the blurred text shadow.
-   The mask extends past the line box and is released once the rise has finished. */
-.hero__line { overflow: visible; clip-path: inset(-.7em -2em -.28em -2em); animation: unclip 1ms linear 1.4s forwards; }
-.hero__line > span { transform: translateY(128%); }
-@keyframes unclip { to { clip-path: none; } }
 .hero .eyebrow, .hero__title, .hero__lead, .hero__aside, .hero__bar, .tile__title, .tile__sub {
   text-shadow: 0 1px 2px rgba(0, 0, 0, .28), 0 4px 18px rgba(0, 0, 0, .32);
 }
@@ -1000,4 +998,21 @@ body.lightbox-open { overflow: hidden; }
 }
 .tile--solid .tile__title, .tile--solid .tile__sub, .tile--stone .tile__title, .tile--stone .tile__sub, .tile--sage .tile__title, .tile--sage .tile__sub,
 [data-style="gallery"] .hero .eyebrow, [data-style="gallery"] .hero__title, [data-style="gallery"] .hero__lead, [data-style="gallery"] .hero__aside, [data-style="gallery"] .hero__bar { text-shadow: none; }
-@media (prefers-reduced-motion: reduce) { .hero__line { clip-path: none; animation: none; } }
+
+/* =============================================================================
+   REDUCED MOTION — last block in the file so it overrides every rule above.
+   Anything that parks an element off its resting position must be undone here.
+   ============================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  html.js .reveal { opacity: 1; transform: none; transition: none; }
+  .hero__line { clip-path: none; animation: none; }
+  .hero__line > span { transform: none; animation: none; }
+  .hero__slide { transition-duration: .01s; }
+  .hero__slide.is-active img { animation: none; }
+  .hero__seg.is-active i { animation: none; width: 100%; }
+  .ticker__track { animation: none; flex-wrap: wrap; width: auto; }
+  .btn, .tile .ph, .plan { transition: none; }
+  .gallery__item:hover .ph > img { transform: none; }
+  .lightbox[open], .lightbox__img { animation: none; }
+}
