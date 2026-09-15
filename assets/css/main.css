@@ -1306,6 +1306,30 @@ body.lightbox-open { overflow: hidden; }
 [data-style="gallery"] .hero .eyebrow, [data-style="gallery"] .hero__title, [data-style="gallery"] .hero__lead, [data-style="gallery"] .hero__aside, [data-style="gallery"] .hero__bar { text-shadow: none; }
 
 /* =============================================================================
+   STREET INDEX — the block in house-number order, with this address marked
+   ============================================================================= */
+.street { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.street__row {
+  display: grid; grid-template-columns: 3.25rem 1fr; gap: .25rem 1.1rem; align-items: baseline;
+  padding: 1rem .25rem; border-bottom: 1px solid var(--line);
+}
+.street__no {
+  font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; line-height: 1.1;
+  color: var(--fg-subtle); font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+}
+.street__row strong { display: block; font-size: 1.05rem; }
+.street__note { display: block; color: var(--fg-muted); font-size: .95rem; margin-top: .15rem; }
+/* The marked row is flagged by its ground and a rule, not by recoloring the
+   name: accent text on an accent tint does not clear the contrast floor. */
+.street__row--here {
+  background: var(--accent-tint); border-radius: var(--radius-sm); border-bottom-color: transparent;
+  box-shadow: inset 3px 0 0 var(--accent); padding-left: 1rem;
+}
+.street__row--here .street__no { color: var(--accent); }
+.street__row--here strong { color: var(--fg); }
+.street__row--here .street__note { color: var(--fg-muted); }
+
+/* =============================================================================
    TEXT WRAPPING
    Headings balance across their lines; body copy uses `pretty`, which keeps a
    single short word from being stranded on the last line (a widow).

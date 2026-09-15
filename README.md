@@ -175,6 +175,12 @@ The switcher is a review tool. Once a direction is chosen:
 
 The shared outdoor space with the pergola, fire pit and grills is on the **podium level**, the deck above the ground-floor garage. It is not a roof deck, and there is no resident roof access. The building's own roof carries the solar array. Earlier drafts of this site, and some third-party listings, describe a "rooftop terrace"; that wording is wrong and has been removed throughout, including from the cross-section diagram on the story page.
 
+## The Charlotte Street block
+
+The neighborhood page carries a street index listing the block in house-number order, which is the most local thing the site can say. The entries are in `neighborhood/index.html` as an `<ol class="street">`; add or remove a row and the layout follows.
+
+Currently listed: Chick'n Out (37), East End Tavern (37), Charlotte Square (50), Ugly Duck Coffee (89). The first and last were confirmed from their own websites. East End Tavern came from listing sites rather than its own page, and a Greek restaurant that shared 37 Charlotte has since closed, so confirm that one before launch. Ugly Duck Coffee and Chick'n Out also appear in the ticker on the home and neighborhood pages.
+
 ## Confirm before launch
 
 These came from public listings or the previous site and should be verified with the leasing team:
@@ -187,5 +193,6 @@ These came from public listings or the previous site and should be verified with
 - [ ] Rent Manager online application link (add an "Apply" button once it exists)
 - [ ] Ownership of the existing Facebook page and the `charlottesquareroc.com` domain
 - [ ] Legal review of `privacy/index.html`
+- [ ] The Charlotte Street block list, especially East End Tavern, and any neighbors worth adding
 - [ ] Rights to the six building photographs from the previous site, or a reshoot at higher resolution
 - [ ] Apartment interior photography for the plan cards and residence slots
