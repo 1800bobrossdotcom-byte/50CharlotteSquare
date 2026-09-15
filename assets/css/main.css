@@ -986,3 +986,18 @@ body.lightbox-open { overflow: hidden; }
   [data-style="gallery"] .brand { font-size: 1.25rem; }
   .menu-btn { padding: .5rem .85rem; }
 }
+
+/* Shadow fix: the headline's rise-in mask no longer clips the blurred text shadow.
+   The mask extends past the line box and is released once the rise has finished. */
+.hero__line { overflow: visible; clip-path: inset(-.7em -2em -.28em -2em); animation: unclip 1ms linear 1.4s forwards; }
+.hero__line > span { transform: translateY(128%); }
+@keyframes unclip { to { clip-path: none; } }
+.hero .eyebrow, .hero__title, .hero__lead, .hero__aside, .hero__bar, .tile__title, .tile__sub {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .28), 0 4px 18px rgba(0, 0, 0, .32);
+}
+@media (max-width: 720px) {
+  .hero .eyebrow, .hero__title, .hero__lead, .hero__aside, .hero__bar { text-shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 6px 24px rgba(0, 0, 0, .45); }
+}
+.tile--solid .tile__title, .tile--solid .tile__sub, .tile--stone .tile__title, .tile--stone .tile__sub, .tile--sage .tile__title, .tile--sage .tile__sub,
+[data-style="gallery"] .hero .eyebrow, [data-style="gallery"] .hero__title, [data-style="gallery"] .hero__lead, [data-style="gallery"] .hero__aside, [data-style="gallery"] .hero__bar { text-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .hero__line { clip-path: none; animation: none; } }
