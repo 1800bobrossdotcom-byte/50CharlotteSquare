@@ -124,7 +124,7 @@ On phones, hero and tile text carries a soft shadow and the hero gradient deepen
 
 - **Copy** lives directly in each page's HTML. Search for the text you want to change.
 - **Header and footer** are repeated in every page for zero-dependency hosting. Change them in one page, then copy the block to the others (or search-and-replace across files).
-- **Phone, email, addresses**: search for `585-245-3071`, `tesacoleman9@gmail.com`, `176 N Water`.
+- **Leasing contact**: Vicki Barone, (585) 748-5588, appears in the hero, tour buttons, contact page, footer and structured data. Search for `748-5588` to change it. The Evolution24 office line (585) 245-3071 appears only on the contact page's management office card. Email: search for `tesacoleman9@gmail.com`.
 - **Floor plans**: each card is an `<article class="plan" data-beds="…">` in `residences/index.html` and `index.html`. Edit square footage, bullets and the price line there. The filter chips work off `data-beds`.
 - **Resident portal links** point at `https://evolution.twa.rentmanager.com/`.
 
@@ -165,7 +165,7 @@ The switcher is a review tool. Once a direction is chosen:
 
 These came from public listings or the previous site and should be verified with the leasing team:
 
-- [ ] Leasing phone number (currently the Evolution24 main line) and a branded leasing email address
+- [ ] A branded leasing email address for Vicki Barone (the form currently emails the Evolution24 address)
 - [ ] Office hours and tour availability
 - [ ] Two-bedroom square footage range (shown as approximate) and current pricing
 - [ ] Exact list of included utilities
