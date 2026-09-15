@@ -1000,6 +1000,45 @@ body.lightbox-open { overflow: hidden; }
 [data-style="gallery"] .hero .eyebrow, [data-style="gallery"] .hero__title, [data-style="gallery"] .hero__lead, [data-style="gallery"] .hero__aside, [data-style="gallery"] .hero__bar { text-shadow: none; }
 
 /* =============================================================================
+   TEXT WRAPPING
+   Headings balance across their lines; body copy uses `pretty`, which keeps a
+   single short word from being stranded on the last line (a widow).
+   ============================================================================= */
+p, .lead, .hero__lead, .prose p, .feature p, .card p, .step p, .tile__sub,
+.plan__list li, .checklist li span, .card ul li, .faq details > div, .footer__tag, .band p, .form__note {
+  text-wrap: pretty;
+}
+
+/* Gallery style sets a deliberately narrow measure for the home headline, which
+   is short and hand-broken. Interior pages carry one long sentence, so they get
+   a wider measure and a calmer size rather than a tall ragged stack. */
+[data-style="gallery"] .hero--short .hero__title {
+  font-size: clamp(2.3rem, 3.2vw + .7rem, 4.1rem);
+  max-width: 24ch;
+  letter-spacing: -.015em;
+}
+
+/* =============================================================================
+   EVOLUTION24 LOCKUP — the management company's own logo, always linked to
+   evolution24.net. White art on dark grounds, full-color on light cards.
+   ============================================================================= */
+.evo-logo { display: inline-block; line-height: 0; text-decoration: none; transition: opacity .2s; }
+.evo-logo:hover { opacity: .75; }
+.evo-logo:focus-visible { border-radius: var(--radius-xs); }
+.evo-logo img { width: auto; height: 2.4rem; object-fit: contain; }
+.evo-logo--sm img { height: 2.1rem; }
+.evo-logo--lg img { height: 4.2rem; }
+.evo-logo--card img { height: 2.9rem; }
+.footer__mgmt { align-items: center; gap: .6rem 1rem; }
+/* Two pieces of art ship together where the ground changes with the style: the
+   knockout version for dark footers, the full-color one for the Gallery style's
+   light footer, which is how Evolution24 uses it on their own light pages. */
+.evo-logo .on-light { display: none; }
+[data-style="gallery"] .footer .evo-logo .on-dark { display: none; }
+[data-style="gallery"] .footer .evo-logo .on-light { display: block; }
+.card .evo-logo { margin-bottom: .35rem; }
+
+/* =============================================================================
    REDUCED MOTION — last block in the file so it overrides every rule above.
    Anything that parks an element off its resting position must be undone here.
    ============================================================================= */

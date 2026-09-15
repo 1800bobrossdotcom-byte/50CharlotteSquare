@@ -120,6 +120,12 @@ The amenities gallery opens a lightbox (a native `<dialog>`): arrow keys, swipe,
 
 On phones, hero and tile text carries a soft shadow and the hero gradient deepens so type stays readable over any photo.
 
+## Evolution24 branding
+
+Evolution24's own logo ships in `assets/img/` in two pieces of art: `evolution24-logo-white.png` (knockout, for dark grounds) and `evolution24-logo.png` (full color, for light ones). Both came from evolution24.net. It appears in the footer badge, the management section on the home page, the company block on the story page, and the management office card on the contact page. Every one of those, and every mention of the company name in body copy, links to https://evolution24.net/ in a new tab.
+
+The footer carries both files and lets CSS pick: the knockout art on the dark footers, the color art on the Gallery style's light footer. If the logo is ever redrawn, replace the two files and nothing else changes.
+
 ## Editing content
 
 - **Copy** lives directly in each page's HTML. Search for the text you want to change.
