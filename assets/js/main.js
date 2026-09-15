@@ -205,3 +205,117 @@
   /* ---- Footer year -------------------------------------------------------- */
   $$('[data-year]').forEach((el) => { el.textContent = String(new Date().getFullYear()); });
 })();
+
+/* =============================================================================
+   Hero gallery + lightbox (appended module)
+   ============================================================================= */
+(() => {
+  'use strict';
+  const $  = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- Hero slideshow ------------------------------------------------------ */
+  $$('.hero[data-gallery]').forEach((hero) => {
+    const slides = $$('.hero__slide', hero);
+    if (slides.length < 2) return;
+    const segs = $$('.hero__seg', hero);
+    const cap = $('[data-hero-caption]', hero);
+    const count = $('[data-hero-count]', hero);
+    const media = $('.hero__media', hero);
+    const ms = parseInt(hero.dataset.interval || '6500', 10);
+    hero.style.setProperty('--slide-ms', ms + 'ms');
+    let i = Math.max(0, slides.findIndex((s) => s.classList.contains('is-active')));
+    let timer = null;
+    let paused = false;
+
+    const restart = () => {
+      clearTimeout(timer);
+      if (reduceMotion || paused || document.hidden) return;
+      timer = setTimeout(() => show(i + 1), ms);
+    };
+    const show = (n) => {
+      i = (n + slides.length) % slides.length;
+      slides.forEach((s, k) => s.classList.toggle('is-active', k === i));
+      segs.forEach((g, k) => {
+        g.classList.toggle('is-done', k < i);
+        g.classList.remove('is-active');
+        if (k === i) { void g.offsetWidth; g.classList.add('is-active'); }
+        g.setAttribute('aria-current', k === i ? 'true' : 'false');
+      });
+      if (cap) cap.textContent = slides[i].dataset.caption || '';
+      if (count) count.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0');
+      const next = slides[(i + 1) % slides.length].querySelector('img');
+      if (next && next.loading === 'lazy') next.loading = 'eager';
+      restart();
+    };
+    const pause = () => { paused = true; hero.classList.add('is-paused'); clearTimeout(timer); };
+    const resume = () => { paused = false; hero.classList.remove('is-paused'); restart(); };
+
+    const prev = $('.hero__btn--prev', hero), nextBtn = $('.hero__btn--next', hero);
+    prev && prev.addEventListener('click', () => show(i - 1));
+    nextBtn && nextBtn.addEventListener('click', () => show(i + 1));
+    segs.forEach((g, k) => g.addEventListener('click', () => show(k)));
+    const bar = $('.hero__bar', hero);
+    if (bar) { bar.addEventListener('mouseenter', pause); bar.addEventListener('mouseleave', resume); }
+    hero.addEventListener('focusin', pause);
+    hero.addEventListener('focusout', (e) => { if (!hero.contains(e.relatedTarget)) resume(); });
+    hero.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); show(i + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); show(i - 1); }
+    });
+    let x0 = null;
+    if (media) {
+      media.addEventListener('pointerdown', (e) => { x0 = e.clientX; });
+      media.addEventListener('pointerup', (e) => {
+        if (x0 !== null && Math.abs(e.clientX - x0) > 40) show(i + (e.clientX < x0 ? 1 : -1));
+        x0 = null;
+      });
+    }
+    document.addEventListener('visibilitychange', () => (document.hidden ? clearTimeout(timer) : restart()));
+    show(i);
+  });
+
+  /* ---- Lightbox for [data-lightbox] items ---------------------------------- */
+  const items = $$('[data-lightbox]');
+  if (!items.length) return;
+  const icon = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+  const dlg = document.createElement('dialog');
+  dlg.className = 'lightbox';
+  dlg.setAttribute('aria-label', 'Photo viewer');
+  dlg.innerHTML = `
+    <button type="button" class="lightbox__close" aria-label="Close">${icon('M6 6l12 12M18 6L6 18')}</button>
+    <div class="lightbox__stage">
+      <img class="lightbox__img" alt="">
+      <div class="lightbox__meta"><b class="lightbox__caption"></b><span class="lightbox__count"></span></div>
+      <button type="button" class="lightbox__btn lightbox__btn--prev" aria-label="Previous photo">${icon('M15 5l-7 7 7 7')}</button>
+      <button type="button" class="lightbox__btn lightbox__btn--next" aria-label="Next photo">${icon('M9 5l7 7-7 7')}</button>
+    </div>`;
+  document.body.appendChild(dlg);
+  const img = $('.lightbox__img', dlg), capEl = $('.lightbox__caption', dlg), cnt = $('.lightbox__count', dlg);
+  let idx = 0;
+  const openAt = (n, dx = 0) => {
+    idx = (n + items.length) % items.length;
+    const it = items[idx];
+    const src = it.dataset.full || it.getAttribute('href') || (it.querySelector('img') || {}).src || '';
+    img.style.setProperty('--lb-dx', dx + 'px');
+    img.style.animation = 'none'; void img.offsetWidth; img.style.animation = '';
+    img.src = src; img.alt = it.dataset.caption || '';
+    capEl.textContent = it.dataset.caption || '';
+    cnt.textContent = (idx + 1) + ' / ' + items.length;
+    if (!dlg.open) { dlg.showModal(); document.body.classList.add('lightbox-open'); }
+  };
+  items.forEach((it, k) => it.addEventListener('click', (e) => { e.preventDefault(); openAt(k); }));
+  $('.lightbox__btn--prev', dlg).addEventListener('click', () => openAt(idx - 1, -28));
+  $('.lightbox__btn--next', dlg).addEventListener('click', () => openAt(idx + 1, 28));
+  $('.lightbox__close', dlg).addEventListener('click', () => dlg.close());
+  dlg.addEventListener('close', () => document.body.classList.remove('lightbox-open'));
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') openAt(idx + 1, 28);
+    if (e.key === 'ArrowLeft') openAt(idx - 1, -28);
+  });
+  let lx = null;
+  img.addEventListener('pointerdown', (e) => { lx = e.clientX; });
+  img.addEventListener('pointerup', (e) => { if (lx !== null && Math.abs(e.clientX - lx) > 40) openAt(idx + (e.clientX < lx ? 1 : -1), e.clientX < lx ? 28 : -28); lx = null; });
+})();

@@ -18,9 +18,9 @@ You can also link straight to a style with `?style=gallery` or `?style=night` on
 
 | URL | File | What it does |
 |---|---|---|
-| `/` | `index.html` | Hero, at-a-glance stats, intro, residences preview, amenity bento grid, East End ticker, management intro, tour CTA |
+| `/` | `index.html` | Animated hero gallery, at-a-glance stats, intro, residences preview, amenity bento grid, East End ticker, management intro, tour CTA |
 | `/residences/` | `residences/index.html` | Filterable 1/2/3-bedroom floor plans, what's included, in-home features, FAQ |
-| `/amenities/` | `amenities/index.html` | Bento overview, detail rows (rooftop, fitness, community room, pocket park), sustainability, gallery |
+| `/amenities/` | `amenities/index.html` | Bento overview, detail rows (rooftop, fitness, community room, pocket park), sustainability, gallery with lightbox |
 | `/neighborhood/` | `neighborhood/index.html` | Walk/bike/transit, ticker, what's-near cards, Google map |
 | `/story/` | `story/index.html` | The Charlotte story, podium cross-section diagram, LEED features, about Evolution24 |
 | `/contact/` | `contact/index.html` | Working inquiry form, contact cards, resident portal, map |
@@ -64,7 +64,9 @@ Every image on the site is a **slot**: a fixed filename in `assets/img/`. Replac
 
 What is in the slots right now:
 
-- **Building and common areas** (hero, lobby, community room, fitness center, plan cards, rooftop and terrace crops): the six photographs from the previous Charlotte Square website, at the resolution that site served them (about 1,000 px wide). They are stand-ins. In particular the "plan" cards and the "residence" slots show common-area photos because no apartment interiors were available, and the rooftop slots are crops of the exterior shot. Confirm rights to these images or reshoot before launch; a hero photo at 2,400 px or wider is the single biggest visual upgrade available.
+- **Building, amenities and a model kitchen** (hero slides, lobby, community room, pocket park, rooftop, aerial, plan card one, residence kitchen): professional photographs published on the architect's project page ([SWBR: Charlotte Square at the East End](https://www.swbr.com/design/home-leasing-charlotte-square-apartments/)), originally 2,400 px wide and resized here to 1,200 to 2,000 px. SWBR and Home Leasing commissioned this photography; ask them for the originals and usage rights before launch.
+- **Model apartment interiors** (plan cards two and three, residence living room, gallery): three frames from Home Leasing's "Charlotte Square" photo shoot as served on homeleasing.net at 1,800 px. Confirm with Home Leasing that these show the East End building rather than the On the Loop phase.
+- **Fitness center**: still the photo from the previous website, about 780 px wide. No higher-resolution frame exists online; this is the one slot that needs a reshoot.
 - **Neighborhood** (East End photo on the home page, neighborhood hero, East Avenue, skyline view in the gallery): Creative Commons photographs from Wikimedia Commons, credited on the privacy page and below. The cropped versions in this repo are shared under the same licenses.
 
 Recommended: JPG, 2000px on the long edge for heroes, 1600px for everything else, under 400 KB each.
@@ -109,6 +111,14 @@ Recommended: JPG, 2000px on the long edge for heroes, 1600px for everything else
 | [Part of Rochester's skyline at night](https://commons.wikimedia.org/wiki/File:Part_of_Rochester%27s_Skyline_at_Nigh.jpg) | Factord3r | CC BY-SA 4.0 | `neighborhood-hero.jpg` (cropped) |
 | [779 East Avenue, Rochester](https://commons.wikimedia.org/wiki/File:779_East_Avenue,_Rochester,_New_York.jpg) | Kenneth C. Zirkel | CC BY 4.0 | `inner-loop-greenway.jpg` (cropped) |
 | [Downtown Rochester at dawn](https://commons.wikimedia.org/wiki/File:DowntownRochesterAtDawn.jpg) | DanielPenfield | CC BY-SA 4.0 | `gallery-06.jpg` (cropped) |
+
+## Hero gallery and lightbox
+
+The home hero is a five-slide gallery: crossfade with a slow drift, a caption bar with segmented progress, previous and next buttons, arrow keys, swipe, and autoplay every 6.5 seconds that pauses while the controls are hovered or focused. With reduced motion enabled it becomes a static image with instant cuts and no autoplay. Slides are the `.hero__slide` blocks in `index.html`; change `data-caption` and the image file, or add and remove slides, and the progress segments follow. `data-interval` on the hero sets the autoplay speed in milliseconds.
+
+The amenities gallery opens a lightbox (a native `<dialog>`): arrow keys, swipe, Escape, backdrop click. Any link with `data-lightbox` and a `data-caption` joins the set, in page order.
+
+On phones, hero and tile text carries a soft shadow and the hero gradient deepens so type stays readable over any photo.
 
 ## Editing content
 
