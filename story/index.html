@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="../assets/fonts/fonts.css">
 <link rel="stylesheet" href="../assets/css/main.css">
 <script>document.documentElement.classList.add('js')</script>
+<script>(function(){try{var s=new URLSearchParams(location.search).get('style')||localStorage.getItem('cs-style');if(s&&s!=='brick')document.documentElement.setAttribute('data-style',s)}catch(e){}})()</script>
 
 </head>
 <body>
@@ -220,6 +221,21 @@
     </div>
   </div>
 </footer>
+<div class="styler" data-styler>
+  <button class="styler__btn" type="button" aria-expanded="false" aria-controls="styler-menu">
+    <span class="styler__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="styler__label">Style: <b data-styler-name>Brick &amp; Stone</b></span>
+    <svg class="styler__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+  </button>
+  <div class="styler__menu" id="styler-menu" hidden>
+    <p class="styler__title">Mock-up styles</p>
+    <button type="button" class="styler__opt" data-style-pick="brick" aria-pressed="true"><span class="styler__sw" style="--a:#F4F1EB;--b:#D2452D;--c:#121316"></span><span><b>Brick &amp; Stone</b><small>Warm stone, brick accent, bold grotesk</small></span></button>
+    <button type="button" class="styler__opt" data-style-pick="gallery" aria-pressed="false"><span class="styler__sw" style="--a:#FFFFFF;--b:#7A1F12;--c:#1A1A1A"></span><span><b>Gallery</b><small>Editorial serif, white space, oxblood</small></span></button>
+    <button type="button" class="styler__opt" data-style-pick="night" aria-pressed="false"><span class="styler__sw" style="--a:#0E0F12;--b:#E4B84A;--c:#F2EFE9"></span><span><b>Night</b><small>Dark ground, gold accent, wide geometric type</small></span></button>
+    <p class="styler__foot">Your pick is remembered on this device.</p>
+  </div>
+</div>
+
 <script src="../assets/js/main.js" defer></script>
 </body>
 </html>

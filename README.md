@@ -4,6 +4,16 @@ A fresh, bold marketing site for **Charlotte Square**, the 72-home apartment com
 
 No framework, no build step. Plain HTML, one stylesheet, one script. Open `index.html` in a browser and it works.
 
+**Three design directions ship in this build.** A floating "Style" switcher in the bottom-right corner of every page toggles between them, and the choice sticks on that device:
+
+| Style | Feel | Type | Accent |
+|---|---|---|---|
+| **Brick & Stone** (default) | Warm stone ground, bold grotesk, rounded cards | Bricolage Grotesque + Manrope | Brick `#D2452D` |
+| **Gallery** | Editorial: white space, hairlines, serif italics, framed photography | Instrument Serif + DM Sans | Oxblood `#7A1F12` |
+| **Night** | Dark ground, glassy cards, wide geometric type, gold | Syne + DM Sans | Gold `#E4B84A` |
+
+You can also link straight to a style with `?style=gallery` or `?style=night` on any page.
+
 ## Pages
 
 | URL | File | What it does |
@@ -43,14 +53,19 @@ npx http-server -p 8000
 
 1. Merge to `main`.
 2. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. The workflow in `.github/workflows/pages.yml` publishes the repo root on every push to `main`.
+3. The workflow in `.github/workflows/pages.yml` publishes the repo root on every push to `main` (and, during the mock-up phase, to `claude/dazzling-hypatia-ap7gcn`).
 4. For a custom domain, add a `CNAME` file containing the domain (for example `www.charlottesquareroc.com`), point DNS at GitHub Pages, then update the domain in `sitemap.xml` and `robots.txt`.
 
 The site also works on Netlify, Vercel, Cloudflare Pages, or any static host: publish the repo root.
 
-## Adding photos
+## Photos
 
-Every image on the site is a **slot**. Until a real photo exists, the slot shows art-directed gradient art with a small label naming the file it expects. Drop a photo into `assets/img/` with the exact filename and it appears automatically, label gone, nothing else to edit.
+Every image on the site is a **slot**: a fixed filename in `assets/img/`. Replace a file and the site updates; delete one and the slot falls back to art-directed gradient art with a small label naming the file it expects.
+
+What is in the slots right now:
+
+- **Building and common areas** (hero, lobby, community room, fitness center, plan cards, rooftop and terrace crops): the six photographs from the previous Charlotte Square website, at the resolution that site served them (about 1,000 px wide). They are stand-ins. In particular the "plan" cards and the "residence" slots show common-area photos because no apartment interiors were available, and the rooftop slots are crops of the exterior shot. Confirm rights to these images or reshoot before launch; a hero photo at 2,400 px or wider is the single biggest visual upgrade available.
+- **Neighborhood** (East End photo on the home page, neighborhood hero, East Avenue, skyline view in the gallery): Creative Commons photographs from Wikimedia Commons, credited on the privacy page and below. The cropped versions in this repo are shared under the same licenses.
 
 Recommended: JPG, 2000px on the long edge for heroes, 1600px for everything else, under 400 KB each.
 
@@ -86,7 +101,14 @@ Recommended: JPG, 2000px on the long edge for heroes, 1600px for everything else
 | `contact-hero.jpg` | Contact | Contact hero · lobby entrance on Charlotte St | wide (16:9+), full-bleed |
 | `legal-hero.jpg` | Privacy | Legal hero · exterior detail | wide (16:9+), full-bleed |
 
-Photos from the previous site were not copied into this repo. Reshoot or obtain the rights to the existing photography before launch.
+### Photo credits
+
+| Photo | Photographer | License | Used for |
+|---|---|---|---|
+| [Eastman Theatre before the show (2021)](https://commons.wikimedia.org/wiki/File:EastmanTheatre2021BeforeTheShow.jpg) | DanielPenfield | CC BY-SA 4.0 | `east-end-street.jpg` (cropped) |
+| [Part of Rochester's skyline at night](https://commons.wikimedia.org/wiki/File:Part_of_Rochester%27s_Skyline_at_Nigh.jpg) | Factord3r | CC BY-SA 4.0 | `neighborhood-hero.jpg` (cropped) |
+| [779 East Avenue, Rochester](https://commons.wikimedia.org/wiki/File:779_East_Avenue,_Rochester,_New_York.jpg) | Kenneth C. Zirkel | CC BY 4.0 | `inner-loop-greenway.jpg` (cropped) |
+| [Downtown Rochester at dawn](https://commons.wikimedia.org/wiki/File:DowntownRochesterAtDawn.jpg) | DanielPenfield | CC BY-SA 4.0 | `gallery-06.jpg` (cropped) |
 
 ## Editing content
 
@@ -121,6 +143,14 @@ Type: **Bricolage Grotesque** for display, **Manrope** for body, self-hosted in 
 
 The same tokens, mark treatment (`Evolution<b>24</b>`) and type pairing can carry straight over to the new Evolution24 site so the portfolio reads as one family.
 
+### Locking in a style for launch
+
+The switcher is a review tool. Once a direction is chosen:
+
+1. Set it on the root element of every page: `<html lang="en" data-style="gallery">` (omit the attribute for Brick & Stone).
+2. Delete the `<div class="styler" …>` block from each page's footer and the "Style switcher" block in `assets/js/main.js`, plus the no-flash script in each `<head>` that reads `cs-style`.
+3. Optionally delete the other styles' blocks from `main.css` and their font files from `assets/fonts/` to trim weight.
+
 ## Confirm before launch
 
 These came from public listings or the previous site and should be verified with the leasing team:
@@ -133,4 +163,5 @@ These came from public listings or the previous site and should be verified with
 - [ ] Rent Manager online application link (add an "Apply" button once it exists)
 - [ ] Ownership of the existing Facebook page and the `charlottesquareroc.com` domain
 - [ ] Legal review of `privacy/index.html`
-- [ ] Real photography in every slot above
+- [ ] Rights to the six building photographs from the previous site, or a reshoot at higher resolution
+- [ ] Apartment interior photography for the plan cards and residence slots

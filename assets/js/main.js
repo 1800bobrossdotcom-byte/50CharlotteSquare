@@ -66,8 +66,9 @@
   /* ---- Floor plan filters ------------------------------------------------- */
   const chipWrap = $('[data-filter-group]');
   if (chipWrap) {
-    const plans = $$('[data-beds]');
-    const empty = $('.plans__empty');
+    const scope = chipWrap.closest('section') || document;
+    const plans = $$('[data-beds]', scope);
+    const empty = $('.plans__empty', scope);
     chipWrap.addEventListener('click', (e) => {
       const chip = e.target.closest('.chip');
       if (!chip) return;
@@ -94,12 +95,15 @@
     const status = $('.form__status', form);
 
     // Prefill from the query string, e.g. contact/?plan=2&interest=tour
-    const q = new URLSearchParams(location.search);
-    ['plan', 'interest'].forEach((name) => {
-      const el = form.elements[name];
-      const v = q.get(name);
-      if (el && v && Array.from(el.options).some((o) => o.value === v)) el.value = v;
-    });
+    const prefill = (q) => {
+      ['plan', 'interest'].forEach((name) => {
+        const el = form.elements[name];
+        const v = q.get(name);
+        if (el && v && Array.from(el.options).some((o) => o.value === v)) el.value = v;
+      });
+    };
+    prefill(new URLSearchParams(location.search));
+    document.addEventListener('cs:prefill', (e) => prefill(e.detail));
 
     const labelFor = (name) => {
       const el = form.elements[name];
@@ -170,6 +174,32 @@
         btn.innerHTML = label;
       }
     });
+  }
+
+  /* ---- Style switcher (mock-up review tool) ------------------------------ */
+  const styler = $('[data-styler]');
+  if (styler) {
+    const NAMES = { brick: 'Brick & Stone', gallery: 'Gallery', night: 'Night' };
+    const btn = $('.styler__btn', styler);
+    const menu = $('.styler__menu', styler);
+    const nameEl = $('[data-styler-name]', styler);
+    const setOpen = (open) => { menu.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
+    const apply = (s, persist) => {
+      if (!NAMES[s]) s = 'brick';
+      if (s === 'brick') document.documentElement.removeAttribute('data-style');
+      else document.documentElement.setAttribute('data-style', s);
+      nameEl.textContent = NAMES[s];
+      $$('.styler__opt', styler).forEach((o) => o.setAttribute('aria-pressed', String(o.dataset.stylePick === s)));
+      if (persist) { try { localStorage.setItem('cs-style', s); } catch (e) { /* storage unavailable */ } }
+    };
+    apply(document.documentElement.getAttribute('data-style') || 'brick', false);
+    btn.addEventListener('click', () => setOpen(menu.hidden));
+    styler.addEventListener('click', (e) => {
+      const o = e.target.closest('[data-style-pick]');
+      if (o) { apply(o.dataset.stylePick, true); setOpen(false); btn.focus(); }
+    });
+    document.addEventListener('click', (e) => { if (!styler.contains(e.target)) setOpen(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
   }
 
   /* ---- Footer year -------------------------------------------------------- */

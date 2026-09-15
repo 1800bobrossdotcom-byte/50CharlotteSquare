@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="../assets/fonts/fonts.css">
 <link rel="stylesheet" href="../assets/css/main.css">
 <script>document.documentElement.classList.add('js')</script>
+<script>(function(){try{var s=new URLSearchParams(location.search).get('style')||localStorage.getItem('cs-style');if(s&&s!=='brick')document.documentElement.setAttribute('data-style',s)}catch(e){}})()</script>
 <meta name="robots" content="noindex">
 </head>
 <body>
@@ -75,6 +76,10 @@
     <p>Charlotte Square is committed to a website that works for people of all abilities. This site is designed to meet WCAG 2.1 AA guidelines: keyboard navigation, meaningful alt text, sufficient color contrast, visible focus states, and respect for reduced-motion settings.</p>
     <p>If anything on this site is difficult to use, please tell us at <a href="tel:+15852453071">(585) 245-3071</a> or <a href="mailto:tesacoleman9@gmail.com">tesacoleman9@gmail.com</a> and we will fix it and help you get what you need.</p>
 
+    <p class="eyebrow mt-3" id="credits">Photo credits</p>
+    <h2>Neighborhood photography.</h2>
+    <p>Photographs of Charlotte Square come from the community archive. Neighborhood photographs are shared under Creative Commons licenses by the photographers below; we thank them.</p>
+    <ul class="credits"><li><a href="https://commons.wikimedia.org/wiki/File:EastmanTheatre2021BeforeTheShow.jpg" target="_blank" rel="noopener">Eastman Theatre before the show (2021)</a> — DanielPenfield, CC BY-SA 4.0. Used for: home page East End photo (east-end-street.jpg, cropped).</li><li><a href="https://commons.wikimedia.org/wiki/File:Part_of_Rochester%27s_Skyline_at_Nigh.jpg" target="_blank" rel="noopener">Part of Rochester's skyline at night</a> — Factord3r, CC BY-SA 4.0. Used for: neighborhood page hero (neighborhood-hero.jpg, cropped).</li><li><a href="https://commons.wikimedia.org/wiki/File:779_East_Avenue,_Rochester,_New_York.jpg" target="_blank" rel="noopener">779 East Avenue, Rochester</a> — Kenneth C. Zirkel, CC BY 4.0. Used for: neighborhood page (inner-loop-greenway.jpg, cropped).</li><li><a href="https://commons.wikimedia.org/wiki/File:DowntownRochesterAtDawn.jpg" target="_blank" rel="noopener">Downtown Rochester at dawn</a> — DanielPenfield, CC BY-SA 4.0. Used for: amenities gallery view (gallery-06.jpg, cropped).</li></ul>
     <p class="eyebrow mt-3">Equal housing</p>
     <h2>Fair housing, always.</h2>
     <p>Charlotte Square and Evolution24 Properties comply with the federal Fair Housing Act and New York State Human Rights Law. We do not discriminate on the basis of race, color, religion, national origin, sex, familial status, disability, source of income, or any other protected class.</p>
@@ -126,6 +131,21 @@
     </div>
   </div>
 </footer>
+<div class="styler" data-styler>
+  <button class="styler__btn" type="button" aria-expanded="false" aria-controls="styler-menu">
+    <span class="styler__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="styler__label">Style: <b data-styler-name>Brick &amp; Stone</b></span>
+    <svg class="styler__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+  </button>
+  <div class="styler__menu" id="styler-menu" hidden>
+    <p class="styler__title">Mock-up styles</p>
+    <button type="button" class="styler__opt" data-style-pick="brick" aria-pressed="true"><span class="styler__sw" style="--a:#F4F1EB;--b:#D2452D;--c:#121316"></span><span><b>Brick &amp; Stone</b><small>Warm stone, brick accent, bold grotesk</small></span></button>
+    <button type="button" class="styler__opt" data-style-pick="gallery" aria-pressed="false"><span class="styler__sw" style="--a:#FFFFFF;--b:#7A1F12;--c:#1A1A1A"></span><span><b>Gallery</b><small>Editorial serif, white space, oxblood</small></span></button>
+    <button type="button" class="styler__opt" data-style-pick="night" aria-pressed="false"><span class="styler__sw" style="--a:#0E0F12;--b:#E4B84A;--c:#F2EFE9"></span><span><b>Night</b><small>Dark ground, gold accent, wide geometric type</small></span></button>
+    <p class="styler__foot">Your pick is remembered on this device.</p>
+  </div>
+</div>
+
 <script src="../assets/js/main.js" defer></script>
 </body>
 </html>
