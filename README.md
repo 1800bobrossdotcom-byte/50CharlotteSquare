@@ -21,7 +21,7 @@ You can also link straight to a style with `?style=gallery`, `?style=atelier` or
 |---|---|---|
 | `/` | `index.html` | Animated hero gallery, at-a-glance stats, intro, residences preview, amenity bento grid, East End ticker, management intro, tour CTA |
 | `/residences/` | `residences/index.html` | Filterable 1/2/3-bedroom floor plans, what's included, in-home features, FAQ |
-| `/amenities/` | `amenities/index.html` | Bento overview, detail rows (rooftop, fitness, community room, pocket park), sustainability, gallery with lightbox |
+| `/amenities/` | `amenities/index.html` | Bento overview, detail rows (terrace, fitness, community room, pocket park), sustainability, gallery with lightbox |
 | `/neighborhood/` | `neighborhood/index.html` | Walk/bike/transit, ticker, what's-near cards, Google map |
 | `/story/` | `story/index.html` | The Charlotte story, podium cross-section diagram, LEED features, about Evolution24 |
 | `/contact/` | `contact/index.html` | Working inquiry form, contact cards, resident portal, map |
@@ -65,7 +65,7 @@ Every image on the site is a **slot**: a fixed filename in `assets/img/`. Replac
 
 What is in the slots right now:
 
-- **Building, amenities and a model kitchen** (hero slides, lobby, community room, pocket park, rooftop, aerial, plan card one, residence kitchen): professional photographs published on the architect's project page ([SWBR: Charlotte Square at the East End](https://www.swbr.com/design/home-leasing-charlotte-square-apartments/)), originally 2,400 px wide and resized here to 1,200 to 2,000 px. SWBR and Home Leasing commissioned this photography; ask them for the originals and usage rights before launch.
+- **Building, amenities and a model kitchen** (hero slides, lobby, community room, pocket park, terrace, aerial, plan card one, residence kitchen): professional photographs published on the architect's project page ([SWBR: Charlotte Square at the East End](https://www.swbr.com/design/home-leasing-charlotte-square-apartments/)), originally 2,400 px wide and resized here to 1,200 to 2,000 px. SWBR and Home Leasing commissioned this photography; ask them for the originals and usage rights before launch.
 - **Model apartment interiors** (plan cards two and three, residence living room, gallery): three frames from Home Leasing's "Charlotte Square" photo shoot as served on homeleasing.net at 1,800 px. Confirm with Home Leasing that these show the East End building rather than the On the Loop phase.
 - **Fitness center**: still the photo from the previous website, about 780 px wide. No higher-resolution frame exists online; this is the one slot that needs a reshoot.
 - **Neighborhood** (East End photo on the home page, neighborhood hero): two Creative Commons photographs from Wikimedia Commons, credited on the privacy page and below. The cropped versions in this repo are shared under the same licenses.
@@ -80,22 +80,22 @@ Recommended: JPG, 2000px on the long edge for heroes, 1600px for everything else
 | `plan-1br.jpg` | Home | Floor plan · One Bedroom interior | 4:3 |
 | `plan-2br.jpg` | Home | Floor plan · Two Bedroom interior | 4:3 |
 | `plan-3br.jpg` | Home | Floor plan · Three Bedroom interior | 4:3 |
-| `rooftop-terrace.jpg` | Home | Rooftop terrace · pergola, fire pit and skyline at dusk | 16:10 |
+| `terrace.jpg` | Home | The terrace · pergola, fire pit and skyline at dusk | 16:10 |
 | `fitness-center.jpg` | Home | Fitness center · cardio row and rig | 16:10 |
 | `lobby-lounge.jpg` | Home | Lobby lounge · reclaimed wood wall | 16:10 |
 | `pocket-park.jpg` | Home | Pocket park · fire pit and grills beside the building | 16:10 |
 | `east-end-street.jpg` | Home | Neighborhood · East Avenue streetscape at blue hour | 4:5 |
 | `residence-living.jpg` | Residences | Residence · living room toward the balcony | 16:10 |
 | `residence-kitchen.jpg` | Residences | Residence · kitchen and dining | 4:5 |
-| `amenities-hero.jpg` | Amenities | Amenities hero · rooftop terrace at dusk | wide (16:9+), full-bleed |
-| `rooftop-evening.jpg` | Amenities | Rooftop terrace · evening with the fire pit lit | 4:3 |
+| `amenities-hero.jpg` | Amenities | Amenities hero · shared terrace at dusk | wide (16:9+), full-bleed |
+| `terrace-evening.jpg` | Amenities | The terrace · evening with the fire pit lit | 4:3 |
 | `fitness-rig.jpg` | Amenities | Fitness center · rig and free weights | 4:3 |
 | `community-room-wide.jpg` | Amenities | Community room · wide view with kitchen bar | 4:3 |
 | `pocket-park-summer.jpg` | Amenities | Pocket park · cookout in summer | 4:3 |
 | `gallery-01.jpg` | Amenities | Gallery · lobby lounge | 4:3 |
 | `gallery-02.jpg` | Amenities | Gallery · fitness center | 4:3 |
 | `gallery-03.jpg` | Amenities | Gallery · community lounge seating | 4:3 |
-| `gallery-04.jpg` | Amenities | Gallery · rooftop pergola | 4:3 |
+| `gallery-04.jpg` | Amenities | Gallery · the pergola terrace | 4:3 |
 | `gallery-05.jpg` | Amenities | Gallery · building exterior and pocket park | 4:3 |
 | `gallery-06.jpg` | Amenities | Gallery · the building from above, solar roof | 4:3 |
 | `neighborhood-hero.jpg` | Neighborhood | Neighborhood hero · East Ave at night | wide (16:9+), full-bleed |
@@ -170,6 +170,10 @@ The switcher is a review tool. Once a direction is chosen:
 1. Set it on the root element of every page: `<html lang="en" data-style="gallery">` (omit the attribute for Brick & Stone).
 2. Delete the `<div class="styler" …>` block from each page's footer and the "Style switcher" block in `assets/js/main.js`, plus the no-flash script in each `<head>` that reads `cs-style`.
 3. Optionally delete the other styles' blocks from `main.css` and their font files from `assets/fonts/` to trim weight.
+
+## A note on the terrace
+
+The shared outdoor space with the pergola, fire pit and grills is on the **podium level**, the deck above the ground-floor garage. It is not a roof deck, and there is no resident roof access. The building's own roof carries the solar array. Earlier drafts of this site, and some third-party listings, describe a "rooftop terrace"; that wording is wrong and has been removed throughout, including from the cross-section diagram on the story page.
 
 ## Confirm before launch
 
