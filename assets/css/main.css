@@ -861,3 +861,5 @@ html.is-artifact .topbar { padding-top: env(safe-area-inset-top, 0px); }
 @media (max-width: 600px) { .cols-2, .cols-3, .cols-4 { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 480px) { .strip { grid-template-columns: minmax(0, 1fr); } }
 .feature h3, .tile__title, .card h3 { overflow-wrap: anywhere; }
+/* Router page switches jump instantly even though the site scrolls smoothly */
+html.no-smooth, html.no-smooth body { scroll-behavior: auto !important; }
