@@ -821,53 +821,61 @@ html:root[data-style="atelier"] {
 [data-style="atelier"] .ticker__item { font-style: italic; font-weight: 400; }
 [data-style="atelier"] .ticker__item::after { width: .3em; height: .3em; border-radius: 50%; }
 
-/* Hero: a full-bleed photograph with an editorial paper panel set into it */
+/* Hero: the headline alone sits on paper, as a banner that wipes in. Everything
+   else is condensed onto the photograph, so the landscape view stays the subject
+   instead of being buried under a block of text. */
 [data-style="atelier"] .topbar { color: #fff; }
 [data-style="atelier"] .hero::after {
-  background: linear-gradient(180deg, rgba(31, 27, 23, .5) 0%, rgba(31, 27, 23, .18) 40%, rgba(31, 27, 23, .62) 100%);
+  background: linear-gradient(180deg, rgba(31, 27, 23, .52) 0%, rgba(31, 27, 23, .14) 34%, rgba(31, 27, 23, .8) 100%);
 }
-[data-style="atelier"] .hero__inner {
-  background: var(--bg-elev); color: var(--fg);
-  width: min(100% - 2 * var(--gutter), 44rem); margin-inline: var(--gutter) auto;
-  padding: clamp(1.75rem, 3vw, 2.75rem); border-radius: var(--radius);
-  box-shadow: var(--shadow); margin-bottom: clamp(4.5rem, 9vw, 7rem);
+/* static so the slideshow bar anchors to the hero rather than to this block */
+[data-style="atelier"] .hero__inner { position: static; padding-bottom: 7.5rem; }
+@media (min-width: 760px) { [data-style="atelier"] .hero__inner { padding-bottom: clamp(5rem, 8vw, 7rem); } }
+[data-style="atelier"] .hero--short .hero__inner { padding-bottom: clamp(2.5rem, 5vw, 4rem); }
+[data-style="atelier"] .hero .eyebrow { color: #F4DACB; }
+[data-style="atelier"] .hero .eyebrow::before { background: var(--accent-on-dark); }
+
+/* The banner */
+[data-style="atelier"] .hero__title {
+  /* block-level so it clears the eyebrow, but only as wide as its own text */
+  display: block; width: fit-content; max-width: min(100%, 22ch);
+  background: var(--bg-elev); color: var(--fg); text-shadow: none;
+  padding: clamp(.7rem, 1.3vw, 1.15rem) clamp(1rem, 1.9vw, 1.6rem) clamp(.85rem, 1.5vw, 1.3rem);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  animation: atelier-banner 1s var(--ease) both;
 }
-[data-style="atelier"] .hero--short .hero__inner { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
-[data-style="atelier"] .hero .eyebrow { color: var(--accent); }
-[data-style="atelier"] .hero .eyebrow::before { background: currentColor; }
-[data-style="atelier"] .hero__title { max-width: 18ch; }
-[data-style="atelier"] .hero--short .hero__title { max-width: 22ch; font-size: clamp(2.3rem, 3.2vw + .7rem, 4.2rem); }
-[data-style="atelier"] .hero__lead { color: var(--fg-muted); }
-[data-style="atelier"] .hero__aside { color: var(--fg-muted); justify-items: start; text-align: left; }
-[data-style="atelier"] .hero__aside strong { color: var(--fg); }
-[data-style="atelier"] .hero__grid { grid-template-columns: 1fr; gap: 1.25rem; }
-[data-style="atelier"] .hero .btn--ghost { border-color: var(--line-strong); color: var(--fg); }
-[data-style="atelier"] .hero .btn--ghost:hover { border-color: var(--fg); }
-[data-style="atelier"] :is(.hero .eyebrow, .hero__title, .hero__lead, .hero__aside) { text-shadow: none; }
-/* The slideshow controls ride on the photograph, clear of the panel. The panel
-   goes static so the bar positions against the hero, not against the panel. */
-[data-style="atelier"] .hero__inner { position: static; }
+[data-style="atelier"] .hero--short .hero__title { max-width: min(100%, 26ch); font-size: clamp(2.1rem, 3vw + .7rem, 3.9rem); }
+@keyframes atelier-banner { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+/* the banner wipes as one piece, so the per-line rise is off here */
+[data-style="atelier"] .hero__line { clip-path: none; animation: none; padding-bottom: 0; margin-bottom: 0; }
+[data-style="atelier"] .hero__line > span { transform: none; animation: none; }
+
+/* Supporting information, condensed onto the photograph */
+[data-style="atelier"] .hero__lead { color: rgba(255, 255, 255, .9); font-size: 1.02rem; max-width: 34rem; margin-bottom: 1.4rem; }
+[data-style="atelier"] .hero__aside { color: rgba(255, 255, 255, .82); }
+[data-style="atelier"] .hero__aside strong { color: #fff; }
+[data-style="atelier"] .hero .btn--ghost { border-color: rgba(255, 255, 255, .55); color: #fff; }
+[data-style="atelier"] .hero .btn--ghost:hover { border-color: #fff; }
+@media (min-width: 900px) {
+  [data-style="atelier"] .hero__grid { grid-template-columns: minmax(0, 1.55fr) auto; align-items: end; gap: 1.25rem 2.5rem; }
+  [data-style="atelier"] .hero__aside { justify-items: end; text-align: right; }
+}
 [data-style="atelier"] .hero__bar {
-  position: absolute; left: 0; right: 0; bottom: 0; margin: 0;
-  width: min(100% - 2 * var(--gutter), var(--container)); margin-inline: auto;
+  position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto;
+  width: min(100% - 2 * var(--gutter), var(--container));
   padding-block: 1rem clamp(1.25rem, 2.5vw, 2rem); color: rgba(255, 255, 255, .85);
   border-top-color: rgba(255, 255, 255, .22);
 }
 [data-style="atelier"] .hero__caption b { color: #fff; }
 [data-style="atelier"] .hero__seg i { background: #fff; }
-/* At phone width the bar wraps to two rows and would collide with the panel,
-   so it comes back into the flow and reads as the foot of the panel instead. */
-@media (max-width: 760px) {
-  [data-style="atelier"] .hero__inner { margin-bottom: var(--gutter); }
-  [data-style="atelier"] .hero__bar {
-    position: static; width: auto; margin: 1.25rem 0 0; padding-block: 1rem 0;
-    color: var(--fg-muted); border-top-color: var(--line);
-  }
-  [data-style="atelier"] .hero__caption b { color: var(--fg); }
-  [data-style="atelier"] .hero__seg { background: var(--line-strong); }
-  [data-style="atelier"] .hero__seg i { background: var(--fg); }
-  [data-style="atelier"] .hero__btn { background: transparent; border-color: var(--line-strong); color: var(--fg); -webkit-backdrop-filter: none; backdrop-filter: none; }
-  [data-style="atelier"] .hero__btn:hover { border-color: var(--fg); background: transparent; }
+/* On a short landscape window the hero has to earn its height: the banner and
+   the supporting lines tighten so the photograph still reads as a photograph. */
+@media (min-width: 900px) and (max-height: 860px) {
+  [data-style="atelier"] .hero__inner { padding-top: calc(var(--header-h) + 1.5rem); padding-bottom: 5.5rem; }
+  [data-style="atelier"] .hero .eyebrow { margin-bottom: .7rem; }
+  [data-style="atelier"] .hero__title { font-size: clamp(2.6rem, 3.8vw, 4rem); padding: .65rem 1.2rem .85rem; margin-bottom: .9rem; }
+  [data-style="atelier"] .hero__lead { font-size: .97rem; max-width: 30rem; margin-bottom: 1rem; }
+  [data-style="atelier"] .hero__bar { padding-block: .75rem 1.1rem; }
 }
 
 /* Scroll behaviour: headings pin while their section passes beneath */
@@ -952,6 +960,110 @@ html:root[data-style="atelier"] {
   }
   @keyframes atelier-progress { to { transform: scaleX(1); } }
 }
+
+/* ---------- Style 4: Dusk — warm espresso ground, ember accent ----------------
+   The dark option, built with Atelier's restraint rather than volume. The ground
+   is a warm near-black rather than a blue-black, the accent is the brick warmed
+   to an ember so it sits on dark without vibrating, and a trace of film grain
+   keeps the large dark fields from reading as flat screen-black. Photographs
+   carry the page; the interface gets out of their way.
+   ---------------------------------------------------------------------------- */
+html:root[data-style="dusk"] {
+  --bg: #15110E; --bg-elev: #201A15; --bg-sunken: #100D0A;
+  --fg: #F0E8DC; --fg-muted: #B3A797; --fg-subtle: #8A7E70;
+  --line: rgba(240, 232, 220, .13); --line-strong: rgba(240, 232, 220, .32);
+  --accent: #E0734A; --accent-hover: #ED8862; --accent-fg: #15110E;
+  --accent-tint: rgba(224, 115, 74, .16); --accent-on-dark: #E0734A;
+  --ok-bg: rgba(94, 122, 112, .24); --ok-fg: #CFE0D8;
+  --focus: 0 0 0 3px rgba(224, 115, 74, .45);
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: .9rem; --radius-sm: .55rem; --radius-xs: .3rem;
+  --shadow: 0 40px 90px -45px rgba(0, 0, 0, .9); --shadow-sm: 0 14px 36px -22px rgba(0, 0, 0, .8);
+  --fs-display: clamp(2.7rem, 5.2vw + .6rem, 5.6rem);
+  --fs-h1: clamp(2.3rem, 4vw + .6rem, 4.3rem);
+  --fs-h2: clamp(1.95rem, 2.4vw + .6rem, 3.1rem);
+}
+/* Lighter than Brick & Stone's headline weight, with a touch more air */
+[data-style="dusk"] :is(h1, h2, h3, .hero__title, .plan__name, .tile__title, .stat__value, .step__num, .pull, .band h2, .faq summary, .amenity h3, .brand, .drawer__nav a, .ticker__item, .evo) {
+  font-weight: 500; letter-spacing: -.018em;
+}
+[data-style="dusk"] .brand { font-weight: 700; }
+[data-style="dusk"] .brand__name b { font-weight: 300; }
+[data-style="dusk"] .hero__title { letter-spacing: -.028em; }
+[data-style="dusk"] .eyebrow { font-weight: 600; letter-spacing: .19em; }
+
+/* A trace of grain so the dark fields read as photographic, not as switched-off screen */
+[data-style="dusk"] body::before {
+  content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: .055;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Hero: let the photograph hold the frame, warm the scrim */
+[data-style="dusk"] .hero::after {
+  background: linear-gradient(180deg, rgba(21, 17, 14, .5) 0%, rgba(21, 17, 14, .16) 38%, rgba(21, 17, 14, .9) 100%);
+}
+[data-style="dusk"] .hero .eyebrow, [data-style="dusk"] .hero .accent { color: var(--accent); }
+[data-style="dusk"] .hero .eyebrow::before { background: currentColor; }
+[data-style="dusk"] .brand__mark { color: var(--accent); }
+[data-style="dusk"] .brand__mark path { stroke: #15110E; }
+
+/* Surfaces: warm panels and hairlines, never a black box */
+[data-style="dusk"] .section--elev { background: var(--bg-elev); border-block: 1px solid var(--line); }
+[data-style="dusk"] .section--sunken { background: var(--bg-sunken); }
+[data-style="dusk"] .stats-wrap { border-block: 1px solid var(--line); }
+[data-style="dusk"] .section--ink {
+  background: radial-gradient(75% 60% at 85% 0%, rgba(224, 115, 74, .16), transparent 62%),
+              radial-gradient(60% 55% at 0% 100%, rgba(94, 122, 112, .14), transparent 60%), var(--bg-elev);
+}
+[data-style="dusk"] .plan, [data-style="dusk"] .card:not(.card--ink):not(.card--accent) {
+  background: var(--bg-elev); border-color: var(--line);
+}
+[data-style="dusk"] .plan:hover { border-color: rgba(224, 115, 74, .5); }
+[data-style="dusk"] .card--ink { background: var(--accent); color: #15110E; border-color: transparent; }
+[data-style="dusk"] .card--ink .card__kicker, [data-style="dusk"] .card--ink p { color: rgba(21, 17, 14, .78); }
+[data-style="dusk"] .card--ink .btn--light { --btn-bg: #15110E; --btn-fg: var(--fg); }
+[data-style="dusk"] .btn--light { --btn-bg: var(--fg); --btn-fg: var(--bg); }
+[data-style="dusk"] .tile { border: 1px solid var(--line); }
+[data-style="dusk"] .tile:hover { border-color: rgba(224, 115, 74, .45); }
+[data-style="dusk"] .tile--stone { background: var(--bg-elev); color: var(--fg); }
+[data-style="dusk"] .tile--stone .tile__icon { color: var(--accent); }
+[data-style="dusk"] .tile--solid { background: var(--accent); color: #15110E; }
+[data-style="dusk"] .tile--solid .tile__icon { color: #15110E; }
+[data-style="dusk"] .tile--sage { background: linear-gradient(150deg, #4E6961, #24352F); }
+[data-style="dusk"] .tile--sand { background: linear-gradient(150deg, #B87A3C, #6E4315); }
+[data-style="dusk"] .tile--sky { background: linear-gradient(150deg, #4F708C, #22384A); }
+
+/* Icons keep the supporting hues, pitched for a dark ground */
+[data-style="dusk"] .feature:nth-child(4n + 2) .feature__icon { background: rgba(126, 163, 149, .18); color: #A8CBBC; }
+[data-style="dusk"] .feature:nth-child(4n + 3) .feature__icon { background: rgba(210, 145, 78, .18); color: #EBB77C; }
+[data-style="dusk"] .feature:nth-child(4n + 4) .feature__icon { background: rgba(92, 127, 158, .2); color: #A8C6DE; }
+[data-style="dusk"] .section--ink .feature__icon { background: rgba(240, 232, 220, .08); color: var(--accent); }
+[data-style="dusk"] .section--ink .feature:nth-child(4n + 2) .feature__icon { background: rgba(126, 163, 149, .2); color: #A8CBBC; }
+[data-style="dusk"] .section--ink .feature:nth-child(4n + 3) .feature__icon { background: rgba(210, 145, 78, .2); color: #EBB77C; }
+[data-style="dusk"] .section--ink .feature:nth-child(4n + 4) .feature__icon { background: rgba(92, 127, 158, .22); color: #A8C6DE; }
+
+/* The closing band carries the one saturated field on the page */
+[data-style="dusk"] .band { background: linear-gradient(115deg, #C25A33 0%, var(--accent) 55%, #EE9163 100%); color: #15110E; }
+[data-style="dusk"] .band::before { background: radial-gradient(60% 80% at 100% 0%, rgba(255, 255, 255, .22), transparent 60%); }
+[data-style="dusk"] .band p { color: rgba(21, 17, 14, .8); }
+[data-style="dusk"] .band .eyebrow { color: #15110E; }
+[data-style="dusk"] .band .eyebrow::before { background: #15110E; }
+[data-style="dusk"] .band .btn--light { --btn-bg: #15110E; --btn-fg: var(--fg); }
+[data-style="dusk"] .band .btn--ghost { border-color: rgba(21, 17, 14, .5); color: #15110E; }
+[data-style="dusk"] .band .btn--ghost:hover { border-color: #15110E; }
+
+[data-style="dusk"] .footer { background: var(--bg-sunken); border-top: 1px solid var(--line); }
+[data-style="dusk"] .evo-block { background: var(--bg-elev); border: 1px solid var(--line); }
+[data-style="dusk"] .map iframe { filter: invert(.9) hue-rotate(180deg) saturate(.55) brightness(.92); }
+[data-style="dusk"] .map__pin { color: var(--fg-subtle); }
+[data-style="dusk"] .chip.is-active { background: var(--accent); color: #15110E; border-color: var(--accent); }
+[data-style="dusk"] .link-arrow { color: var(--accent); }
+[data-style="dusk"] .diagram .diagram__label { fill: var(--accent); }
+[data-style="dusk"] .topbar.is-scrolled { box-shadow: 0 1px 0 var(--line); }
+[data-style="dusk"] .hero__seg i { background: var(--accent); }
+[data-style="dusk"] .hero__btn:hover { border-color: var(--accent); }
+[data-style="dusk"] .credits a { color: var(--accent); }
 
 /* ---------- Style switcher (review tool) ------------------------------------- */
 .styler { position: fixed; right: max(1rem, env(safe-area-inset-right, 0px)); bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); z-index: 70; font-family: "Manrope", system-ui, sans-serif; }
@@ -1195,8 +1307,11 @@ p, .lead, .hero__lead, .prose p, .feature p, .card p, .step p, .tile__sub,
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   html.js .reveal { opacity: 1; transform: none; transition: none; }
-  .hero__line { clip-path: none; animation: none; }
-  .hero__line > span { transform: none; animation: none; }
+  /* Marked important on purpose: a per-style rule is more specific than this
+     block, and twice now that has left the headline parked out of position. */
+  .hero__line { clip-path: none !important; animation: none !important; }
+  .hero__title { animation: none !important; }
+  .hero__line > span { transform: none !important; animation: none !important; }
   .hero__slide { transition-duration: .01s; }
   .hero__slide.is-active img { animation: none; }
   .hero__seg.is-active i { animation: none; width: 100%; }

@@ -183,7 +183,7 @@
   /* ---- Style switcher (mock-up review tool) ------------------------------ */
   const styler = $('[data-styler]');
   if (styler) {
-    const NAMES = { brick: 'Brick & Stone', gallery: 'Gallery', atelier: 'Atelier' };
+    const NAMES = { brick: 'Brick & Stone', gallery: 'Gallery', atelier: 'Atelier', dusk: 'Dusk' };
     const LEGACY = { night: 'atelier' };  // an earlier direction this one replaced
     const btn = $('.styler__btn', styler);
     const menu = $('.styler__menu', styler);

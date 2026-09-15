@@ -10,9 +10,10 @@ No framework, no build step. Plain HTML, one stylesheet, one script. Open `index
 |---|---|---|---|
 | **Brick & Stone** (default) | Warm stone ground, bold grotesk, rounded cards | Bricolage Grotesque + Manrope | Brick `#D2452D` |
 | **Gallery** | Editorial: white space, hairlines, serif italics, framed photography | Instrument Serif + DM Sans | Oxblood `#7A1F12` |
-| **Atelier** | Bone paper, hairline structure, editorial serif over grotesk. Scrolls differently: the amenity grid is a horizontal snap rail, amenity images pin beside their text, sections are numbered in the margin, and a hairline tracks page progress | Instrument Serif + Manrope | Clay `#A8482A` |
+| **Atelier** | Bone paper, hairline structure, editorial serif over grotesk. The headline sits on a paper banner that wipes in over the photograph while everything else stays condensed on the image. Scrolls differently: the amenity grid is a horizontal snap rail, amenity images pin beside their text, sections are numbered in the margin, and a hairline tracks page progress | Instrument Serif + Manrope | Clay `#A8482A` |
+| **Dusk** | The dark option, with Atelier's restraint rather than volume. Warm espresso ground rather than blue-black, a trace of film grain so the dark fields stay photographic, and the brick warmed to an ember so it sits on dark without vibrating | Bricolage Grotesque + DM Sans | Ember `#E0734A` |
 
-You can also link straight to a style with `?style=gallery` or `?style=atelier` on any page. An earlier dark direction called Night was replaced by Atelier; a saved `night` preference maps to Atelier automatically.
+You can also link straight to a style with `?style=gallery`, `?style=atelier` or `?style=dusk` on any page. An earlier dark direction called Night was replaced by Atelier; a saved `night` preference maps to Atelier automatically.
 
 ## Pages
 
@@ -158,7 +159,7 @@ Everything is a token in `assets/css/main.css`:
 
 Red on near-black alone reads stark, so the three supporting hues carry real work rather than sitting in a swatch: they color the amenity tiles, cycle through the feature icons, and warm the dark sections and the closing call-to-action band. The charcoals are warm (`#1A1613`, not a blue-black), so dark sections read like dusk on brick.
 
-Type: **Bricolage Grotesque** for display, **Manrope** for body, self-hosted in `assets/fonts/` (SIL Open Font License, no third-party requests). Fluid sizes via `clamp()`. Dark mode follows the visitor's system setting automatically. Motion respects `prefers-reduced-motion`.
+Type: **Bricolage Grotesque**, **Manrope**, **Instrument Serif** and **DM Sans**, all self-hosted in `assets/fonts/` under the SIL Open Font License, so the site makes no third-party requests. Each style pairs two of them. Fluid sizes via `clamp()`. Dark mode follows the visitor's system setting automatically. Motion respects `prefers-reduced-motion`.
 
 The same tokens, mark treatment (`Evolution<b>24</b>`) and type pairing can carry straight over to the new Evolution24 site so the portfolio reads as one family.
 
