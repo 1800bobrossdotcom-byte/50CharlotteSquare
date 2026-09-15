@@ -163,8 +163,16 @@
           showStatus(false, `We can't send messages from the site just yet. Please call ${phone} and we'll take your details.`);
         } else {
           // No endpoint configured yet: open the visitor's email app with the message pre-filled.
+          // Read the controls rather than the FormData so a dropdown sends what the
+          // visitor actually chose ("Two bedroom"), not its value ("2").
           const lines = [];
-          data.forEach((v, k) => { if (String(v).trim()) lines.push(`${labelFor(k)}: ${v}`); });
+          Array.from(form.elements).forEach((el) => {
+            if (!el.name || el.name === 'website') return;
+            if (el.tagName === 'SELECT' && !el.value) return;   // an unchosen placeholder
+            const chosen = el.tagName === 'SELECT' && el.selectedOptions[0] ? el.selectedOptions[0].text : el.value;
+            if (!String(chosen).trim()) return;
+            lines.push(`${labelFor(el.name)}: ${String(chosen).trim()}`);
+          });
           const who = `${data.get('first_name') || ''} ${data.get('last_name') || ''}`.trim();
           const subject = encodeURIComponent(`Charlotte Square inquiry — ${who}`);
           const body = encodeURIComponent(lines.join('\n'));

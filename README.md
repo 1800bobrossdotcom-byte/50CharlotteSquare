@@ -129,7 +129,7 @@ The footer carries both files and lets CSS pick: the knockout art on the dark fo
 
 - **Copy** lives directly in each page's HTML. Search for the text you want to change.
 - **Header and footer** are repeated in every page for zero-dependency hosting. Change them in one page, then copy the block to the others (or search-and-replace across files).
-- **Leasing contact**: Vicki Barone, (585) 748-5588, appears in the hero, tour buttons, contact page, footer and structured data. Search for `748-5588` to change it. The Evolution24 office line (585) 245-3071 appears only on the contact page's management office card. No email address is published anywhere on the site yet.
+- **Leasing contact**: Vicki Barone, (585) 748-5588, appears in the hero, tour buttons, contact page, footer and structured data. Search for `748-5588` to change it. The Evolution24 office line (585) 245-3071 appears only on the contact page's management office card. No email address is printed anywhere on the pages; the contact form's delivery address is set by `EMAIL` in the generator and appears only as an attribute on the form.
 - **Floor plans**: each card is an `<article class="plan" data-beds="…">` in `residences/index.html` and `index.html`. Edit square footage, bullets and the price line there. The filter chips work off `data-beds`.
 - **Resident portal links** point at `https://evolution.twa.rentmanager.com/`.
 
@@ -138,8 +138,10 @@ The footer carries both files and lets CSS pick: the knockout art on the dark fo
 The form in `contact/index.html` validates in the browser and then does one of two things:
 
 - If `data-endpoint` on the `<form>` is set (Formspree, Basin, Netlify Forms, or your own handler), it POSTs there and shows an inline success or error message.
-- If `data-endpoint` is empty but `data-email` holds an address, it opens the visitor's email app with the message pre-filled.
-- If both are empty, which is how the site ships today, it tells the visitor the form is not connected yet and gives them the leasing phone number. Fill in one of the two before launch.
+- If `data-endpoint` is empty but `data-email` holds an address, it opens the visitor's own email app with the message pre-filled and addressed. This is how the site ships today, delivering to Vicki Barone. Dropdowns send what the visitor chose ("Two bedroom"), not the underlying value, and options left unchosen are dropped.
+- If both are empty, it tells the visitor the form is not connected and gives them the leasing phone number.
+
+**Worth upgrading before launch.** The mail-app route has two drawbacks: the address sits in the page source where scrapers can find it, and nothing reaches you if the visitor has no mail app configured or abandons the draft. Pointing `data-endpoint` at a form service such as Formspree or Basin fixes both, since the message is posted server-side and the address never appears in the page. Do that and you can clear `data-email`.
 
 To go live with a real inbox: create a form at Formspree (or similar), paste its URL into `data-endpoint`, done. A honeypot field is already included. Query strings pre-select fields, so `contact/?plan=2&interest=tour` opens the form ready for a two-bedroom tour request; the residences cards and every "Schedule a tour" button already use this.
 
@@ -185,7 +187,7 @@ Currently listed: Chick'n Out (37), East End Tavern (37), Charlotte Square (50),
 
 These came from public listings or the previous site and should be verified with the leasing team:
 
-- [ ] A branded leasing email address for Vicki Barone, then set it as `EMAIL` (or point `data-endpoint` at a form service). Until one of those is set, the contact form cannot deliver messages
+- [ ] Move the contact form to a server-side endpoint so the address is not exposed in the page source, and ideally onto a branded leasing address rather than a personal one
 - [ ] Office hours and tour availability
 - [ ] Two-bedroom square footage range (shown as approximate) and current pricing
 - [ ] Exact list of included utilities
