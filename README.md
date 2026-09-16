@@ -379,25 +379,46 @@ fine twice in one view.
 
 ### The shot list
 
-Two slots are empty, and five good photographs are sitting unusable.
+Two slots are empty, and seven good photographs are sitting unusable.
 
 | File to produce | Page | Shot |
 |---|---|---|
 | `terrace.jpg` | Home | Terrace · pergola, fire pit and skyline at dusk |
 | `terrace-evening.jpg` | Amenities | Terrace · evening with the fire pit lit |
 
-### Withheld: five watermarked frames
+### Withheld: seven watermarked frames
 
-The owner supplied eleven photographs. **Six are in use; five carry a CoStar
-watermark in the bottom-right corner and are not in this repository** — the
-refurnished community room, the lobby corridor, the laundry closet, a current
-aerial, and the leasing lounge. All five are better than what they would
-replace, and the aerial in particular beats `hero-aerial.jpg` outright: mature
-trees, the full solar array, the whole block.
+The owner has supplied thirteen photographs across two batches. **Six are in use;
+seven carry a syndication watermark in the bottom-right corner — a five-petal
+pinwheel — and are not in this repository.**
+
+From the first batch, five: the refurnished community room, the lobby corridor,
+the laundry closet, a current aerial, and the leasing lounge. All five are better
+than what they would replace, and the aerial in particular beats `hero-aerial.jpg`
+outright: mature trees, the full solar array, the whole block.
+
+From the second batch, two kitchens (commit `bd371f8`, both 2048×1365, no EXIF).
+They are the **unstaged** frames of the room that `plan-1br.webp` shows staged —
+same island, same granite, same pendants, same appliance run, opposite ends of the
+room. They are larger than anything in the library and they are the only honest,
+unfurnished interiors anyone has sent. They landed at the repository root, where
+Pages would have served them at `charlottesquareroc.com/charlotte-square-rochester-ny-building-photo.jpg`;
+they were removed from the tree rather than published, and `git show bd371f8:<name>`
+still recovers them.
+
+**The watermark is not cropped off.** It sits over floor in both frames, so a
+crop would cost almost nothing compositionally — and that is exactly why it
+should not be done quietly. The mark asserts a syndication licence over *that
+copy* of the photograph, not over the photograph; Evolution24 almost certainly
+holds the underlying rights, since the owner commissioned the shoot. The fix is
+to obtain the masters, not to scrub someone's mark off their file.
 
 Claiming the Apartments.com listing yields the unwatermarked originals. That is
 the same step that corrects the Home Leasing attribution, the old phone number
-and the rooftop-terrace claim, so it is one task that unblocks four things.
+and the rooftop-terrace claim, so it is one task that unblocks four things. The
+listing is also where these filenames come from — `charlotte-square-rochester-ny-building-photo.jpg`
+is Apartments.com's own download naming, which is the tell that the copies came
+off the public listing rather than out of the photographer's delivery.
 
 The capture day is still worth doing for everything else: the fitness frame is
 780px, the terrace and park frames are the 2016 shoot, and the owner's newer
@@ -412,6 +433,12 @@ says *the room is real, the furniture was added digitally* so the disclosure
 reaches a screen reader too. An altered photograph presented as a straight one is
 the same misrepresentation as showing another building, just subtler.
 
+The second upload batch corroborates this for `plan-1br.webp`: the two withheld
+kitchens are the same room before the furniture was added, and the cabinets,
+counters, appliances, floor and windows are identical frame to frame. Only the
+furnishings and the colour grade differ. Whatever else is unverified about this
+library, that one card is a real room.
+
 JPG, 2000px on the long edge for heroes, 1600px otherwise, under 400 KB. Strip
 EXIF before committing — phone and camera files carry GPS and serial numbers.
 
@@ -421,6 +448,12 @@ Six WebP frames from the owner, September 2026, replacing the weakest files on
 the site: `fitness-center.webp` (the old one was 780px), and five staged unit
 interiors across the floor-plan cards and the residences page. All carry no EXIF
 and the five staged ones carry the disclosure badge.
+
+A second batch followed — two kitchen JPGs — and both were watermarked. See
+**Withheld** above. Every photograph reaching this repository gets the same two
+checks before it is slotted: corners magnified to 9× for a watermark, and a
+perceptual hash against the existing library for a duplicate. Both have caught
+something. Neither is skippable because a file looks clean at page size.
 
 ### What is in the 21 that remain
 
@@ -544,8 +577,11 @@ These came from public listings or the previous site and should be verified with
 - [ ] Legal review of `privacy/index.html`
 - [ ] The Charlotte Street block list, especially East End Tavern, and any neighbors worth adding
 - [ ] Rights to the SWBR and Home Leasing photography, or a reshoot
-- [ ] **Shoot the seven missing photographs** (see the shot list under Photos) — five are unit
-      interiors, and until they exist the floor-plan cards carry placeholders rather than
-      another building's kitchen
+- [ ] **Shoot the two missing terrace frames** (see the shot list under Photos) — the only
+      slots still rendering placeholders; every other slot now resolves to a real photograph
+- [ ] **Get the unwatermarked masters** for the seven withheld frames — two kitchens, a
+      current aerial, the community room, the lobby corridor, the laundry and the leasing
+      lounge. Ask the photographer or the previous owner for the delivery files; do not
+      re-download the listing copies
 - [ ] Claim the Apartments.com listing — it still names Home Leasing, gives the old phone
       number, and describes a rooftop terrace
