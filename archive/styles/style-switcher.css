@@ -1,0 +1,43 @@
+/* Archived the style switcher — lifted out of assets/css/main.css when the site was locked
+   to Gallery. To restore: paste this back into main.css before the
+   "Map fallback" block and follow archive/styles/README.md. */
+
+/* ---------- Style switcher (review tool) ------------------------------------- */
+.styler { position: fixed; right: max(1rem, env(safe-area-inset-right, 0px)); bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); z-index: 70; font-family: "Manrope", system-ui, sans-serif; }
+.styler__btn {
+  display: inline-flex; align-items: center; gap: .6rem; padding: .6rem .95rem .6rem .7rem; border-radius: 999px;
+  background: #121316; color: #F4F1EB; border: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 12px 34px -12px rgba(0, 0, 0, .6);
+  font-size: .84rem; font-weight: 600; cursor: pointer; letter-spacing: 0;
+}
+.styler__btn:hover { border-color: rgba(255, 255, 255, .4); }
+.styler__dots { display: inline-flex; gap: 3px; }
+.styler__dots i { width: .55rem; height: .55rem; border-radius: 50%; display: block; }
+.styler__dots i:nth-child(1) { background: #F4F1EB; }
+.styler__dots i:nth-child(2) { background: #D2452D; }
+.styler__dots i:nth-child(3) { background: #E4B84A; }
+.styler__label b { font-weight: 800; }
+.styler__chev { width: .9rem; height: .9rem; opacity: .7; transition: transform .25s var(--ease); }
+.styler__btn[aria-expanded="true"] .styler__chev { transform: rotate(180deg); }
+.styler__menu {
+  position: absolute; right: 0; bottom: calc(100% + .6rem); width: min(21rem, calc(100vw - 2rem));
+  background: #121316; color: #F4F1EB; border-radius: 1rem; padding: .7rem; border: 1px solid rgba(255, 255, 255, .14);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .7); display: grid; gap: .3rem;
+}
+.styler__title { font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; opacity: .55; margin: .3rem .55rem .45rem; font-weight: 700; }
+.styler__opt {
+  display: flex; align-items: center; gap: .8rem; width: 100%; text-align: left; padding: .6rem .6rem; border-radius: .75rem;
+  background: transparent; border: 1px solid transparent; color: inherit; cursor: pointer; font: inherit;
+}
+.styler__opt:hover { background: rgba(255, 255, 255, .06); }
+.styler__opt[aria-pressed="true"] { border-color: rgba(255, 255, 255, .28); background: rgba(255, 255, 255, .08); }
+.styler__opt b { display: block; font-size: .92rem; font-weight: 800; }
+.styler__opt small { display: block; font-size: .76rem; opacity: .62; line-height: 1.3; }
+.styler__sw { flex: none; width: 2.7rem; height: 1.8rem; border-radius: .45rem; border: 1px solid rgba(255, 255, 255, .22); background: linear-gradient(90deg, var(--a) 0 40%, var(--b) 40% 70%, var(--c) 70%); }
+.styler__foot { font-size: .7rem; opacity: .5; margin: .35rem .55rem .2rem; }
+@media print { .styler { display: none; } }
+
+
+.styler__sw--brick   { --a: #F4F1EB; --b: #D2452D; --c: #121316; }
+.styler__sw--gallery { --a: #FFFFFF; --b: #7A1F12; --c: #1A1A1A; }
+.styler__sw--atelier { --a: #EFEAE1; --b: #A8482A; --c: #241E19; }
+.styler__sw--dusk    { --a: #15110E; --b: #E0734A; --c: #F0E8DC; }

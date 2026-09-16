@@ -121,6 +121,44 @@ readily than they parse JSON-LD, and it is the one place that states plainly
 that there is *no resident roof access*, so the "rooftop terrace" language in
 old listings stops being repeated.
 
+### Ranking for "luxury apartments Rochester NY"
+
+Until September 2026 the word **luxury** appeared on this site zero times. It said
+*upscale* in twenty-six places instead. A search engine treats those as related
+but not equal, and "luxury apartments Rochester NY" is the phrase renters
+actually type. The term is now in the home title, its meta description, the
+intro `<h2>`, the lead paragraph, the footer on every page and the JSON-LD
+description, plus the residences and amenities titles — at 0.14–0.33% of visible
+words per page, which is natural usage rather than the 2%+ that reads as
+stuffing. Nothing false was claimed: the building is 2016-built and
+LEED-designed, with granite, stainless and private outdoor space on every home.
+
+**What that does and does not buy.** On-page work decides whether a page is
+*eligible* for a query and how well it answers it. It does not decide the
+ranking on its own, and no one can promise a position. For this phrase
+specifically, three things outside this repository matter more than anything in
+it:
+
+1. **The Google Business Profile.** A local query like this returns a map pack
+   above the organic results. A single-address building is exactly what that pack
+   is built for, and you cannot appear in it without a claimed, correct profile.
+   This is the single highest-leverage item on the whole list.
+2. **The aggregators.** Apartments.com, Zillow, Rent.com and ApartmentFinder
+   occupy most of page one for generic "luxury apartments <city>" queries. A
+   single-property site rarely displaces them for the head term. It wins the
+   longer, higher-intent ones — "luxury apartments East End Rochester", "luxury
+   apartments downtown Rochester with parking", "Charlotte Square Rochester" —
+   and those convert better anyway. Being accurate and complete *on* the
+   aggregators is part of the strategy, not a competitor to it.
+3. **Reviews and links.** Resident reviews on the Business Profile, and links
+   from Rochester sources — the East End business association, the Inner Loop
+   coverage, SWBR's project page, Evolution24's own site — are what move a
+   local result. There is no on-page substitute.
+
+Realistic target: page one for the East End and brand-qualified variants within a
+few months of the cutover, and a map-pack slot once the profile is live. The
+unqualified head term is a longer campaign.
+
 ### After the cutover
 
 1. Verify `www.charlottesquareroc.com` in Google Search Console and Bing Webmaster Tools, submit `sitemap.xml`, and use the URL Inspection tool on each of the seven pages.
@@ -370,6 +408,16 @@ black appliances where every confirmed frame is stainless, and
 `residence-living.jpg` shows a sliding door onto a fenced ground-level lawn that
 the aerial says this building does not have.
 
+**The pocket park was one photograph in two crops.** `pocket-park-summer.jpg` is
+a tighter framing of `hero-park.jpg` — one afternoon, one shutter press. The hash
+pass put them 23% apart because the crop differs, exactly the way it missed
+`gallery-05` against `hero-exterior`. Both files stay, because every amenity on
+that page pairs a bento tile with a detail section and every other pair uses two
+genuinely different frames — terrace with terrace-evening, fitness-center with
+fitness-rig, community-room with leasing-lounge. The park was the one pair
+reusing a single file, which is why it read as a repeat. The tile takes the wide
+crop now and the section keeps the tight one.
+
 **Ten more files were duplicates.** A perceptual-hash pass found seven groups of
 near-identical frames: one photograph carrying two or three filenames. The
 terrace was three crops of a single second, shown on the hero, the amenities page
@@ -450,6 +498,43 @@ implementation is wrong:
 The capture day is still worth doing for everything else: the fitness frame is
 780px, the terrace and park frames are the 2016 shoot, and the owner's newer
 listing photography is better than most of what is here.
+
+### Choosing a hero frame
+
+A hero photograph is judged on what sits *under the type*, not only on what it
+shows. The scrim is a vertical gradient — heavy at the very bottom, thin through
+the middle — and the headline lands in the thin part, so fine detail there fights
+the letterforms however good the photograph is.
+
+`scripts/heroscore.py` measures it. For each candidate it reproduces the
+browser's `object-fit: cover` crop at phone and desktop sizes, applies the scrim
+as a per-row alpha, and reports the **mean local standard deviation of luminance
+inside the headline band** — busyness — along with the band's mean luminance,
+which is what white type needs to stay clear of.
+
+Run it after adding any photograph you are considering for a hero:
+
+```bash
+python3 scripts/heroscore.py
+```
+
+The aerial that used to be slide two scored **0.100**, nearly three times the
+calmest frame and the only one flagged at full size: the headline was landing on
+rooftops, parked cars and solar panels. It is a good photograph and it still
+leads the story page, where the type is one short line. It was not a hero.
+
+| Frame | Busy | Band luminance | |
+|---|---|---|---|
+| `community-room.jpg` | 0.027 | 0.440 | calm, but bright, and it carries the home intro collage |
+| `lobby-corridor.jpg` | 0.027 | 0.419 | the calmest, but muted — a weak second impression |
+| `hero-park.jpg` | 0.029 | 0.385 | a crop of the pocket-park frame already on the page |
+| `hero-exterior.jpg` | 0.038 | 0.326 | slide one |
+| `exterior-corner.jpg` | 0.050 | **0.233** | best contrast, best photograph — **slide two** |
+| `hero-aerial.jpg` | 0.100 | 0.303 | retired from the hero |
+
+`exterior-corner.jpg` is only 1,140px, because it arrived as a screenshot. It
+upscales about 1.25×, which is mild at 1× and soft on a retina desktop. It is
+the first file to re-pull at full size from the listing.
 
 ### Virtual staging
 
@@ -551,6 +636,30 @@ The form in `contact/index.html` validates in the browser and then does one of t
 
 To go live with a real inbox: create a form at Formspree (or similar), paste its URL into `data-endpoint`, done. A honeypot field is already included. Query strings pre-select fields, so `contact/?plan=2&interest=tour` opens the form ready for a two-bedroom tour request; the residences cards and every "Schedule a tour" button already use this.
 
+## One style, three archived
+
+The site ships in **Gallery** — editorial serif, white space, oxblood accent.
+Four directions were built so the choice could be made by looking rather than by
+describing, and a floating switcher moved between them during review. Gallery was
+chosen in September 2026; the switcher and the other directions came out, because
+a control that lets a visitor restyle the building's website is a review tool,
+not a feature.
+
+`archive/` holds Atelier, Dusk and the whole switcher — CSS, markup, the no-flash
+head script and the JS — with `archive/README.md` explaining how to put any of
+them back. Nothing there is served: no page links into it, the sitemap excludes
+it and `robots.txt` disallows it.
+
+**Brick & Stone is not in the archive, and cannot be.** It is the base layer —
+the `:root` tokens and every component rule in `main.css`. Gallery is an override
+of it on `<html data-style="gallery">`, which every page now carries. So the base
+is load-bearing even though no page renders it unstyled, and restoring Brick &
+Stone means removing one attribute rather than adding a file.
+
+Removing the three cut `main.css` from 1,502 lines to 1,145 and took one inline
+script out of every page, which is one fewer SHA-256 hash in the Content Security
+Policy.
+
 ## Design system
 
 Everything is a token in `assets/css/main.css`:
@@ -597,13 +706,25 @@ Worth knowing if you touch this: the style token blocks are
 `html:root[data-style="…"]`, specificity (0,2,1). A plain `[data-style="…"]`
 override is (0,1,0) and loses silently — no error, the old value just stays.
 
-### Locking in a style for launch
+### The wordmark
 
-The switcher is a review tool. Once a direction is chosen:
+The lockup is one constant, `BRAND`, with three consumers — header, drawer and
+footer — so the name cannot drift between them. It carries the short name over a
+small-caps descriptor:
 
-1. Set it on the root element of every page: `<html lang="en" data-style="gallery">` (omit the attribute for Brick & Stone).
-2. Delete the `<div class="styler" …>` block from each page's footer and the "Style switcher" block in `assets/js/main.js`, plus the no-flash script in each `<head>` that reads `cs-style`.
-3. Optionally delete the other styles' blocks from `main.css` and their font files from `assets/fonts/` to trim weight.
+> **Charlotte Square**
+> AT THE EAST END
+
+*Charlotte Square at the East End* is the building's full name; it is what the
+architects, the city and the old listings call it. Putting the descriptor under
+the wordmark rather than beside it keeps the lockup narrow enough to sit next to
+the Menu button on a 320px phone — measured, with 29px of clearance to spare —
+while the full name appears on every page for anyone, or anything, reading the
+site. It is also `alternateName` on the `ApartmentComplex` node.
+
+The descriptor is sized in `em` so it tracks whatever a style does to `.brand`,
+and set in the body face because the display faces are not built to hold
+letter-spacing at nine pixels.
 
 ## A note on the terrace
 

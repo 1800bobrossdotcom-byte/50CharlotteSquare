@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-style="gallery">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,7 +9,11 @@
   :root { color-scheme: light dark; --brick:#D2452D; --ink:#121316; --stone:#F4F1EB; }
   body { margin:0; min-height:100svh; display:grid; place-items:center; text-align:center; padding:2rem;
          background: var(--ink); color: var(--stone); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  .mark { width:64px; height:64px; margin:0 auto 1.5rem; }
+  .mark { width:64px; height:64px; margin:0 auto 1rem; }
+  .wordmark { font-weight:800; letter-spacing:-.02em; font-size:1.2rem; margin:0 0 .3rem; }
+  .wordmark b { font-weight:400; }
+  .tagline { font-size:.62rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+             color: rgba(244,241,235,.55); margin:0 0 2rem; }
   h1 { font-size: clamp(2.5rem, 8vw, 5rem); letter-spacing:-.035em; line-height:1; margin:0 0 1rem; }
   p { color: rgba(244,241,235,.7); max-width: 32rem; margin: 0 auto 2rem; font-size: 1.1rem; }
   a.btn { display:inline-block; padding:1rem 1.75rem; border-radius:999px; background: var(--brick); color:#fff; font-weight:700; text-decoration:none; }
@@ -18,6 +22,8 @@
 <body>
   <div>
     <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#A93B3F"/><path d="M9 9 H55 V27 H45 V19 H19 V45 H55 V55 H9 Z" fill="#fff"/></svg>
+    <p class="wordmark">Charlotte <b>Square</b></p>
+    <p class="tagline">at the East End</p>
     <h1>Wrong door.</h1>
     <p>That page isn't here. The building is at 50 Charlotte Street; the homepage is one tap away.</p>
     <a class="btn" href="/">Back to Charlotte Square</a>

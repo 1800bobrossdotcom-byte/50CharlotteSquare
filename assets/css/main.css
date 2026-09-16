@@ -263,8 +263,17 @@ button { font: inherit; color: inherit; }
   font-family: var(--font-display); font-weight: 800; font-size: 1.22rem; letter-spacing: -.02em; line-height: 1;
 }
 .brand__mark { width: 2.15rem; height: 2.15rem; flex: none; }   /* the mark carries its own colour */
+.brand__text { display: grid; gap: .12em; min-width: 0; }
 .brand__name { white-space: nowrap; }
 .brand__name b { font-weight: 500; }
+/* The descriptor. Sized in em so it tracks whatever each style does to .brand,
+   and set in the body face because the display faces are not built to hold
+   letter-spacing at this size. */
+.brand__tag {
+  font-family: var(--font-body);
+  font-size: .46em; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  line-height: 1; white-space: nowrap; opacity: .74;
+}
 .nav { display: none; gap: 1.9rem; }
 .nav a { text-decoration: none; font-weight: 600; font-size: .95rem; position: relative; padding: .45rem 0; }
 .nav a::after {
@@ -724,11 +733,18 @@ html.js .reveal.is-in { opacity: 1; transform: none; }
 .hero__media .ph__label { bottom: auto; top: calc(var(--header-h) + .85rem); }
 
 /* =============================================================================
-   MOCK-UP STYLES — three switchable design directions
-   Style 1 "Brick & Stone" is the base palette above. The two below override
-   tokens (and a few structures) on <html data-style="...">. To lock a style
-   for launch: set data-style on <html>, delete the other blocks, remove the
-   switcher markup and its JS.
+   GALLERY — the style this site ships in.
+   -----------------------------------------------------------------------------
+   Everything above is the base layer. Gallery overrides its tokens and a few of
+   its structures on <html data-style="gallery">, which every page now carries,
+   so the base is load-bearing and cannot be deleted even though no page renders
+   it unstyled.
+
+   Three other directions were built and reviewed: Brick & Stone (the base layer
+   on its own), Atelier and Dusk. Atelier, Dusk and the switcher that moved
+   between them are in archive/styles/ with instructions for putting any of them
+   back. Brick & Stone needs no file — it is what you get by removing the
+   data-style attribute.
    ============================================================================= */
 [hidden] { display: none !important; }
 
@@ -823,366 +839,6 @@ html:root[data-style="gallery"] {
 [data-style="gallery"] .band .btn--light { --btn-bg: var(--bg); --btn-fg: var(--fg); }
 [data-style="gallery"] .band .eyebrow { color: var(--accent-on-dark); }
 [data-style="gallery"] .band .eyebrow::before { background: var(--accent-on-dark); }
-
-/* ---------- Style 3: Atelier — bone ground, clay accent, serif + grotesk ------
-   A deliberate blend of the first two directions: Brick & Stone's warmth and
-   photographic confidence, Gallery's editorial restraint and hairline structure.
-   It also scrolls differently. Section headings pin while their content passes,
-   the amenity grid becomes a horizontal snap rail, sections carry numbers in the
-   margin, and a hairline progress line tracks the page.
-   ---------------------------------------------------------------------------- */
-html:root[data-style="atelier"] {
-  --bg: #EFEAE1; --bg-elev: #FAF7F1; --bg-sunken: #E4DCCE;
-  --fg: #1F1B17; --fg-muted: #574F45; --fg-subtle: #8B8176;
-  --line: rgba(31, 27, 23, .16); --line-strong: rgba(31, 27, 23, .38);
-  --accent: #A8482A; --accent-hover: #8A3820; --accent-fg: #FFFFFF;
-  --accent-tint: #F2E2D8; --accent-on-dark: #E0906C;
-  --focus-ring: #2F6FED;
-  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
-  --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --radius: .4rem; --radius-sm: .3rem; --radius-xs: .2rem; --pill: 999px;
-  --shadow: 0 30px 70px -40px rgba(31, 27, 23, .45); --shadow-sm: none;
-  --fs-display: clamp(3rem, 5.4vw + .75rem, 6.2rem);
-  --fs-h1: clamp(2.6rem, 4vw + .75rem, 4.6rem);
-  --fs-h2: clamp(2.1rem, 2.4vw + .75rem, 3.4rem);
-  --fs-h3: clamp(1.35rem, .8vw + 1rem, 1.75rem);
-  --lh-snug: 1.06;
-}
-/* The serif carries the display sizes; the grotesk holds every working label */
-[data-style="atelier"] :is(h1, h2, h3, .hero__title, .plan__name, .tile__title, .pull, .band h2, .faq summary, .amenity h3) {
-  font-weight: 400; letter-spacing: -.008em;
-}
-[data-style="atelier"] .brand { font-family: var(--font-body); font-weight: 800; font-size: 1.16rem; letter-spacing: -.02em; }
-[data-style="atelier"] .brand__name b { font-weight: 400; }
-[data-style="atelier"] .stat__value, [data-style="atelier"] .step__num { font-family: var(--font-display); font-weight: 400; }
-[data-style="atelier"] .stat__value small { font-family: var(--font-body); font-weight: 700; }
-[data-style="atelier"] .hero__title .accent, [data-style="atelier"] .pull em { font-style: italic; }
-[data-style="atelier"] .eyebrow { font-size: .7rem; letter-spacing: .2em; font-weight: 700; }
-[data-style="atelier"] .eyebrow::before { width: 1.4rem; height: 1px; border-radius: 0; }
-[data-style="atelier"] .ticker__item { font-style: italic; font-weight: 400; }
-[data-style="atelier"] .ticker__item::after { width: .3em; height: .3em; border-radius: 50%; }
-
-/* Hero: the headline alone sits on paper, as a banner that wipes in. Everything
-   else is condensed onto the photograph, so the landscape view stays the subject
-   instead of being buried under a block of text. */
-[data-style="atelier"] .topbar { color: #fff; }
-[data-style="atelier"] .hero::after {
-  background: linear-gradient(180deg, rgba(31, 27, 23, .52) 0%, rgba(31, 27, 23, .14) 34%, rgba(31, 27, 23, .8) 100%);
-}
-/* static so the slideshow bar anchors to the hero rather than to this block */
-[data-style="atelier"] .hero__inner { position: static; padding-bottom: 7.5rem; }
-@media (min-width: 760px) { [data-style="atelier"] .hero__inner { padding-bottom: clamp(5rem, 8vw, 7rem); } }
-[data-style="atelier"] .hero--short .hero__inner { padding-bottom: clamp(2.5rem, 5vw, 4rem); }
-[data-style="atelier"] .hero .eyebrow { color: #F4DACB; }
-[data-style="atelier"] .hero .eyebrow::before { background: var(--accent-on-dark); }
-
-/* The banner */
-[data-style="atelier"] .hero__title {
-  /* block-level so it clears the eyebrow, but only as wide as its own text */
-  display: block; width: fit-content; max-width: min(100%, 22ch);
-  background: var(--bg-elev); color: var(--fg); text-shadow: none;
-  padding: clamp(.7rem, 1.3vw, 1.15rem) clamp(1rem, 1.9vw, 1.6rem) clamp(.85rem, 1.5vw, 1.3rem);
-  border-radius: var(--radius); box-shadow: var(--shadow);
-  animation: atelier-banner 1s var(--ease) both;
-}
-[data-style="atelier"] .hero--short .hero__title { max-width: min(100%, 26ch); font-size: clamp(2.1rem, 3vw + .7rem, 3.9rem); }
-@keyframes atelier-banner { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-/* the banner wipes as one piece, so the per-line rise is off here */
-[data-style="atelier"] .hero__line { clip-path: none; animation: none; padding-bottom: 0; margin-bottom: 0; }
-[data-style="atelier"] .hero__line > span { transform: none; animation: none; }
-
-/* Supporting information, condensed onto the photograph */
-[data-style="atelier"] .hero__lead { color: rgba(255, 255, 255, .9); font-size: 1.02rem; max-width: 34rem; margin-bottom: 1.4rem; }
-[data-style="atelier"] .hero__aside { color: rgba(255, 255, 255, .82); }
-[data-style="atelier"] .hero__aside strong { color: #fff; }
-[data-style="atelier"] .hero .btn--ghost { border-color: rgba(255, 255, 255, .55); color: #fff; }
-[data-style="atelier"] .hero .btn--ghost:hover { border-color: #fff; }
-@media (min-width: 900px) {
-  [data-style="atelier"] .hero__grid { grid-template-columns: minmax(0, 1.55fr) auto; align-items: end; gap: 1.25rem 2.5rem; }
-  [data-style="atelier"] .hero__aside { justify-items: end; text-align: right; }
-}
-[data-style="atelier"] .hero__bar {
-  position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto;
-  width: min(100% - 2 * var(--gutter), var(--container));
-  padding-block: 1rem clamp(1.25rem, 2.5vw, 2rem); color: rgba(255, 255, 255, .85);
-  border-top-color: rgba(255, 255, 255, .22);
-}
-[data-style="atelier"] .hero__caption b { color: #fff; }
-[data-style="atelier"] .hero__seg i { background: #fff; }
-/* On a short landscape window the hero has to earn its height: the banner and
-   the supporting lines tighten so the photograph still reads as a photograph. */
-@media (min-width: 900px) and (max-height: 860px) {
-  [data-style="atelier"] .hero__inner { padding-top: calc(var(--header-h) + 1.5rem); padding-bottom: 5.5rem; }
-  [data-style="atelier"] .hero .eyebrow { margin-bottom: .7rem; }
-  [data-style="atelier"] .hero__title { font-size: clamp(2.6rem, 3.8vw, 4rem); padding: .65rem 1.2rem .85rem; margin-bottom: .9rem; }
-  [data-style="atelier"] .hero__lead { font-size: .97rem; max-width: 30rem; margin-bottom: 1rem; }
-  [data-style="atelier"] .hero__bar { padding-block: .75rem 1.1rem; }
-}
-
-/* Scroll behaviour: headings pin while their section passes beneath */
-@media (min-width: 900px) {
-  [data-style="atelier"] .amenity { align-items: start; }
-  [data-style="atelier"] .amenity > .reveal:last-child { position: sticky; top: calc(var(--header-h) + 3rem); }
-  [data-style="atelier"] .step { grid-template-columns: 8rem 1fr; }
-  [data-style="atelier"] .step__num { position: sticky; top: calc(var(--header-h) + 2rem); }
-}
-/* Sections are numbered in the margin, the way a set of drawings would be */
-[data-style="atelier"] body { counter-reset: sec; }
-[data-style="atelier"] .section__head { counter-increment: sec; }
-[data-style="atelier"] .section__head .eyebrow::after {
-  content: counter(sec, decimal-leading-zero); margin-left: .35rem;
-  opacity: .5; font-variant-numeric: tabular-nums;
-}
-/* Hairline rules instead of filled bands */
-[data-style="atelier"] .section + .section, [data-style="atelier"] .section--sunken, [data-style="atelier"] .section--elev { border-top: 1px solid var(--line); }
-[data-style="atelier"] .section--sunken { background: var(--bg); }
-[data-style="atelier"] .section--elev { background: var(--bg-elev); }
-
-/* The amenity grid becomes a horizontal rail you scroll through */
-[data-style="atelier"] .bento {
-  display: flex; grid-template-columns: none; grid-auto-rows: auto;
-  overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
-  margin-inline: calc(var(--gutter) * -1); padding: 0 var(--gutter) 1.25rem;
-  scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent;
-}
-[data-style="atelier"] .bento::-webkit-scrollbar { height: 6px; }
-[data-style="atelier"] .bento::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 3px; }
-[data-style="atelier"] .bento::-webkit-scrollbar-track { background: var(--line); border-radius: 3px; }
-[data-style="atelier"] .tile {
-  flex: 0 0 min(21rem, 74vw); scroll-snap-align: start; aspect-ratio: 3 / 4; padding: 1.4rem;
-}
-[data-style="atelier"] .tile--stone { background: var(--bg-sunken); }
-[data-style="atelier"] .tile--solid { background: var(--accent); }
-[data-style="atelier"] .tile--sand { background: linear-gradient(160deg, var(--sand), var(--sand-700)); }
-[data-style="atelier"] .tile--sky { background: linear-gradient(160deg, #6E93B2, var(--sky-900)); }
-[data-style="atelier"] .tile--sage { background: linear-gradient(160deg, #6D8C81, var(--sage-900)); }
-
-/* Surfaces: hairlines and paper, no drop shadows */
-[data-style="atelier"] .plan,
-[data-style="atelier"] .card:not(.card--ink):not(.card--accent) { background: var(--bg-elev); box-shadow: none; }
-[data-style="atelier"] .card--ink { background: #241E19; }
-[data-style="atelier"] .plan:hover { transform: none; border-color: var(--fg); box-shadow: none; }
-[data-style="atelier"] .plan__tag, [data-style="atelier"] .badge { background: transparent; border: 1px solid var(--line-strong); color: var(--fg); }
-[data-style="atelier"] .feature__icon { background: transparent; border: 1px solid var(--line-strong); color: var(--fg); border-radius: 50%; }
-[data-style="atelier"] .feature:nth-child(4n + 2) .feature__icon { color: var(--sage-900); border-color: var(--sage); }
-[data-style="atelier"] .feature:nth-child(4n + 3) .feature__icon { color: var(--sand-900); border-color: var(--sand); }
-[data-style="atelier"] .feature:nth-child(4n + 4) .feature__icon { color: var(--sky-900); border-color: var(--sky); }
-[data-style="atelier"] .section--ink .feature__icon { border-color: rgba(245, 241, 233, .32); color: #EFE6DA; }
-[data-style="atelier"] .section--ink .feature:nth-child(4n + 2) .feature__icon { border-color: rgba(168, 203, 188, .55); color: #A8CBBC; }
-[data-style="atelier"] .section--ink .feature:nth-child(4n + 3) .feature__icon { border-color: rgba(235, 183, 124, .55); color: #EBB77C; }
-[data-style="atelier"] .section--ink .feature:nth-child(4n + 4) .feature__icon { border-color: rgba(168, 198, 222, .55); color: #A8C6DE; }
-[data-style="atelier"] .checklist li::before { background: var(--fg); }
-[data-style="atelier"] .chip.is-active { background: var(--fg); color: var(--bg); border-color: var(--fg); }
-[data-style="atelier"] .map iframe { filter: saturate(.7) contrast(.95); }
-
-/* Dark passages stay warm and quiet rather than black */
-[data-style="atelier"] .section--ink {
-  background: radial-gradient(70% 60% at 85% 0%, rgba(210, 145, 78, .18), transparent 60%), #241E19;
-}
-[data-style="atelier"] .band {
-  background: var(--bg-sunken); color: var(--fg);
-  border-block: 1px solid var(--line);
-}
-[data-style="atelier"] .band::before { display: none; }
-[data-style="atelier"] .band p { color: var(--fg-muted); }
-[data-style="atelier"] .band .eyebrow { color: var(--accent); }
-[data-style="atelier"] .band .eyebrow::before { background: currentColor; }
-[data-style="atelier"] .band .btn--light { --btn-bg: var(--fg); --btn-fg: var(--bg-elev); }
-[data-style="atelier"] .band .btn--ghost { border-color: var(--line-strong); color: var(--fg); }
-[data-style="atelier"] .band .btn--ghost:hover { border-color: var(--fg); }
-[data-style="atelier"] .footer { background: #241E19; }
-
-/* A hairline that tracks how far down the page you are */
-@supports (animation-timeline: scroll()) {
-  [data-style="atelier"] body::after {
-    content: ""; position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 80;
-    background: var(--accent); transform: scaleX(0); transform-origin: 0 50%;
-    animation: atelier-progress linear both; animation-timeline: scroll(root block);
-  }
-  @keyframes atelier-progress { to { transform: scaleX(1); } }
-}
-
-/* ---------- Style 4: Dusk — warm espresso ground, ember accent ----------------
-   The dark option, built with Atelier's restraint rather than volume. The ground
-   is a warm near-black rather than a blue-black, the accent is the brick warmed
-   to an ember so it sits on dark without vibrating, and a trace of film grain
-   keeps the large dark fields from reading as flat screen-black. Photographs
-   carry the page; the interface gets out of their way.
-   ---------------------------------------------------------------------------- */
-html:root[data-style="dusk"] {
-  --bg: #15110E; --bg-elev: #201A15; --bg-sunken: #100D0A;
-  --fg: #F0E8DC; --fg-muted: #B3A797; --fg-subtle: #8A7E70;
-  --line: rgba(240, 232, 220, .13); --line-strong: rgba(240, 232, 220, .32);
-  --accent: #E0734A; --accent-hover: #ED8862; --accent-fg: #15110E;
-  --accent-tint: rgba(224, 115, 74, .16); --accent-on-dark: #E0734A;
-  --ok-bg: rgba(94, 122, 112, .24); --ok-fg: #CFE0D8;
-  --focus-ring: #7FB3FF;
-  --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
-  --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --radius: .9rem; --radius-sm: .55rem; --radius-xs: .3rem;
-  --shadow: 0 40px 90px -45px rgba(0, 0, 0, .9); --shadow-sm: 0 14px 36px -22px rgba(0, 0, 0, .8);
-  --fs-display: clamp(2.7rem, 5.2vw + .6rem, 5.6rem);
-  --fs-h1: clamp(2.3rem, 4vw + .6rem, 4.3rem);
-  --fs-h2: clamp(1.95rem, 2.4vw + .6rem, 3.1rem);
-}
-/* Lighter than Brick & Stone's headline weight, with a touch more air */
-[data-style="dusk"] :is(h1, h2, h3, .hero__title, .plan__name, .tile__title, .stat__value, .step__num, .pull, .band h2, .faq summary, .amenity h3, .brand, .drawer__nav a, .ticker__item, .evo) {
-  font-weight: 500; letter-spacing: -.018em;
-}
-[data-style="dusk"] .brand { font-weight: 700; }
-[data-style="dusk"] .brand__name b { font-weight: 300; }
-[data-style="dusk"] .hero__title { letter-spacing: -.028em; }
-[data-style="dusk"] .eyebrow { font-weight: 600; letter-spacing: .19em; }
-
-/* A trace of grain so the dark fields read as photographic, not as switched-off screen */
-[data-style="dusk"] body::before {
-  content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: .055;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* Hero: a film still, then the type beneath it on the dark ground. Nothing sits
-   on top of the photograph, so the espresso field is the first thing you read
-   and the picture keeps its full frame. */
-[data-style="dusk"] .hero {
-  display: flex; flex-direction: column; min-height: 0; background: var(--bg);
-  align-items: stretch; justify-content: flex-start;
-}
-[data-style="dusk"] .hero::after { display: none; }
-[data-style="dusk"] .hero__media {
-  position: relative; inset: auto; z-index: 0; flex: none;
-  height: min(58svh, 38rem); overflow: hidden;
-}
-[data-style="dusk"] .hero--short .hero__media { height: min(42svh, 25rem); }
-/* the picture keeps its full frame, but the navigation still needs a floor to
-   stand on, so the scrim is confined to the header strip */
-[data-style="dusk"] .hero__media::after {
-  content: ""; position: absolute; inset: 0 0 auto 0; z-index: 2; pointer-events: none;
-  height: calc(var(--header-h) + 3.5rem);
-  background: linear-gradient(180deg, rgba(21, 17, 14, .66) 0%, rgba(21, 17, 14, .3) 55%, transparent 100%);
-}
-[data-style="dusk"] .hero__inner {
-  display: flex; flex-direction: column; position: static;
-  padding-top: clamp(1.5rem, 2.6vw, 2.5rem); padding-bottom: clamp(2.5rem, 5vw, 4.5rem);
-}
-/* the slide caption reads as a still's caption, directly under the picture */
-[data-style="dusk"] .hero__bar {
-  order: -1; position: static; width: auto; margin: 0 0 clamp(1.5rem, 3vw, 2.5rem);
-  padding-block: 0 1.1rem; border-top: 0; border-bottom: 1px solid var(--line);
-  color: var(--fg-muted);
-}
-[data-style="dusk"] .hero__caption b { color: var(--fg); }
-[data-style="dusk"] .hero__seg::after { background: var(--line-strong); }
-[data-style="dusk"] .hero__btn { background: transparent; border-color: var(--line-strong); color: var(--fg); -webkit-backdrop-filter: none; backdrop-filter: none; }
-[data-style="dusk"] .hero__btn:hover { border-color: var(--accent); }
-/* on a clean ground the type needs no scrim and no shadow */
-[data-style="dusk"] :is(.hero .eyebrow, .hero__title, .hero__lead, .hero__aside, .hero__bar) { text-shadow: none; }
-[data-style="dusk"] .hero__title { max-width: 20ch; }
-[data-style="dusk"] .hero--short .hero__title { max-width: 26ch; }
-[data-style="dusk"] .hero__lead { color: var(--fg-muted); }
-[data-style="dusk"] .hero__aside { color: var(--fg-muted); }
-[data-style="dusk"] .hero__aside strong { color: var(--fg); }
-[data-style="dusk"] .hero .btn--ghost { border-color: var(--line-strong); color: var(--fg); }
-[data-style="dusk"] .hero .btn--ghost:hover { border-color: var(--fg); }
-[data-style="dusk"] .hero .eyebrow, [data-style="dusk"] .hero .accent { color: var(--accent); }
-[data-style="dusk"] .hero .eyebrow::before { background: currentColor; }
-/* the header rides on the picture, so it stays light until the page scrolls */
-[data-style="dusk"] .topbar { color: #fff; }
-
-/* Section heads open on a hairline, like a title card */
-[data-style="dusk"] .section__head { border-top: 1px solid var(--line); padding-top: clamp(1.25rem, 2.2vw, 2rem); }
-[data-style="dusk"] .section__head .eyebrow { margin-bottom: .85rem; }
-[data-style="dusk"] .brand__mark { color: var(--accent); }
-
-/* Surfaces: warm panels and hairlines, never a black box */
-[data-style="dusk"] .section--elev { background: var(--bg-elev); border-block: 1px solid var(--line); }
-[data-style="dusk"] .section--sunken { background: var(--bg-sunken); }
-[data-style="dusk"] .stats-wrap { border-block: 1px solid var(--line); }
-[data-style="dusk"] .section--ink {
-  background: radial-gradient(75% 60% at 85% 0%, rgba(224, 115, 74, .16), transparent 62%),
-              radial-gradient(60% 55% at 0% 100%, rgba(94, 122, 112, .14), transparent 60%), var(--bg-elev);
-}
-[data-style="dusk"] .plan, [data-style="dusk"] .card:not(.card--ink):not(.card--accent) {
-  background: var(--bg-elev); border-color: var(--line);
-}
-[data-style="dusk"] .plan:hover { border-color: rgba(224, 115, 74, .5); }
-[data-style="dusk"] .card--ink { background: var(--accent); color: #15110E; border-color: transparent; }
-[data-style="dusk"] .card--ink .card__kicker, [data-style="dusk"] .card--ink p { color: rgba(21, 17, 14, .78); }
-[data-style="dusk"] .card--ink .btn--light { --btn-bg: #15110E; --btn-fg: var(--fg); }
-[data-style="dusk"] .btn--light { --btn-bg: var(--fg); --btn-fg: var(--bg); }
-[data-style="dusk"] .tile { border: 1px solid var(--line); }
-[data-style="dusk"] .tile:hover { border-color: rgba(224, 115, 74, .45); }
-[data-style="dusk"] .tile--stone { background: var(--bg-elev); color: var(--fg); }
-[data-style="dusk"] .tile--stone .tile__icon { color: var(--accent); }
-[data-style="dusk"] .tile--solid { background: var(--accent); color: #15110E; }
-[data-style="dusk"] .tile--solid .tile__icon { color: #15110E; }
-[data-style="dusk"] .tile--sage { background: linear-gradient(150deg, #4E6961, #24352F); }
-[data-style="dusk"] .tile--sand { background: linear-gradient(150deg, #B87A3C, #6E4315); }
-[data-style="dusk"] .tile--sky { background: linear-gradient(150deg, #4F708C, #22384A); }
-
-/* Icons keep the supporting hues, pitched for a dark ground */
-[data-style="dusk"] .feature:nth-child(4n + 2) .feature__icon { background: rgba(126, 163, 149, .18); color: #A8CBBC; }
-[data-style="dusk"] .feature:nth-child(4n + 3) .feature__icon { background: rgba(210, 145, 78, .18); color: #EBB77C; }
-[data-style="dusk"] .feature:nth-child(4n + 4) .feature__icon { background: rgba(92, 127, 158, .2); color: #A8C6DE; }
-[data-style="dusk"] .section--ink .feature__icon { background: rgba(240, 232, 220, .08); color: var(--accent); }
-[data-style="dusk"] .section--ink .feature:nth-child(4n + 2) .feature__icon { background: rgba(126, 163, 149, .2); color: #A8CBBC; }
-[data-style="dusk"] .section--ink .feature:nth-child(4n + 3) .feature__icon { background: rgba(210, 145, 78, .2); color: #EBB77C; }
-[data-style="dusk"] .section--ink .feature:nth-child(4n + 4) .feature__icon { background: rgba(92, 127, 158, .22); color: #A8C6DE; }
-
-/* The closing band carries the one saturated field on the page */
-[data-style="dusk"] .band { background: linear-gradient(115deg, #C25A33 0%, var(--accent) 55%, #EE9163 100%); color: #15110E; }
-[data-style="dusk"] .band::before { background: radial-gradient(60% 80% at 100% 0%, rgba(255, 255, 255, .22), transparent 60%); }
-[data-style="dusk"] .band p { color: rgba(21, 17, 14, .8); }
-[data-style="dusk"] .band .eyebrow { color: #15110E; }
-[data-style="dusk"] .band .eyebrow::before { background: #15110E; }
-[data-style="dusk"] .band .btn--light { --btn-bg: #15110E; --btn-fg: var(--fg); }
-[data-style="dusk"] .band .btn--ghost { border-color: rgba(21, 17, 14, .5); color: #15110E; }
-[data-style="dusk"] .band .btn--ghost:hover { border-color: #15110E; }
-
-[data-style="dusk"] .footer { background: var(--bg-sunken); border-top: 1px solid var(--line); }
-[data-style="dusk"] .evo-block { background: var(--bg-elev); border: 1px solid var(--line); }
-[data-style="dusk"] .map iframe { filter: invert(.9) hue-rotate(180deg) saturate(.55) brightness(.92); }
-[data-style="dusk"] .map__pin { color: var(--fg-subtle); }
-[data-style="dusk"] .chip.is-active { background: var(--accent); color: #15110E; border-color: var(--accent); }
-[data-style="dusk"] .link-arrow { color: var(--accent); }
-[data-style="dusk"] .diagram .diagram__label { fill: var(--accent); }
-[data-style="dusk"] .topbar.is-scrolled { box-shadow: 0 1px 0 var(--line); }
-[data-style="dusk"] .hero__seg i { background: var(--accent); }
-[data-style="dusk"] .hero__btn:hover { border-color: var(--accent); }
-[data-style="dusk"] .credits a { color: var(--accent); }
-
-/* ---------- Style switcher (review tool) ------------------------------------- */
-.styler { position: fixed; right: max(1rem, env(safe-area-inset-right, 0px)); bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); z-index: 70; font-family: "Manrope", system-ui, sans-serif; }
-.styler__btn {
-  display: inline-flex; align-items: center; gap: .6rem; padding: .6rem .95rem .6rem .7rem; border-radius: 999px;
-  background: #121316; color: #F4F1EB; border: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 12px 34px -12px rgba(0, 0, 0, .6);
-  font-size: .84rem; font-weight: 600; cursor: pointer; letter-spacing: 0;
-}
-.styler__btn:hover { border-color: rgba(255, 255, 255, .4); }
-.styler__dots { display: inline-flex; gap: 3px; }
-.styler__dots i { width: .55rem; height: .55rem; border-radius: 50%; display: block; }
-.styler__dots i:nth-child(1) { background: #F4F1EB; }
-.styler__dots i:nth-child(2) { background: #D2452D; }
-.styler__dots i:nth-child(3) { background: #E4B84A; }
-.styler__label b { font-weight: 800; }
-.styler__chev { width: .9rem; height: .9rem; opacity: .7; transition: transform .25s var(--ease); }
-.styler__btn[aria-expanded="true"] .styler__chev { transform: rotate(180deg); }
-.styler__menu {
-  position: absolute; right: 0; bottom: calc(100% + .6rem); width: min(21rem, calc(100vw - 2rem));
-  background: #121316; color: #F4F1EB; border-radius: 1rem; padding: .7rem; border: 1px solid rgba(255, 255, 255, .14);
-  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .7); display: grid; gap: .3rem;
-}
-.styler__title { font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; opacity: .55; margin: .3rem .55rem .45rem; font-weight: 700; }
-.styler__opt {
-  display: flex; align-items: center; gap: .8rem; width: 100%; text-align: left; padding: .6rem .6rem; border-radius: .75rem;
-  background: transparent; border: 1px solid transparent; color: inherit; cursor: pointer; font: inherit;
-}
-.styler__opt:hover { background: rgba(255, 255, 255, .06); }
-.styler__opt[aria-pressed="true"] { border-color: rgba(255, 255, 255, .28); background: rgba(255, 255, 255, .08); }
-.styler__opt b { display: block; font-size: .92rem; font-weight: 800; }
-.styler__opt small { display: block; font-size: .76rem; opacity: .62; line-height: 1.3; }
-.styler__sw { flex: none; width: 2.7rem; height: 1.8rem; border-radius: .45rem; border: 1px solid rgba(255, 255, 255, .22); background: linear-gradient(90deg, var(--a) 0 40%, var(--b) 40% 70%, var(--c) 70%); }
-.styler__foot { font-size: .7rem; opacity: .5; margin: .35rem .55rem .2rem; }
-@media print { .styler { display: none; } }
 
 /* ---------- Map fallback (also covers hosts that block the embed) ----------- */
 .map { position: relative; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 2.5rem 2.5rem; }
@@ -1335,17 +991,18 @@ body.lightbox-open { overflow: hidden; }
 }
 .lightbox__stage { width: fit-content; max-width: min(92vw, 1400px); }
 .lightbox__meta { max-width: 100%; }
-/* Phone refinements: compact style switcher, wordmark that always fits beside the Menu button */
-@media (max-width: 720px) {
-  .styler__label, .styler__chev { display: none; }
-  .styler__btn { padding: .7rem .8rem; gap: 0; }
-  .styler__menu { right: 0; }
-}
+/* Phone refinements: the wordmark and its descriptor always fit beside Menu */
 @media (max-width: 480px) {
-  .brand { gap: .55rem; }
-  [data-style="atelier"] .brand { font-size: 1rem; }
+  .brand { gap: .55rem; font-size: 1.08rem; }
+  .brand__mark { width: 1.85rem; height: 1.85rem; }
+  .brand__tag { font-size: .44em; letter-spacing: .12em; }
   [data-style="gallery"] .brand { font-size: 1.25rem; }
   .menu-btn { padding: .5rem .85rem; }
+}
+@media (max-width: 360px) {
+  .brand { font-size: 1rem; gap: .45rem; }
+  .brand__tag { letter-spacing: .09em; }
+  .menu-btn { padding: .5rem .7rem; font-size: .84rem; }
 }
 
 .hero .eyebrow, .hero__title, .hero__lead, .hero__aside, .hero__bar, .tile__title, .tile__sub {
@@ -1433,14 +1090,11 @@ p, .lead, .hero__lead, .prose p, .feature p, .card p, .step p, .tile__sub,
    style-src. With it, the policy is decoration — an injected
    <span style="position:fixed;inset:0"> still lands. Without it, it cannot.
    --------------------------------------------------------------------------- */
-.styler__sw--brick   { --a: #F4F1EB; --b: #D2452D; --c: #121316; }
-.styler__sw--gallery { --a: #FFFFFF; --b: #7A1F12; --c: #1A1A1A; }
-.styler__sw--atelier { --a: #EFEAE1; --b: #A8482A; --c: #241E19; }
-.styler__sw--dusk    { --a: #15110E; --b: #E0734A; --c: #F0E8DC; }
 
-/* Three class selectors, to tie [data-style="dusk"] .diagram .diagram__label on
-   specificity and beat it on source order — which is how the inline style used
-   to win. Drop one of these and the park label turns accent-coloured in Dusk. */
+/* Three class selectors. Only two are needed now that Dusk is archived, but the
+   third is what ties [data-style="dusk"] .diagram .diagram__label on specificity
+   and beats it on source order — which is how the inline style used to win.
+   Leave it: restoring Dusk without it turns the park label accent-coloured. */
 .diagram .diagram__label.diagram__label--park { fill: var(--sage); }
 
 /* Two class selectors, because `.diagram text` (0,1,1) outranks an SVG

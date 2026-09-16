@@ -1,0 +1,152 @@
+/* Archived Dusk — lifted out of assets/css/main.css when the site was locked
+   to Gallery. To restore: paste this back into main.css before the
+   "Map fallback" block and follow archive/styles/README.md. */
+
+/* ---------- Style 4: Dusk — warm espresso ground, ember accent ----------------
+   The dark option, built with Atelier's restraint rather than volume. The ground
+   is a warm near-black rather than a blue-black, the accent is the brick warmed
+   to an ember so it sits on dark without vibrating, and a trace of film grain
+   keeps the large dark fields from reading as flat screen-black. Photographs
+   carry the page; the interface gets out of their way.
+   ---------------------------------------------------------------------------- */
+html:root[data-style="dusk"] {
+  --bg: #15110E; --bg-elev: #201A15; --bg-sunken: #100D0A;
+  --fg: #F0E8DC; --fg-muted: #B3A797; --fg-subtle: #8A7E70;
+  --line: rgba(240, 232, 220, .13); --line-strong: rgba(240, 232, 220, .32);
+  --accent: #E0734A; --accent-hover: #ED8862; --accent-fg: #15110E;
+  --accent-tint: rgba(224, 115, 74, .16); --accent-on-dark: #E0734A;
+  --ok-bg: rgba(94, 122, 112, .24); --ok-fg: #CFE0D8;
+  --focus-ring: #7FB3FF;
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: .9rem; --radius-sm: .55rem; --radius-xs: .3rem;
+  --shadow: 0 40px 90px -45px rgba(0, 0, 0, .9); --shadow-sm: 0 14px 36px -22px rgba(0, 0, 0, .8);
+  --fs-display: clamp(2.7rem, 5.2vw + .6rem, 5.6rem);
+  --fs-h1: clamp(2.3rem, 4vw + .6rem, 4.3rem);
+  --fs-h2: clamp(1.95rem, 2.4vw + .6rem, 3.1rem);
+}
+/* Lighter than Brick & Stone's headline weight, with a touch more air */
+[data-style="dusk"] :is(h1, h2, h3, .hero__title, .plan__name, .tile__title, .stat__value, .step__num, .pull, .band h2, .faq summary, .amenity h3, .brand, .drawer__nav a, .ticker__item, .evo) {
+  font-weight: 500; letter-spacing: -.018em;
+}
+[data-style="dusk"] .brand { font-weight: 700; }
+[data-style="dusk"] .brand__name b { font-weight: 300; }
+[data-style="dusk"] .hero__title { letter-spacing: -.028em; }
+[data-style="dusk"] .eyebrow { font-weight: 600; letter-spacing: .19em; }
+
+/* A trace of grain so the dark fields read as photographic, not as switched-off screen */
+[data-style="dusk"] body::before {
+  content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: .055;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Hero: a film still, then the type beneath it on the dark ground. Nothing sits
+   on top of the photograph, so the espresso field is the first thing you read
+   and the picture keeps its full frame. */
+[data-style="dusk"] .hero {
+  display: flex; flex-direction: column; min-height: 0; background: var(--bg);
+  align-items: stretch; justify-content: flex-start;
+}
+[data-style="dusk"] .hero::after { display: none; }
+[data-style="dusk"] .hero__media {
+  position: relative; inset: auto; z-index: 0; flex: none;
+  height: min(58svh, 38rem); overflow: hidden;
+}
+[data-style="dusk"] .hero--short .hero__media { height: min(42svh, 25rem); }
+/* the picture keeps its full frame, but the navigation still needs a floor to
+   stand on, so the scrim is confined to the header strip */
+[data-style="dusk"] .hero__media::after {
+  content: ""; position: absolute; inset: 0 0 auto 0; z-index: 2; pointer-events: none;
+  height: calc(var(--header-h) + 3.5rem);
+  background: linear-gradient(180deg, rgba(21, 17, 14, .66) 0%, rgba(21, 17, 14, .3) 55%, transparent 100%);
+}
+[data-style="dusk"] .hero__inner {
+  display: flex; flex-direction: column; position: static;
+  padding-top: clamp(1.5rem, 2.6vw, 2.5rem); padding-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+/* the slide caption reads as a still's caption, directly under the picture */
+[data-style="dusk"] .hero__bar {
+  order: -1; position: static; width: auto; margin: 0 0 clamp(1.5rem, 3vw, 2.5rem);
+  padding-block: 0 1.1rem; border-top: 0; border-bottom: 1px solid var(--line);
+  color: var(--fg-muted);
+}
+[data-style="dusk"] .hero__caption b { color: var(--fg); }
+[data-style="dusk"] .hero__seg::after { background: var(--line-strong); }
+[data-style="dusk"] .hero__btn { background: transparent; border-color: var(--line-strong); color: var(--fg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+[data-style="dusk"] .hero__btn:hover { border-color: var(--accent); }
+/* on a clean ground the type needs no scrim and no shadow */
+[data-style="dusk"] :is(.hero .eyebrow, .hero__title, .hero__lead, .hero__aside, .hero__bar) { text-shadow: none; }
+[data-style="dusk"] .hero__title { max-width: 20ch; }
+[data-style="dusk"] .hero--short .hero__title { max-width: 26ch; }
+[data-style="dusk"] .hero__lead { color: var(--fg-muted); }
+[data-style="dusk"] .hero__aside { color: var(--fg-muted); }
+[data-style="dusk"] .hero__aside strong { color: var(--fg); }
+[data-style="dusk"] .hero .btn--ghost { border-color: var(--line-strong); color: var(--fg); }
+[data-style="dusk"] .hero .btn--ghost:hover { border-color: var(--fg); }
+[data-style="dusk"] .hero .eyebrow, [data-style="dusk"] .hero .accent { color: var(--accent); }
+[data-style="dusk"] .hero .eyebrow::before { background: currentColor; }
+/* the header rides on the picture, so it stays light until the page scrolls */
+[data-style="dusk"] .topbar { color: #fff; }
+
+/* Section heads open on a hairline, like a title card */
+[data-style="dusk"] .section__head { border-top: 1px solid var(--line); padding-top: clamp(1.25rem, 2.2vw, 2rem); }
+[data-style="dusk"] .section__head .eyebrow { margin-bottom: .85rem; }
+[data-style="dusk"] .brand__mark { color: var(--accent); }
+
+/* Surfaces: warm panels and hairlines, never a black box */
+[data-style="dusk"] .section--elev { background: var(--bg-elev); border-block: 1px solid var(--line); }
+[data-style="dusk"] .section--sunken { background: var(--bg-sunken); }
+[data-style="dusk"] .stats-wrap { border-block: 1px solid var(--line); }
+[data-style="dusk"] .section--ink {
+  background: radial-gradient(75% 60% at 85% 0%, rgba(224, 115, 74, .16), transparent 62%),
+              radial-gradient(60% 55% at 0% 100%, rgba(94, 122, 112, .14), transparent 60%), var(--bg-elev);
+}
+[data-style="dusk"] .plan, [data-style="dusk"] .card:not(.card--ink):not(.card--accent) {
+  background: var(--bg-elev); border-color: var(--line);
+}
+[data-style="dusk"] .plan:hover { border-color: rgba(224, 115, 74, .5); }
+[data-style="dusk"] .card--ink { background: var(--accent); color: #15110E; border-color: transparent; }
+[data-style="dusk"] .card--ink .card__kicker, [data-style="dusk"] .card--ink p { color: rgba(21, 17, 14, .78); }
+[data-style="dusk"] .card--ink .btn--light { --btn-bg: #15110E; --btn-fg: var(--fg); }
+[data-style="dusk"] .btn--light { --btn-bg: var(--fg); --btn-fg: var(--bg); }
+[data-style="dusk"] .tile { border: 1px solid var(--line); }
+[data-style="dusk"] .tile:hover { border-color: rgba(224, 115, 74, .45); }
+[data-style="dusk"] .tile--stone { background: var(--bg-elev); color: var(--fg); }
+[data-style="dusk"] .tile--stone .tile__icon { color: var(--accent); }
+[data-style="dusk"] .tile--solid { background: var(--accent); color: #15110E; }
+[data-style="dusk"] .tile--solid .tile__icon { color: #15110E; }
+[data-style="dusk"] .tile--sage { background: linear-gradient(150deg, #4E6961, #24352F); }
+[data-style="dusk"] .tile--sand { background: linear-gradient(150deg, #B87A3C, #6E4315); }
+[data-style="dusk"] .tile--sky { background: linear-gradient(150deg, #4F708C, #22384A); }
+
+/* Icons keep the supporting hues, pitched for a dark ground */
+[data-style="dusk"] .feature:nth-child(4n + 2) .feature__icon { background: rgba(126, 163, 149, .18); color: #A8CBBC; }
+[data-style="dusk"] .feature:nth-child(4n + 3) .feature__icon { background: rgba(210, 145, 78, .18); color: #EBB77C; }
+[data-style="dusk"] .feature:nth-child(4n + 4) .feature__icon { background: rgba(92, 127, 158, .2); color: #A8C6DE; }
+[data-style="dusk"] .section--ink .feature__icon { background: rgba(240, 232, 220, .08); color: var(--accent); }
+[data-style="dusk"] .section--ink .feature:nth-child(4n + 2) .feature__icon { background: rgba(126, 163, 149, .2); color: #A8CBBC; }
+[data-style="dusk"] .section--ink .feature:nth-child(4n + 3) .feature__icon { background: rgba(210, 145, 78, .2); color: #EBB77C; }
+[data-style="dusk"] .section--ink .feature:nth-child(4n + 4) .feature__icon { background: rgba(92, 127, 158, .22); color: #A8C6DE; }
+
+/* The closing band carries the one saturated field on the page */
+[data-style="dusk"] .band { background: linear-gradient(115deg, #C25A33 0%, var(--accent) 55%, #EE9163 100%); color: #15110E; }
+[data-style="dusk"] .band::before { background: radial-gradient(60% 80% at 100% 0%, rgba(255, 255, 255, .22), transparent 60%); }
+[data-style="dusk"] .band p { color: rgba(21, 17, 14, .8); }
+[data-style="dusk"] .band .eyebrow { color: #15110E; }
+[data-style="dusk"] .band .eyebrow::before { background: #15110E; }
+[data-style="dusk"] .band .btn--light { --btn-bg: #15110E; --btn-fg: var(--fg); }
+[data-style="dusk"] .band .btn--ghost { border-color: rgba(21, 17, 14, .5); color: #15110E; }
+[data-style="dusk"] .band .btn--ghost:hover { border-color: #15110E; }
+
+[data-style="dusk"] .footer { background: var(--bg-sunken); border-top: 1px solid var(--line); }
+[data-style="dusk"] .evo-block { background: var(--bg-elev); border: 1px solid var(--line); }
+[data-style="dusk"] .map iframe { filter: invert(.9) hue-rotate(180deg) saturate(.55) brightness(.92); }
+[data-style="dusk"] .map__pin { color: var(--fg-subtle); }
+[data-style="dusk"] .chip.is-active { background: var(--accent); color: #15110E; border-color: var(--accent); }
+[data-style="dusk"] .link-arrow { color: var(--accent); }
+[data-style="dusk"] .diagram .diagram__label { fill: var(--accent); }
+[data-style="dusk"] .topbar.is-scrolled { box-shadow: 0 1px 0 var(--line); }
+[data-style="dusk"] .hero__seg i { background: var(--accent); }
+[data-style="dusk"] .hero__btn:hover { border-color: var(--accent); }
+[data-style="dusk"] .credits a { color: var(--accent); }
+
