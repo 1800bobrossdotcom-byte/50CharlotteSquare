@@ -458,6 +458,57 @@ The five screenshot-sourced files are all around 1,150px against 1,800–2,000px
 for the rest of the library. The full-size originals are on the Apartments.com
 listing.
 
+### The September batch: eighteen in, thirteen used
+
+The largest and cleanest batch yet, and **the first with no watermark anywhere** —
+all eighteen corners magnified 3x, all clean. The library went from 31
+photographs to 43.
+
+Five were left out, and the reason belongs here rather than in anyone's memory:
+
+| Not used | Why |
+|---|---|
+| `Fitness Center_.png` | An exact duplicate of `fitness-center.webp` — 0.8% apart |
+| `0E42BF66` bedroom | The same room as `residence-bedroom.webp`, wider, no larger |
+| `Community space_.png` | The same end of the room as `community-room.jpg`, and smaller |
+| `E2CBA92A` kitchen | The same framing family as `plan-1br.webp` |
+| `Washer and dryer in unit` | `residence-laundry.jpg` is the same closet at 1,500px |
+
+The pattern across the whole batch: most frames are **wider versions of a shot
+already in the library** — same shoot, same staging, camera pulled back. Useful,
+but only where the extra context earns a slot rather than repeating one.
+
+Three were genuine upgrades or new subjects:
+
+- **`terrace.jpg` replaced in place.** It was a 572px screenshot carrying a whole
+  section; it is now 1,050x1,400 of the same amenity, better framed. That was the
+  file this README flagged as the one that shows.
+- **A walk-in closet and a private covered balcony.** Neither had a photograph,
+  and the copy promises both — "private outdoor space" on every home, and closets
+  in the floor-plan bullets. Both are empty rooms, so neither carries a badge.
+- **The building's own signage.** `exterior-sign.jpg` is the only frame showing
+  *CHARLOTTE SQUARE / AT THE EAST END* on the facade, which is the independent
+  confirmation that the name now in the site header is the name on the building.
+  It sits on the contact page under "Look for the red mark", where someone
+  working out how to find the door will actually be looking.
+
+The rest built two new sections: **A closer look** grew from three unfurnished
+rooms to six, and the residences page gained **Inside a home**, a five-frame
+lightbox of the same rooms with furniture, for scale.
+
+### Badging only what was actually staged
+
+Three of those five carry the *Virtually staged* badge and two do not, which is
+deliberate. `unit-bedroom-2`, `unit-living` and `unit-open-plan` have beds, sofas
+and barstools that were added digitally. `unit-kitchen-run` has a canister set
+and a bowl of fruit; `unit-bath` has towels and a plant. A dressed counter is not
+virtual staging, and badging it would be disclosing something that did not
+happen — which cheapens the badge on the three frames where it is telling the
+truth about a real alteration.
+
+The section copy was written to match: *"The same rooms, photographed for scale.
+Where furniture was added digitally the frame says so."*
+
 ### The dedupe method has a blind spot
 
 The perceptual hash compares a 17x16 luminance gradient, and a **crop shifts
