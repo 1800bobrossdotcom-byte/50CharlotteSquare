@@ -1,11 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Update the domain once DNS is pointed at this site. -->
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.charlottesquareroc.com/</loc><priority>1.0</priority></url>
-  <url><loc>https://www.charlottesquareroc.com/residences/</loc><priority>0.9</priority></url>
-  <url><loc>https://www.charlottesquareroc.com/amenities/</loc><priority>0.8</priority></url>
-  <url><loc>https://www.charlottesquareroc.com/neighborhood/</loc><priority>0.7</priority></url>
-  <url><loc>https://www.charlottesquareroc.com/story/</loc><priority>0.6</priority></url>
-  <url><loc>https://www.charlottesquareroc.com/contact/</loc><priority>0.9</priority></url>
-  <url><loc>https://www.charlottesquareroc.com/privacy/</loc><priority>0.2</priority></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://www.charlottesquareroc.com/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>1.0</priority>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-exterior.jpg</image:loc><image:title>Charlotte Square apartments at 50 Charlotte Street, Rochester NY</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-terrace.jpg</image:loc><image:title>The shared terrace at Charlotte Square, with pergola and skyline</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-park.jpg</image:loc><image:title>The pocket park beside Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-lounge.jpg</image:loc><image:title>The community room at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-aerial.jpg</image:loc><image:title>Charlotte Square from above, showing the rooftop solar array</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/community-room.jpg</image:loc><image:title>Charlotte Square</image:title></image:image>
+  </url>
+  <url>
+    <loc>https://www.charlottesquareroc.com/residences/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.9</priority>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-living.jpg</image:loc><image:title>Residences &amp; Floor Plans</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-1br.jpg</image:loc><image:title>One-bedroom apartment at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-2br.jpg</image:loc><image:title>Two-bedroom apartment at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-3br.jpg</image:loc><image:title>Three-bedroom apartment at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-kitchen.jpg</image:loc><image:title>Residences &amp; Floor Plans</image:title></image:image>
+  </url>
+  <url>
+    <loc>https://www.charlottesquareroc.com/amenities/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/amenities-hero.jpg</image:loc><image:title>Amenities</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/terrace.jpg</image:loc><image:title>Shared terrace with pergola, fire pit and grills</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/fitness-center.jpg</image:loc><image:title>Fitness center at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/lobby-lounge.jpg</image:loc><image:title>Amenities</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/pocket-park.jpg</image:loc><image:title>Amenities</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/gallery-01.jpg</image:loc><image:title>Amenities</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/gallery-02.jpg</image:loc><image:title>Amenities</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/gallery-03.jpg</image:loc><image:title>Amenities</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/gallery-04.jpg</image:loc><image:title>Amenities</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/gallery-05.jpg</image:loc><image:title>Amenities</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/gallery-06.jpg</image:loc><image:title>Amenities</image:title></image:image>
+  </url>
+  <url>
+    <loc>https://www.charlottesquareroc.com/neighborhood/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.7</priority>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/neighborhood-hero.jpg</image:loc><image:title>The East End Neighborhood</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/neighborhood-streets.jpg</image:loc><image:title>The East End Neighborhood</image:title></image:image>
+  </url>
+  <url>
+    <loc>https://www.charlottesquareroc.com/story/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/story-hero.jpg</image:loc><image:title>Our Story</image:title></image:image>
+  </url>
+  <url>
+    <loc>https://www.charlottesquareroc.com/contact/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.9</priority>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/contact-hero.jpg</image:loc><image:title>Contact &amp; Tours</image:title></image:image>
+  </url>
+  <url>
+    <loc>https://www.charlottesquareroc.com/privacy/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.2</priority>
+  </url>
 </urlset>

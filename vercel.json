@@ -1,0 +1,26 @@
+{
+  "redirects": [
+    {
+      "source": "/the-charlotte-story",
+      "destination": "/story/",
+      "permanent": true
+    },
+    {
+      "source": "/roc-the-east-end",
+      "destination": "/neighborhood/",
+      "permanent": true
+    },
+    {
+      "source": "/life-at-the-square",
+      "destination": "/amenities/",
+      "permanent": true
+    },
+    {
+      "source": "/contact-us",
+      "destination": "/contact/",
+      "permanent": true
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": true
+}

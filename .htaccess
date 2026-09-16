@@ -1,0 +1,13 @@
+# Apache. Old paths first, each straight to its canonical https://www URL so
+# they resolve in one hop; then force one host and one scheme for everything else.
+RewriteEngine On
+
+RewriteRule ^the-charlotte-story/?$ https://www.charlottesquareroc.com/story/ [R=301,L]
+RewriteRule ^roc-the-east-end/?$ https://www.charlottesquareroc.com/neighborhood/ [R=301,L]
+RewriteRule ^life-at-the-square/?$ https://www.charlottesquareroc.com/amenities/ [R=301,L]
+RewriteRule ^contact-us/?$ https://www.charlottesquareroc.com/contact/ [R=301,L]
+
+RewriteCond %{HTTP_HOST} !^www\. [NC]
+RewriteRule ^(.*)$ https://www.%{HTTP_HOST}/$1 [R=301,L]
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
