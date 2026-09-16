@@ -262,7 +262,7 @@ button { font: inherit; color: inherit; }
   display: inline-flex; align-items: center; gap: .7rem; text-decoration: none;
   font-family: var(--font-display); font-weight: 800; font-size: 1.22rem; letter-spacing: -.02em; line-height: 1;
 }
-.brand__mark { width: 2.15rem; height: 2.15rem; color: var(--brick); flex: none; }
+.brand__mark { width: 2.15rem; height: 2.15rem; flex: none; }   /* the mark carries its own colour */
 .brand__name { white-space: nowrap; }
 .brand__name b { font-weight: 500; }
 .nav { display: none; gap: 1.9rem; }
@@ -1077,7 +1077,6 @@ html:root[data-style="dusk"] {
 [data-style="dusk"] .section__head { border-top: 1px solid var(--line); padding-top: clamp(1.25rem, 2.2vw, 2rem); }
 [data-style="dusk"] .section__head .eyebrow { margin-bottom: .85rem; }
 [data-style="dusk"] .brand__mark { color: var(--accent); }
-[data-style="dusk"] .brand__mark path { stroke: #15110E; }
 
 /* Surfaces: warm panels and hairlines, never a black box */
 [data-style="dusk"] .section--elev { background: var(--bg-elev); border-block: 1px solid var(--line); }
