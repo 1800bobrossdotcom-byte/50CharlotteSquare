@@ -431,14 +431,53 @@ fine twice in one view.
 
 ### The shot list
 
-One slot is empty.
+**Every slot on the site now resolves to a photograph, and every photograph in
+the library is on a page.** No slot renders a placeholder, and no page shows the
+same file twice.
 
-| File to produce | Page | Shot |
+That matters more than it sounds: an empty slot is not a quiet gap. `.ph__label`
+is `display: none` until a slot is empty, at which point it shows *Needed ·
+Terrace · evening with the fire pit lit · terrace-evening.jpg* to whoever is
+reading the page. A dev label on a leasing site.
+
+The last empty one was the terrace section on the amenities page, and it was
+empty because the slot asked for an evening frame nobody has shot. There are two
+terrace photographs and that page has two terrace slots, so neither has to
+share: the 2016 pergola shoot takes the bento tile, where its age shows least,
+and the current pergola-and-grills frame takes the section whose copy describes
+exactly what it shows. The evening shot is still worth taking — it is the list
+below now, not a hole in the page.
+
+| Worth shooting | Why |
+|---|---|
+| The terrace at dusk, fire pit lit | The one thing the copy promises that no photograph shows |
+| `terrace.jpg` at full size | 572px, and it carries a whole section |
+| `exterior-corner.jpg` at full size | 1,140px, and it is the best exterior anyone has sent |
+
+The five screenshot-sourced files are all around 1,150px against 1,800–2,000px
+for the rest of the library. The full-size originals are on the Apartments.com
+listing.
+
+### The dedupe method has a blind spot
+
+The perceptual hash compares a 17x16 luminance gradient, and a **crop shifts
+every one of those gradients at once**. It catches a re-encode or a resize
+instantly and it is nearly blind to a re-frame. Three pairs have now slipped
+through it, each found by eye afterwards:
+
+| Pair | Hash said | It is |
 |---|---|---|
-| `terrace-evening.jpg` | Amenities | Terrace · evening with the fire pit lit |
+| `gallery-05` / `hero-exterior` | 18% apart | One frame, tighter crop |
+| `pocket-park-summer` / `hero-park` | 23% apart | One frame, tighter crop |
+| `gallery-04` / `hero-terrace` | 29% apart | Same woman, same pose, same second |
 
-Every other slot resolves to a photograph. The five screenshot-sourced files are
-the ones to re-pull at full size when the listing originals are to hand.
+`gallery-04.jpg` is retired. `pocket-park-summer` and `hero-park` both stay,
+because every amenity pairs a bento tile with a detail section and the two crops
+keep those two slots from sharing one file — but they are logged here so nobody
+re-adds a third.
+
+The rule the hash cannot enforce: **look at the corners and look at the people.**
+A crop moves the frame; it does not move the shadows, the poses or the sky.
 
 ### Where the photography comes from
 
@@ -499,7 +538,24 @@ The capture day is still worth doing for everything else: the fitness frame is
 780px, the terrace and park frames are the 2016 shoot, and the owner's newer
 listing photography is better than most of what is here.
 
-### Choosing a hero frame
+### The hero is one frame that breathes
+
+The home hero was a two-slide show. It is one photograph now —
+`hero-exterior.jpg`, the building from Charlotte Street at golden hour — drifting
+between `scale(1)` and `scale(1.055)` over 32 seconds, eased at both ends and
+`alternate` so it breathes in and out rather than running to a stop and freezing
+the way the old Ken Burns did. In the first three and a half seconds it moves
+0.19%: depth, not movement.
+
+With one frame there is nothing to caption, count or step through, so the whole
+slideshow bar — caption, counter, segment dots, prev/next — is emitted only when
+`len(HERO_SLIDES) > 1`, and `data-gallery` is omitted so the slideshow JS never
+looks. The per-slide transform origins are kept, scoped to `.hero[data-gallery]`,
+for whenever a second frame earns its place.
+
+`prefers-reduced-motion` stops it outright: `animation: none; transform: none;`.
+
+### Choosing a hero frame, when there is more than one
 
 A hero photograph is judged on what sits *under the type*, not only on what it
 shows. The scrim is a vertical gradient — heavy at the very bottom, thin through
