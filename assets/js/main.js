@@ -237,6 +237,11 @@
           const body = encodeURIComponent(lines.join('\n'));
           window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
           showStatus(true, `Your email app should open with your message ready to send. If it doesn't, call us at ${phone}.`);
+          // Announced, not reported: analytics.js listens if it is loaded, and
+          // nothing happens if it is not.
+          const planSel = form.elements['plan'];
+          const planName = planSel && planSel.selectedOptions[0] ? planSel.selectedOptions[0].text : '';
+          document.dispatchEvent(new CustomEvent('cs:lead', { detail: { plan: planName } }));
         }
       } catch (err) {
         showStatus(false, `Something went wrong sending your message. Please call ${phone} or email us directly.`);

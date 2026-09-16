@@ -1,15 +1,28 @@
 # Everything here is public. Crawl it.
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 
 # Assistants that answer apartment questions are a referral channel, not a threat.
 User-agent: GPTBot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+
 User-agent: ClaudeBot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+
 User-agent: PerplexityBot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+
 User-agent: Google-Extended
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 
 Sitemap: https://www.charlottesquareroc.com/sitemap.xml

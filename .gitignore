@@ -2,3 +2,7 @@
 Thumbs.db
 *.log
 node_modules/
+
+# Wrangler's local state and the miniflare D1 copy — never the real data.
+.wrangler/
+.dev.vars

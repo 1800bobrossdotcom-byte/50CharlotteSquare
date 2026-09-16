@@ -1,0 +1,207 @@
+/* =============================================================================
+   Charlotte Square — analytics dashboard.
+
+   Deliberately not main.css: this is a tool that gets scanned and operated, not
+   a page that gets read, and it should not inherit four switchable brand styles.
+
+   The two series colours were chosen by running the palette through a
+   colour-vision validator rather than by eye, and they are different values in
+   dark mode — stepped for the dark surface, not flipped.
+   ============================================================================= */
+
+:root {
+  --bg: #F4F3EF;
+  --card: #FFFFFF;
+  --ink: #17191D;
+  --ink-2: #5A616B;
+  --ink-3: #868D97;
+  --line: #E2E0D9;
+  --line-soft: #EFEDE7;
+
+  --brand: #A93B3F;
+  --s1: #A93B3F;   /* pageviews — validated on #FFFFFF */
+  --s2: #1B6FC2;   /* visits */
+  --good: #2E6B4F;
+  --warn: #9A6212;
+
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(23,25,29,.05), 0 10px 26px -18px rgba(23,25,29,.30);
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101317;
+    --card: #191C21;
+    --ink: #E8E9EA;
+    --ink-2: #9BA3AE;
+    --ink-3: #6E7681;
+    --line: #2A2F36;
+    --line-soft: #21262C;
+    --brand: #C9565A;
+    --s1: #C9565A;   /* stepped for #191C21, re-validated */
+    --s2: #4A93D6;
+    --good: #5FAE87;
+    --warn: #D0A24B;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 26px -18px rgba(0,0,0,.8);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { margin: 0; font-weight: 650; letter-spacing: -.015em; }
+h1 { font-size: 1.05rem; }
+h2 { font-size: .95rem; }
+p { margin: 0; }
+
+/* ---------- Sign in --------------------------------------------------------- */
+body.signin { display: grid; place-items: center; min-height: 100vh; padding: 24px; }
+.signin__card {
+  width: 100%; max-width: 21rem;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 2rem 1.75rem; text-align: center;
+}
+.signin__mark { width: 46px; height: 46px; display: block; margin: 0 auto 1.1rem; border-radius: 4px; }
+.signin__sub { color: var(--ink-3); font-size: .82rem; letter-spacing: .1em; text-transform: uppercase; margin-top: .2rem; }
+.signin__card form { display: flex; flex-direction: column; gap: .5rem; margin-top: 1.5rem; text-align: left; }
+.signin__card label { font-size: .78rem; font-weight: 600; color: var(--ink-2); }
+.signin__card input {
+  font: inherit; padding: .6rem .7rem; border-radius: 7px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+}
+.signin__card input:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; border-color: var(--brand); }
+.signin__card button {
+  font: inherit; font-weight: 650; cursor: pointer; margin-top: .4rem;
+  padding: .62rem 1rem; border: 0; border-radius: 7px;
+  background: var(--brand); color: #fff;
+}
+.signin__card button:disabled { opacity: .6; cursor: default; }
+.signin__msg { min-height: 1.2em; font-size: .84rem; color: var(--ink-3); }
+.signin__msg.is-bad { color: var(--brand); font-weight: 600; }
+
+/* ---------- Shell ----------------------------------------------------------- */
+.bar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: .75rem clamp(14px, 3vw, 28px);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.bar__mark { width: 26px; height: 26px; border-radius: 4px; flex: none; }
+.bar__title { display: flex; align-items: baseline; gap: .55rem; }
+.bar__title small { color: var(--ink-3); font-size: .78rem; }
+.bar__spacer { flex: 1 1 auto; }
+
+.wrap { padding: clamp(14px, 3vw, 28px); max-width: 84rem; margin: 0 auto; }
+
+/* Filters sit in one row above the charts. */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--card); }
+.seg button {
+  font: inherit; font-size: .84rem; font-weight: 600; cursor: pointer;
+  padding: .4rem .72rem; border: 0; background: transparent; color: var(--ink-2);
+  min-height: 32px;
+}
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--brand); color: #fff; }
+.seg button:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+
+.ghost {
+  font: inherit; font-size: .84rem; font-weight: 600; cursor: pointer;
+  padding: .4rem .72rem; min-height: 32px;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: var(--card); color: var(--ink-2);
+}
+.ghost:hover { color: var(--brand); border-color: var(--brand); }
+.ghost:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+
+/* ---------- Stat tiles ------------------------------------------------------ */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 12px; margin-bottom: 18px; }
+.tile {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: .95rem 1rem;
+}
+.tile__k { font-size: .72rem; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.tile__v { font-size: 1.85rem; font-weight: 680; letter-spacing: -.03em; line-height: 1.1; margin-top: .25rem; font-variant-numeric: tabular-nums; }
+.tile__n { font-size: .78rem; color: var(--ink-3); margin-top: .1rem; }
+.tile--lead .tile__v { color: var(--good); }
+
+/* ---------- Panels ---------------------------------------------------------- */
+.grid { display: grid; gap: 12px; }
+@media (min-width: 900px) { .grid--2 { grid-template-columns: 1fr 1fr; } }
+
+.panel {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 1rem 1.05rem 1.1rem;
+  min-width: 0;
+}
+.panel__head { display: flex; align-items: baseline; gap: .75rem; margin-bottom: .2rem; flex-wrap: wrap; }
+.panel__head h2 { flex: 1 1 auto; }
+.panel__note { font-size: .76rem; color: var(--ink-3); }
+
+.legend { display: flex; gap: .9rem; flex-wrap: wrap; font-size: .78rem; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: .35rem; }
+.legend i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+/* Classes, not style="": the site CSP runs style-src 'self' with no
+   'unsafe-inline', and that applies to this page too. */
+.legend i.sw1, .tip .row i.sw1 { background: var(--s1); }
+.legend i.sw2, .tip .row i.sw2 { background: var(--s2); }
+
+/* ---------- Chart ----------------------------------------------------------- */
+.chart { position: relative; margin-top: .6rem; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart .grid-line { stroke: var(--line-soft); stroke-width: 1; }
+.chart .axis-text { fill: var(--ink-3); font-size: 10px; font-family: var(--mono); }
+.chart .series-line { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chart .series-dot { r: 4.5; stroke: var(--card); stroke-width: 2; }
+.chart .end-label { font-size: 10.5px; font-weight: 700; font-family: var(--mono); }
+.chart .crosshair { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; }
+.chart .hit { fill: transparent; cursor: crosshair; }
+.chart .bar { rx: 3; }
+
+.tip {
+  position: absolute; pointer-events: none; z-index: 2;
+  background: var(--ink); color: var(--bg);
+  border-radius: 7px; padding: .45rem .6rem;
+  font-size: .78rem; line-height: 1.45; white-space: nowrap;
+  box-shadow: 0 6px 18px -8px rgba(0,0,0,.5);
+  transform: translate(-50%, -115%);
+}
+.tip[hidden] { display: none; }
+.tip b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.tip .row { display: flex; align-items: center; gap: .4rem; }
+.tip .row i { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+.tip .day { color: rgba(255,255,255,.62); font-size: .72rem; margin-bottom: .18rem; }
+
+/* ---------- Tables ---------------------------------------------------------- */
+.tbl { width: 100%; border-collapse: collapse; font-size: .86rem; margin-top: .55rem; }
+.tbl th, .tbl td { padding: .38rem .2rem; text-align: left; border-bottom: 1px solid var(--line-soft); }
+.tbl th { font-size: .68rem; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.tbl td:last-child, .tbl th:last-child { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl .name { display: block; max-width: 24ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* A bar behind the row, so rank reads before the number does. */
+.tbl .meter { position: relative; }
+.tbl .meter::before {
+  content: ""; position: absolute; inset: 2px auto 2px 0;
+  width: var(--w, 0%); background: color-mix(in srgb, var(--s1) 13%, transparent);
+  border-radius: 3px; z-index: 0;
+}
+.tbl .meter > * { position: relative; z-index: 1; }
+
+.empty { color: var(--ink-3); font-size: .86rem; padding: .9rem 0; }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

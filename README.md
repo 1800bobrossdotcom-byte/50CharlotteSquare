@@ -243,6 +243,105 @@ Then run the domain through <https://securityheaders.com> and
 confirm zero CSP violations — the build is verified that way before each
 commit, across all seven pages and four styles.
 
+## Analytics and the admin dashboard
+
+First-party, on Cloudflare Pages Functions and D1. Nothing about a visitor
+leaves Cloudflare and no third party is involved, which is also why the
+Content Security Policy needed no loosening — the collector is same-origin, so
+`connect-src 'self'` already covered it.
+
+### Why it needs a backend at all
+
+A login written in JavaScript on a static host is not a login. Its credentials
+ship to the browser in a file anyone can read, and the page it guards can be
+fetched directly. The gate here is `functions/admin/_middleware.js`: without a
+valid session the dashboard HTML is never sent. The bytes do not leave
+Cloudflare. That is the part a client-side gate can never do.
+
+| File | Does |
+| --- | --- |
+| `functions/_lib/auth.js` | PBKDF2 password check, HMAC session cookie, visitor hashing |
+| `functions/admin/_middleware.js` | Serves the sign-in page instead of the dashboard when there is no session |
+| `functions/api/collect.js` | Records one pageview or event |
+| `functions/api/login.js` | Password → signed session cookie, throttled per IP |
+| `functions/api/logout.js` | Clears it |
+| `functions/api/stats.js` | The whole dashboard payload, session-gated |
+| `admin/index.html`, `assets/js/admin.js` | The dashboard |
+| `assets/js/analytics.js` | The tracker on every page |
+| `schema.sql` | Two tables |
+| `tools/hash-password.mjs` | Generates the password hash and session secret |
+
+### Setup
+
+```bash
+wrangler d1 create charlotte-analytics                              # id → wrangler.toml
+wrangler d1 execute charlotte-analytics --file=./schema.sql --remote
+node tools/hash-password.mjs 'a long passphrase'                    # prints both values
+wrangler pages secret put ADMIN_PASSWORD_HASH
+wrangler pages secret put SESSION_SECRET
+wrangler pages secret put VISITOR_SALT
+```
+
+Then `/admin/` asks for the password. Sessions last 12 hours; six wrong
+attempts locks that IP out for fifteen minutes.
+
+The password is never stored, here or anywhere — only a PBKDF2 hash at 210,000
+iterations, in a Cloudflare secret. Nothing in this repository grants access to
+anything.
+
+### What it records, and what it refuses to
+
+Per hit: timestamp, path, referrer **host** (never the full URL, which carries
+search terms and session tokens), country, device class, which design style was
+active, and a visitor hash.
+
+That hash is `SHA-256(day + server salt + IP + user agent)`, truncated. It
+groups one person's hits within a day and becomes a different value at
+midnight. It cannot be reversed to an IP and cannot be followed across days.
+**No cookie is set, no IP is stored, and nothing is written to the visitor's
+browser** — which is why the site needs no consent banner. The cost of that
+choice is that "visitors" cannot be de-duplicated across days, so the dashboard
+says so on the panel rather than quietly overcounting.
+
+Named events are the reason to run this in-house rather than read someone
+else's chart: `tour_request` (with the floor plan asked about), `phone_click`,
+`portal_click`, `plan_view`, `gallery_open`, `map_click`, `outbound`. That is
+lead attribution per floor plan, which no general analytics product will give
+you for a single building.
+
+An explicit Do Not Track or Global Privacy Control signal is honoured. Nothing
+collected is personal, so this is a choice rather than a duty — flip
+`HONOUR_DNT` at the top of `assets/js/analytics.js` if the leasing numbers need
+to be complete.
+
+`analytics.js` is self-contained: delete the file and its `<script>` tag and
+the site is exactly as it was. `main.js` only *announces* a completed enquiry
+as a `cs:lead` event; if nothing is listening, nothing happens.
+
+### The two charts
+
+Traffic and enquiries are drawn as **two charts sharing an x-range, never one
+chart with two y-axes**. Pageviews run in the hundreds and enquiries in single
+digits; any shared scale would either flatten the enquiries to nothing or
+exaggerate them into a lie.
+
+The series colours were picked by running the palette through a colour-vision
+validator, not by eye: `#A93B3F` and `#1B6FC2` on white, re-stepped to
+`#C9565A` and `#4A93D6` for the dark surface — dark mode is its own pair, not
+an inversion. Both pass the lightness band, chroma floor, CVD separation,
+normal-vision floor and contrast checks. Identity never rests on colour alone:
+there is a legend, the final point of each line is directly labelled, and every
+number on the page also exists in a table below.
+
+### Costs and limits
+
+Free at this traffic. Cloudflare's free tier covers 100,000 Function requests a
+day and 5 million D1 row reads a month; a building this size will use a
+rounding error of both. The `events` table grows by one row per pageview — at
+5,000 views a month that is 60,000 rows a year, far inside the 5 GB limit.
+There is no pruning job because there is nothing yet to prune; add one if this
+ever runs across all eleven properties.
+
 ## Photos
 
 Every image on the site is a **slot**: a fixed filename in `assets/img/`. Replace a file and the site updates; delete one and the slot falls back to art-directed gradient art with a small label naming the file it expects.
