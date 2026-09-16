@@ -72,15 +72,54 @@
     revealEls.forEach((el) => el.classList.add('is-in'));
   }
 
-  /* ---- Ticker: duplicate items so the loop is seamless -------------------- */
-  $$('.ticker__track').forEach((track) => {
-    if (reduceMotion) return;
-    const items = Array.from(track.children);
-    items.forEach((item) => {
-      const clone = item.cloneNode(true);
-      clone.setAttribute('aria-hidden', 'true');
-      track.appendChild(clone);
-    });
+  /* ---- Ticker -------------------------------------------------------------
+     A marquee that cannot be stopped fails WCAG 2.2.2, and :hover is not a
+     mechanism — it is unreachable by keyboard and by touch. So the motion is
+     opt-in via a real button, and prefers-reduced-motion only decides what that
+     button starts as. Someone who wants the movement can still have it; someone
+     who asked their OS for stillness gets stillness without losing the content,
+     because the stopped ticker becomes a scrollable row. */
+  const ICON = {
+    pause: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+    play:  '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>',
+  };
+  $$('.ticker').forEach((ticker) => {
+    const track = $('.ticker__track', ticker);
+    if (!track) return;
+
+    // The loop works by translating the track -50%, which only reads as seamless
+    // once the items appear twice. Cloned on first play, so a ticker that never
+    // runs does not show every name twice in its scrollable row.
+    let cloned = false;
+    const cloneOnce = () => {
+      if (cloned) return;
+      Array.from(track.children).forEach((item) => {
+        const clone = item.cloneNode(true);
+        clone.setAttribute('aria-hidden', 'true');
+        track.appendChild(clone);
+      });
+      cloned = true;
+    };
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ticker__toggle';
+
+    const setRunning = (run, remember) => {
+      if (run) cloneOnce();
+      ticker.classList.toggle('is-running', run);
+      btn.innerHTML = run ? ICON.pause : ICON.play;
+      btn.setAttribute('aria-pressed', String(run));
+      btn.setAttribute('aria-label', run ? 'Stop the scrolling list' : 'Start the scrolling list');
+      if (remember) { try { localStorage.setItem('cs-ticker', run ? 'run' : 'stop'); } catch (e) {} }
+    };
+
+    let stored = null;
+    try { stored = localStorage.getItem('cs-ticker'); } catch (e) {}
+    setRunning(stored ? stored === 'run' : !reduceMotion, false);
+
+    btn.addEventListener('click', () => setRunning(!ticker.classList.contains('is-running'), true));
+    ticker.appendChild(btn);
   });
 
   /* ---- Floor plan filters ------------------------------------------------- */
