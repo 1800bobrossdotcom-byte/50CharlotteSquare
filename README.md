@@ -345,48 +345,70 @@ ever runs across all eleven properties.
 
 ## Photos
 
-Every image on the site is a **slot**: a fixed filename in `assets/img/`. Replace a file and the site updates; delete one and the slot falls back to art-directed gradient art with a small label naming the file it expects.
+Every image is a **slot**: a fixed filename in `assets/img/`. Drop a file in and
+the site uses it; take one away and the slot becomes art-directed gradient art
+labelled with the filename it wants. That is not a failure state — it is how the
+shot list below stays honest.
 
-What is in the slots right now:
+### What was removed, and why
 
-- **Building, amenities and a model kitchen** (hero slides, lobby, community room, pocket park, terrace, aerial, plan card one, residence kitchen): professional photographs published on the architect's project page ([SWBR: Charlotte Square at the East End](https://www.swbr.com/design/home-leasing-charlotte-square-apartments/)), originally 2,400 px wide and resized here to 1,200 to 2,000 px. SWBR and Home Leasing commissioned this photography; ask them for the originals and usage rights before launch.
-- **Model apartment interiors** (plan cards two and three, residence living room, gallery): three frames from Home Leasing's "Charlotte Square" photo shoot as served on homeleasing.net at 1,800 px. Confirm with Home Leasing that these show the East End building rather than the On the Loop phase.
-- **Fitness center**: still the photo from the previous website, about 780 px wide. No higher-resolution frame exists online; this is the one slot that needs a reshoot.
-- **Neighborhood** (East End photo on the home page, neighborhood hero): two Creative Commons photographs from Wikimedia Commons, credited on the privacy page and below. The cropped versions in this repo are shared under the same licenses.
+An audit in September 2026 cut the library from 33 files to **18 photographs**.
 
-Recommended: JPG, 2000px on the long edge for heroes, 1600px for everything else, under 400 KB each.
+**Five interiors were not this building.** They came from homeleasing.net and
+show at least four different properties: a ceiling fan under a dropped soffit, a
+sliding door onto a fenced ground-level lawn, black appliances in one kitchen and
+stainless in the next, oak cabinets in one and espresso in another. Charlotte
+Square is a four-storey LEED podium building with nine-foot ceilings, stainless
+appliances, and no ground-level yards. They sat on the floor-plan cards — the
+highest-intent page on the site — so anyone booking a tour off them would have
+walked into a different apartment. Removed.
 
-| File | First used on | Shot | Aspect |
-|---|---|---|---|
-| `hero-exterior.jpg` | Home | Hero · building exterior from Charlotte St at golden hour | wide (16:9+), full-bleed |
-| `community-room.jpg` | Home | Community room · kitchen bar and fireplace | 4:5 |
-| `detail-terrace.jpg` | Home | Detail · a private terrace over Charlotte St | 1:1 |
-| `plan-1br.jpg` | Home | Floor plan · One Bedroom interior | 4:3 |
-| `plan-2br.jpg` | Home | Floor plan · Two Bedroom interior | 4:3 |
-| `plan-3br.jpg` | Home | Floor plan · Three Bedroom interior | 4:3 |
-| `terrace.jpg` | Home | The terrace · pergola, fire pit and skyline at dusk | 16:10 |
-| `fitness-center.jpg` | Home | Fitness center · cardio row and rig | 16:10 |
-| `lobby-lounge.jpg` | Home | Lobby lounge · reclaimed wood wall | 16:10 |
-| `pocket-park.jpg` | Home | Pocket park · fire pit and grills beside the building | 16:10 |
-| `east-end-street.jpg` | Home | Neighborhood · East Avenue streetscape at blue hour | 4:5 |
-| `residence-living.jpg` | Residences | Residence · living room toward the balcony | 16:10 |
-| `residence-kitchen.jpg` | Residences | Residence · kitchen and dining | 4:5 |
-| `amenities-hero.jpg` | Amenities | Amenities hero · shared terrace at dusk | wide (16:9+), full-bleed |
-| `terrace-evening.jpg` | Amenities | The terrace · evening with the fire pit lit | 4:3 |
-| `fitness-rig.jpg` | Amenities | Fitness center · rig and free weights | 4:3 |
-| `community-room-wide.jpg` | Amenities | Community room · wide view with kitchen bar | 4:3 |
-| `pocket-park-summer.jpg` | Amenities | Pocket park · cookout in summer | 4:3 |
-| `gallery-01.jpg` | Amenities | Gallery · lobby lounge | 4:3 |
-| `gallery-02.jpg` | Amenities | Gallery · fitness center | 4:3 |
-| `gallery-03.jpg` | Amenities | Gallery · community lounge seating | 4:3 |
-| `gallery-04.jpg` | Amenities | Gallery · the pergola terrace | 4:3 |
-| `gallery-05.jpg` | Amenities | Gallery · building exterior and pocket park | 4:3 |
-| `gallery-06.jpg` | Amenities | Gallery · the building from above, solar roof | 4:3 |
-| `neighborhood-hero.jpg` | Neighborhood | Neighborhood hero · East Ave at night | wide (16:9+), full-bleed |
-| `neighborhood-streets.jpg` | Neighborhood | Neighborhood · bike lanes and crosswalks on the block | 4:5 |
-| `story-hero.jpg` | Story | Story hero · exterior detail, brick panels and steel | wide (16:9+), full-bleed |
-| `contact-hero.jpg` | Contact | Contact hero · lobby entrance on Charlotte St | wide (16:9+), full-bleed |
-| `legal-hero.jpg` | Privacy | Legal hero · exterior detail | wide (16:9+), full-bleed |
+**Ten more files were duplicates.** A perceptual-hash pass found seven groups of
+near-identical frames: one photograph carrying two or three filenames. The
+terrace was three crops of a single second, shown on the hero, the amenities page
+and the gallery. `fitness-center.jpg` and `gallery-02.jpg` were byte-identical and
+sat in the same six-tile grid. Folded into the surviving frame.
+
+The policy lives in `PHOTO_ALIAS` in the generator, not in thirty separate slots:
+`None` means no honest photograph exists and renders the placeholder; a filename
+means the slot shares the surviving frame, which is fine across pages and not
+fine twice in one view.
+
+### The shot list
+
+Seven photographs are missing. They are the reason for a capture day.
+
+| File to produce | Page | Shot |
+|---|---|---|
+| `plan-1br.jpg` | Home, Residences | Floor plan · One Bedroom interior |
+| `plan-2br.jpg` | Home, Residences | Floor plan · Two Bedroom interior |
+| `plan-3br.jpg` | Home, Residences | Floor plan · Three Bedroom interior |
+| `residence-living.jpg` | Residences | Residence · living room toward the balcony |
+| `residence-kitchen.jpg` | Residences | Residence · kitchen and dining |
+| `terrace.jpg` | Home | Terrace · pergola, fire pit and skyline at dusk |
+| `terrace-evening.jpg` | Amenities | Terrace · evening with the fire pit lit |
+
+JPG, 2000px on the long edge for heroes, 1600px otherwise, under 400 KB. Strip
+EXIF before committing — phone and camera files carry GPS and serial numbers.
+
+### What is in the 18 that remain
+
+- **Building, amenities and aerials** — professional photography from the
+  architect's project page ([SWBR: Charlotte Square at the East
+  End](https://www.swbr.com/design/home-leasing-charlotte-square-apartments/)),
+  originally 2,400 px and resized to 1,200–2,000 px here. SWBR and Home Leasing
+  commissioned it; ask for the originals and usage rights before launch.
+- **Terrace and pocket park** — Home Leasing's 2016 marketing shoot. Same four
+  models in period clothing across every frame, and the landscaping has had ten
+  years to grow, so these undersell the property as it stands. They are out of
+  the hero rotation and kept only as context on the amenities page.
+- **Fitness center** — still the 780 px frame from the previous website. The
+  weakest file on the site.
+- **Neighborhood** — two Creative Commons photographs from Wikimedia Commons,
+  credited on the privacy page and below.
+
+The home hero now runs three architectural frames — exterior, aerial, community
+room. Architecture does not date the way people in 2016 clothing do.
 
 ### Photo credits
 
@@ -490,5 +512,9 @@ These came from public listings or the previous site and should be verified with
 - [ ] Ownership of the existing Facebook page and the `charlottesquareroc.com` domain
 - [ ] Legal review of `privacy/index.html`
 - [ ] The Charlotte Street block list, especially East End Tavern, and any neighbors worth adding
-- [ ] Rights to the six building photographs from the previous site, or a reshoot at higher resolution
-- [ ] Apartment interior photography for the plan cards and residence slots
+- [ ] Rights to the SWBR and Home Leasing photography, or a reshoot
+- [ ] **Shoot the seven missing photographs** (see the shot list under Photos) — five are unit
+      interiors, and until they exist the floor-plan cards carry placeholders rather than
+      another building's kitchen
+- [ ] Claim the Apartments.com listing — it still names Home Leasing, gives the old phone
+      number, and describes a rooftop terrace
