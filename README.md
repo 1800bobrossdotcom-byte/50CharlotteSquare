@@ -352,16 +352,19 @@ shot list below stays honest.
 
 ### What was removed, and why
 
-An audit in September 2026 cut the library from 33 files to **17 photographs**.
+An audit in September 2026 cut the library from 33 files to **21 photographs**.
 
-**Five interiors were not this building.** They came from homeleasing.net and
-show at least four different properties: a ceiling fan under a dropped soffit, a
-sliding door onto a fenced ground-level lawn, black appliances in one kitchen and
-stainless in the next, oak cabinets in one and espresso in another. Charlotte
-Square is a four-storey LEED podium building with nine-foot ceilings, stainless
-appliances, and no ground-level yards. They sat on the floor-plan cards — the
-highest-intent page on the site — so anyone booking a tour off them would have
-walked into a different apartment. Removed.
+**Five interiors were pulled, then restored.** They were removed on the reasoning
+that oak cabinets and ceiling fans could not belong to a building whose lobby is
+reclaimed wood and whose copy promises nine-foot ceilings. That was wrong.
+Photographs of the lobby — with Chick'n Out's red doors visible through the
+window, so unarguably this block — show the units do have exactly those finishes.
+The units are simply more conventional than the common areas.
+
+Two are still worth a look from someone who has been inside: `plan-2br.jpg` shows
+black appliances where every confirmed frame is stainless, and
+`residence-living.jpg` shows a sliding door onto a fenced ground-level lawn that
+the aerial says this building does not have.
 
 **Ten more files were duplicates.** A perceptual-hash pass found seven groups of
 near-identical frames: one photograph carrying two or three filenames. The
@@ -376,22 +379,31 @@ fine twice in one view.
 
 ### The shot list
 
-Seven photographs are missing. They are the reason for a capture day.
+Two photographs are missing — a second and third angle on the terrace, of which
+only one frame exists.
 
 | File to produce | Page | Shot |
 |---|---|---|
-| `plan-1br.jpg` | Home, Residences | Floor plan · One Bedroom interior |
-| `plan-2br.jpg` | Home, Residences | Floor plan · Two Bedroom interior |
-| `plan-3br.jpg` | Home, Residences | Floor plan · Three Bedroom interior |
-| `residence-living.jpg` | Residences | Residence · living room toward the balcony |
-| `residence-kitchen.jpg` | Residences | Residence · kitchen and dining |
 | `terrace.jpg` | Home | Terrace · pergola, fire pit and skyline at dusk |
 | `terrace-evening.jpg` | Amenities | Terrace · evening with the fire pit lit |
+
+The capture day is still worth doing for everything else: the fitness frame is
+780px, the terrace and park frames are the 2016 shoot, and the owner's newer
+listing photography is better than most of what is here.
+
+### Virtual staging
+
+The owner shot the units empty and had them furnished digitally. That is ordinary
+practice and it is disclosed: `VIRTUALLY_STAGED` in the generator flags those
+slots, `ph()` renders a **Virtually staged** badge on the image, and the alt text
+says *the room is real, the furniture was added digitally* so the disclosure
+reaches a screen reader too. An altered photograph presented as a straight one is
+the same misrepresentation as showing another building, just subtler.
 
 JPG, 2000px on the long edge for heroes, 1600px otherwise, under 400 KB. Strip
 EXIF before committing — phone and camera files carry GPS and serial numbers.
 
-### What is in the 17 that remain
+### What is in the 21 that remain
 
 - **Building, amenities and aerials** — professional photography from the
   architect's project page ([SWBR: Charlotte Square at the East

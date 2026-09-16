@@ -1435,6 +1435,19 @@ p, .lead, .hero__lead, .prose p, .feature p, .card p, .step p, .tile__sub,
 .legend__dot--podium  { background: #C9BFAE; }
 .legend__dot--park    { background: var(--sage); }
 
+/* Virtual staging disclosure. Always visible — unlike .ph__label, which only
+   appears when a slot is empty. Real estate advertising rules treat a digitally
+   furnished photograph as an altered image, and an unlabelled one as a claim. */
+.ph { position: relative; }
+.ph__staged {
+  position: absolute; right: .5rem; bottom: .5rem; z-index: 1;
+  font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: .28rem .5rem; border-radius: 4px;
+  background: rgba(18, 19, 22, .78); color: #fff;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   html.js .reveal { opacity: 1; transform: none; transition: none; }
