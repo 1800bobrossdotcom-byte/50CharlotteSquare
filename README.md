@@ -183,6 +183,16 @@ The neighborhood page carries a street index listing the block in house-number o
 
 Currently listed: Chick'n Out (37), East End Tavern (37), Charlotte Square (50), Ugly Duck Coffee (89). The first and last were confirmed from their own websites. East End Tavern came from listing sites rather than its own page, and a Greek restaurant that shared 37 Charlotte has since closed, so confirm that one before launch. Ugly Duck Coffee and Chick'n Out also appear in the ticker on the home and neighborhood pages.
 
+## Interaction rules this build follows
+
+Checked against a design catalogue of cross-estate findings (Sept 2026 pass). Three defects were found and fixed:
+
+- **Transitions name their properties.** A `transition: all` on the floor-plan filter chips animated layout as well as colour. Now only colour, background and border transition.
+- **The focus ring comes from outside the brand palette.** It was a 3px brand-coloured glow with no gap, which on a brick button was close to invisible. It is now a 2px solid functional blue (`#2F6FED`, lightened to `#7FB3FF` on dark grounds) with a 2px offset, so it clears 3:1 against the surface behind it in all four styles.
+- **Controls meet the 24px target floor.** The hero slideshow's progress segments were 3px tall and also served as the tap target; the bar is still 3px but the button around it is 24px. Navigation, footer and standalone arrow links were one to six pixels short and now clear it. Links inline in a sentence keep the WCAG 2.5.8 exception.
+
+Known departures, kept deliberately: the Gallery style uses a pure white ground rather than a warm one, and buttons in Brick & Stone lift on hover where Gallery and Atelier only change colour.
+
 ## Confirm before launch
 
 These came from public listings or the previous site and should be verified with the leasing team:
