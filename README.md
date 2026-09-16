@@ -379,13 +379,25 @@ fine twice in one view.
 
 ### The shot list
 
-Two photographs are missing — a second and third angle on the terrace, of which
-only one frame exists.
+Two slots are empty, and five good photographs are sitting unusable.
 
 | File to produce | Page | Shot |
 |---|---|---|
 | `terrace.jpg` | Home | Terrace · pergola, fire pit and skyline at dusk |
 | `terrace-evening.jpg` | Amenities | Terrace · evening with the fire pit lit |
+
+### Withheld: five watermarked frames
+
+The owner supplied eleven photographs. **Six are in use; five carry a CoStar
+watermark in the bottom-right corner and are not in this repository** — the
+refurnished community room, the lobby corridor, the laundry closet, a current
+aerial, and the leasing lounge. All five are better than what they would
+replace, and the aerial in particular beats `hero-aerial.jpg` outright: mature
+trees, the full solar array, the whole block.
+
+Claiming the Apartments.com listing yields the unwatermarked originals. That is
+the same step that corrects the Home Leasing attribution, the old phone number
+and the rooftop-terrace claim, so it is one task that unblocks four things.
 
 The capture day is still worth doing for everything else: the fitness frame is
 780px, the terrace and park frames are the 2016 shoot, and the owner's newer
@@ -402,6 +414,13 @@ the same misrepresentation as showing another building, just subtler.
 
 JPG, 2000px on the long edge for heroes, 1600px otherwise, under 400 KB. Strip
 EXIF before committing — phone and camera files carry GPS and serial numbers.
+
+### The owner's uploads
+
+Six WebP frames from the owner, September 2026, replacing the weakest files on
+the site: `fitness-center.webp` (the old one was 780px), and five staged unit
+interiors across the floor-plan cards and the residences page. All carry no EXIF
+and the five staged ones carry the disclosure badge.
 
 ### What is in the 21 that remain
 
