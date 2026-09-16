@@ -277,9 +277,10 @@ Cloudflare. That is the part a client-side gate can never do.
 wrangler d1 create charlotte-analytics                              # id → wrangler.toml
 wrangler d1 execute charlotte-analytics --file=./schema.sql --remote
 node tools/hash-password.mjs 'a long passphrase'                    # prints both values
-wrangler pages secret put ADMIN_PASSWORD_HASH
-wrangler pages secret put SESSION_SECRET
-wrangler pages secret put VISITOR_SALT
+# Pages secrets take --project; --name is the Workers flag and will not work here
+wrangler pages secret put ADMIN_PASSWORD_HASH --project=charlotte-square
+wrangler pages secret put SESSION_SECRET      --project=charlotte-square
+wrangler pages secret put VISITOR_SALT        --project=charlotte-square
 ```
 
 Then `/admin/` asks for the password. Sessions last 12 hours; six wrong

@@ -7,9 +7,14 @@
 #   wrangler d1 create charlotte-analytics          # paste the id below
 #   wrangler d1 execute charlotte-analytics --file=./schema.sql --remote
 #   node tools/hash-password.mjs 'a long passphrase'
-#   wrangler pages secret put ADMIN_PASSWORD_HASH   # the pbkdf2$… line it printed
-#   wrangler pages secret put SESSION_SECRET        # the second line it printed
-#   wrangler pages secret put VISITOR_SALT          # any long random string
+#
+# Pages secrets take --project, not --name (that is the Workers flag):
+#   wrangler pages secret put ADMIN_PASSWORD_HASH --project=charlotte-square
+#   wrangler pages secret put SESSION_SECRET      --project=charlotte-square
+#   wrangler pages secret put VISITOR_SALT        --project=charlotte-square
+#
+# Needs Wrangler 3.45.0 or newer, and the Pages project on build system V2, for
+# this file to configure the binding at all.
 #
 # Rotating VISITOR_SALT re-randomises visitor grouping from that moment on. It
 # does not corrupt history — past rows keep their old hashes — but a visitor
