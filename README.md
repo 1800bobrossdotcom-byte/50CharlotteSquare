@@ -509,6 +509,59 @@ truth about a real alteration.
 The section copy was written to match: *"The same rooms, photographed for scale.
 Where furniture was added digitally the frame says so."*
 
+### The copy audit, September 2026
+
+Gianni spotted that house number 37 appeared twice in the street index. It did,
+and both rows were true — Chick'n Out and East End Tavern share the address, the
+tavern round the side. But a directory that prints the same number twice reads
+as a duplication error whether or not it is one. The number is printed once now
+and carries both names, which is how a street directory has always handled it.
+
+Pulling that thread turned up seven more. No spelling errors — 3,753 words of
+visible copy checked, every flag a proper noun or the regex splitting *Café* at
+the é.
+
+**Mislabelled**
+
+- **The home page's "Community room" tile showed the lobby lounge.** Two
+  different rooms; the tile is now called what it shows.
+- **"72 Residences across four stories".** The building is four storeys. The
+  homes are on three of them — every other page on the site says "three
+  residential levels", and the story page's own cross-section labels them Level
+  2, 3 and 4. The stat was the outlier.
+
+**Two more crop pairs, making five**
+
+- **`gallery-01` is `lobby-lounge`** — same opening, same pendant, same art, one
+  looser. Both were on the amenities page.
+- **`residence-bath` is `unit-bath`** — the same bathroom, one tighter and
+  digitally dressed. Both were on the residences page.
+
+Both retired. That is five crop pairs the perceptual hash has now missed, and
+the reason is in the next section.
+
+**Redundant**
+
+- **Bike storage was said three times on the amenities page** — the bento tile,
+  the garage section's bullet list, and a card of its own. The card was added
+  the same week the garage was promoted to a full section, which is how it
+  happened. Gone.
+- **Solar and EV charging had a tile each plus a card** on that page, where the
+  home page says it once. Merged to match.
+- **The neighborhood page ran the ticker and a four-card index of the same
+  places.** Every name in the ticker except the two on Charlotte Street itself
+  reappeared in the cards a screen later. The cards say more, so the ticker came
+  off that page. It still runs on the home page, where nothing repeats it.
+- **The three-bedroom card's tag repeated the figure printed two lines below
+  it** — "Up to 1,640 sq ft" over "up to 1,640 sq ft". The tag now says
+  something the card does not already say.
+
+**Overclaimed**
+
+- *"These six were photographed empty"* — one of the six has a canister set and
+  a plant on the counter. No furniture is the claim that matters and the only
+  one that is strictly true, so that is what it says now.
+
 ### The dedupe method has a blind spot
 
 The perceptual hash compares a 17x16 luminance gradient, and a **crop shifts
@@ -521,6 +574,8 @@ through it, each found by eye afterwards:
 | `gallery-05` / `hero-exterior` | 18% apart | One frame, tighter crop |
 | `pocket-park-summer` / `hero-park` | 23% apart | One frame, tighter crop |
 | `gallery-04` / `hero-terrace` | 29% apart | Same woman, same pose, same second |
+| `gallery-01` / `lobby-lounge` | — | Same opening, same pendant, one looser |
+| `residence-bath` / `unit-bath` | — | The same bathroom, one tighter |
 
 `gallery-04.jpg` is retired. `pocket-park-summer` and `hero-park` both stay,
 because every amenity pairs a bento tile with a detail section and the two crops
