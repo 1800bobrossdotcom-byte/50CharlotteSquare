@@ -352,7 +352,7 @@ shot list below stays honest.
 
 ### What was removed, and why
 
-An audit in September 2026 cut the library from 33 files to **18 photographs**.
+An audit in September 2026 cut the library from 33 files to **17 photographs**.
 
 **Five interiors were not this building.** They came from homeleasing.net and
 show at least four different properties: a ceiling fan under a dropped soffit, a
@@ -391,7 +391,7 @@ Seven photographs are missing. They are the reason for a capture day.
 JPG, 2000px on the long edge for heroes, 1600px otherwise, under 400 KB. Strip
 EXIF before committing — phone and camera files carry GPS and serial numbers.
 
-### What is in the 18 that remain
+### What is in the 17 that remain
 
 - **Building, amenities and aerials** — professional photography from the
   architect's project page ([SWBR: Charlotte Square at the East
