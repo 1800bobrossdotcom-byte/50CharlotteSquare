@@ -697,6 +697,12 @@ html.js .reveal.is-in { opacity: 1; transform: none; }
 .gallery { display: grid; gap: var(--gap); grid-template-columns: repeat(2, 1fr); }
 @media (min-width: 760px) { .gallery { grid-template-columns: repeat(3, 1fr); } }
 .gallery .ph--span { grid-column: span 2; }
+
+/* A closer look — three unfurnished rooms, each with a caption under it. It
+   reuses the gallery grid but not the lightbox: these are documentary frames
+   where the caption carries as much as the photograph does. */
+.closer { margin: 0; min-width: 0; }
+.closer > figcaption { margin-top: .7rem; font-size: .9rem; line-height: 1.45; color: var(--fg-muted); text-wrap: pretty; }
 .strip { display: grid; gap: var(--gap); grid-template-columns: repeat(2, 1fr); }
 @media (min-width: 900px) { .strip { grid-template-columns: repeat(4, 1fr); } }
 .strip .feature { padding: 1.4rem; border-radius: var(--radius); background: var(--bg-elev); border: 1px solid var(--line); }
@@ -752,7 +758,16 @@ html:root[data-style="gallery"] {
 [data-style="gallery"] .stat__value small { font-family: var(--font-body); font-weight: 600; }
 [data-style="gallery"] .eyebrow { font-size: .7rem; letter-spacing: .24em; font-weight: 600; }
 [data-style="gallery"] .eyebrow::before { width: 1.6rem; height: 1px; border-radius: 0; }
-[data-style="gallery"] .hero__title .accent, [data-style="gallery"] .pull em { font-style: italic; color: var(--accent); }
+[data-style="gallery"] .hero__title .accent, [data-style="gallery"] .pull em { font-style: italic; }
+[data-style="gallery"] .pull em { color: var(--accent); }
+@media (min-width: 900px) { [data-style="gallery"] .hero__title .accent { color: var(--accent); } }
+
+/* Gallery's display type is set large because on the desktop hero it carries a
+   whole column on its own. Over a full-bleed photograph on a phone that extra
+   6px of minimum pushes the slideshow caption and controls off the screen, so
+   below the split it steps back to the base scale. --fs-display has exactly one
+   consumer, .hero__title, so this moves nothing else. */
+@media (max-width: 899.98px) { html:root[data-style="gallery"] { --fs-display: clamp(3rem, 5.6vw + .75rem, 6rem); } }
 [data-style="gallery"] .ticker__item { font-style: italic; }
 [data-style="gallery"] .ticker__item::after { width: .3em; height: .3em; border-radius: 50%; }
 [data-style="gallery"] .btn { font-weight: 600; letter-spacing: .01em; }
@@ -768,28 +783,28 @@ html:root[data-style="gallery"] {
 [data-style="gallery"] .section--ink .feature:nth-child(4n + 4) .feature__icon { border-color: rgba(168, 198, 222, .55); color: #A8C6DE; }
 [data-style="gallery"] .checklist li::before { background: var(--fg); }
 [data-style="gallery"] .chip.is-active { background: var(--fg); color: var(--bg); }
-/* Gallery hero: paper ground, type left, framed photograph right */
-[data-style="gallery"] .topbar { color: var(--fg); }
-[data-style="gallery"] .hero { background: var(--bg); color: var(--fg); min-height: 0; display: grid; grid-template-columns: 1fr; }
-[data-style="gallery"] .hero::after { display: none; }
-[data-style="gallery"] .hero__media { position: relative; inset: auto; z-index: 0; order: 2; min-height: 58vw; margin: 0 var(--gutter) var(--gutter); }
-[data-style="gallery"] .hero__media .ph { border-radius: var(--radius); }
-[data-style="gallery"] .hero__media .ph__label { top: .85rem; }
-[data-style="gallery"] .hero__inner { padding-top: calc(var(--header-h) + 2.5rem); padding-bottom: 2.5rem; }
-[data-style="gallery"] .hero .eyebrow { color: var(--accent); }
-[data-style="gallery"] .hero__lead { color: var(--fg-muted); }
-[data-style="gallery"] .hero__aside { color: var(--fg-muted); }
-[data-style="gallery"] .hero__aside strong { color: var(--fg); }
-[data-style="gallery"] .hero .btn--ghost { border-color: var(--line-strong); color: var(--fg); }
-[data-style="gallery"] .hero .btn--ghost:hover { border-color: var(--fg); }
-[data-style="gallery"] .hero__title { max-width: 14ch; }
+/* Gallery hero: paper ground, type left, framed photograph right — a two-column
+   composition, so it only applies where there are two columns. Below 900px the
+   style inherits the base hero: photograph full-bleed, scrim, type over it. */
 @media (min-width: 900px) {
+  [data-style="gallery"] .topbar { color: var(--fg); }
+  [data-style="gallery"] .hero { background: var(--bg); color: var(--fg); min-height: 0; display: grid; }
+  [data-style="gallery"] .hero::after { display: none; }
+  [data-style="gallery"] .hero__media { position: relative; inset: auto; z-index: 0; order: 2; }
+  [data-style="gallery"] .hero__media .ph { border-radius: var(--radius); }
+  [data-style="gallery"] .hero__media .ph__label { top: .85rem; }
+  [data-style="gallery"] .hero .eyebrow { color: var(--accent); }
+  [data-style="gallery"] .hero__lead { color: var(--fg-muted); }
+  [data-style="gallery"] .hero__aside { color: var(--fg-muted); }
+  [data-style="gallery"] .hero__aside strong { color: var(--fg); }
+  [data-style="gallery"] .hero .btn--ghost { border-color: var(--line-strong); color: var(--fg); }
+  [data-style="gallery"] .hero .btn--ghost:hover { border-color: var(--fg); }
+  [data-style="gallery"] .hero__title { max-width: 12ch; }
   [data-style="gallery"] .hero { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: stretch; }
   [data-style="gallery"] .hero__media { order: 2; min-height: 0; margin: calc(var(--header-h) + 1.5rem) var(--gutter) 2.5rem 0; }
   [data-style="gallery"] .hero__inner { width: auto; max-width: none; margin: 0; padding-left: var(--gutter); padding-right: 2.5rem; padding-top: calc(var(--header-h) + 3.5rem); padding-bottom: 3.5rem; }
   [data-style="gallery"] .hero__grid { grid-template-columns: 1fr; }
   [data-style="gallery"] .hero__aside { justify-items: start; text-align: left; }
-  [data-style="gallery"] .hero__title { max-width: 12ch; }
 }
 [data-style="gallery"] .drawer { background: var(--bg); color: var(--fg); }
 [data-style="gallery"] .drawer__top .brand, [data-style="gallery"] .drawer__nav a { color: var(--fg); }
@@ -1245,12 +1260,15 @@ html.no-smooth, html.no-smooth body { scroll-behavior: auto !important; }
 .hero__btn:hover { border-color: #fff; background: rgba(18, 19, 22, .55); }
 .hero__btn:focus-visible { border-radius: 50%; }
 .hero__btn svg { width: 1.1rem; height: 1.1rem; }
-[data-style="gallery"] .hero__bar { border-top-color: var(--line); color: var(--fg-muted); }
-[data-style="gallery"] .hero__caption b { color: var(--fg); }
-[data-style="gallery"] .hero__seg::after { background: var(--line-strong); }
-[data-style="gallery"] .hero__seg i { background: var(--fg); }
-[data-style="gallery"] .hero__btn { border-color: var(--line-strong); background: transparent; color: var(--fg); -webkit-backdrop-filter: none; backdrop-filter: none; }
-[data-style="gallery"] .hero__btn:hover { border-color: var(--fg); background: var(--bg-sunken); }
+@media (min-width: 900px) {
+  [data-style="gallery"] .hero__bar { border-top-color: var(--line); color: var(--fg-muted); }
+  [data-style="gallery"] .hero__caption b { color: var(--fg); }
+  [data-style="gallery"] .hero__seg::after { background: var(--line-strong); }
+  [data-style="gallery"] .hero__seg i { background: var(--fg); }
+  [data-style="gallery"] .hero__btn { border-color: var(--line-strong); background: transparent; color: var(--fg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  [data-style="gallery"] .hero__btn:hover { border-color: var(--fg); background: var(--bg-sunken); }
+
+}
 
 /* Headline rises line by line on load. The mask is a clip-path that reaches past
    the line box so the blurred text shadow is not cut into a hard band, and it is
@@ -1306,13 +1324,14 @@ body.lightbox-open { overflow: hidden; }
 .hero .eyebrow, .hero__title, .hero__lead, .hero__aside, .hero__bar, .tile__title, .tile__sub {
   text-shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 6px 22px rgba(0, 0, 0, .35);
 }
-.tile--solid .tile__title, .tile--solid .tile__sub, .tile--stone .tile__title, .tile--stone .tile__sub, .tile--sage .tile__title, .tile--sage .tile__sub,
-[data-style="gallery"] .hero .eyebrow, [data-style="gallery"] .hero__title, [data-style="gallery"] .hero__lead, [data-style="gallery"] .hero__aside, [data-style="gallery"] .hero__bar { text-shadow: none; }
+.tile--solid .tile__title, .tile--solid .tile__sub, .tile--stone .tile__title, .tile--stone .tile__sub, .tile--sage .tile__title, .tile--sage .tile__sub { text-shadow: none; }
+@media (min-width: 900px) {
+  [data-style="gallery"] .hero .eyebrow, [data-style="gallery"] .hero__title, [data-style="gallery"] .hero__lead, [data-style="gallery"] .hero__aside, [data-style="gallery"] .hero__bar { text-shadow: none; }
+}
 @media (max-width: 720px) {
   .hero .eyebrow, .hero__title, .hero__lead, .hero__aside, .hero__bar { text-shadow: 0 1px 3px rgba(0, 0, 0, .55), 0 10px 30px rgba(0, 0, 0, .55); }
   .hero::after { background: linear-gradient(180deg, rgba(18, 19, 22, .5) 0%, rgba(18, 19, 22, .3) 30%, rgba(18, 19, 22, .92) 100%); }
   .hero__lead { color: rgba(255, 255, 255, .92); }
-  [data-style="gallery"] .hero .eyebrow, [data-style="gallery"] .hero__title, [data-style="gallery"] .hero__lead, [data-style="gallery"] .hero__aside, [data-style="gallery"] .hero__bar { text-shadow: none; }
 }
 .lightbox__stage { width: fit-content; max-width: min(92vw, 1400px); }
 .lightbox__meta { max-width: 100%; }
@@ -1335,8 +1354,10 @@ body.lightbox-open { overflow: hidden; }
 @media (max-width: 720px) {
   .hero .eyebrow, .hero__title, .hero__lead, .hero__aside, .hero__bar { text-shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 6px 24px rgba(0, 0, 0, .45); }
 }
-.tile--solid .tile__title, .tile--solid .tile__sub, .tile--stone .tile__title, .tile--stone .tile__sub, .tile--sage .tile__title, .tile--sage .tile__sub,
-[data-style="gallery"] .hero .eyebrow, [data-style="gallery"] .hero__title, [data-style="gallery"] .hero__lead, [data-style="gallery"] .hero__aside, [data-style="gallery"] .hero__bar { text-shadow: none; }
+.tile--solid .tile__title, .tile--solid .tile__sub, .tile--stone .tile__title, .tile--stone .tile__sub, .tile--sage .tile__title, .tile--sage .tile__sub { text-shadow: none; }
+@media (min-width: 900px) {
+  [data-style="gallery"] .hero .eyebrow, [data-style="gallery"] .hero__title, [data-style="gallery"] .hero__lead, [data-style="gallery"] .hero__aside, [data-style="gallery"] .hero__bar { text-shadow: none; }
+}
 
 /* =============================================================================
    STREET INDEX — the block in house-number order, with this address marked

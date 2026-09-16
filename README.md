@@ -352,7 +352,11 @@ shot list below stays honest.
 
 ### What was removed, and why
 
-An audit in September 2026 cut the library from 33 files to **21 photographs**.
+An audit in September 2026 cut the library from 33 files to 21 photographs. Twelve
+more arrived from the owner's listing and the library now stands at **32**,
+this time with no duplicates: every candidate is hashed against the whole library
+before it is slotted, and every batch so far has been checked at 9× for a
+watermark.
 
 **Five interiors were pulled, then restored.** They were removed on the reasoning
 that oak cabinets and ceiling fans could not belong to a building whose lobby is
@@ -379,46 +383,69 @@ fine twice in one view.
 
 ### The shot list
 
-Two slots are empty, and seven good photographs are sitting unusable.
+One slot is empty.
 
 | File to produce | Page | Shot |
 |---|---|---|
-| `terrace.jpg` | Home | Terrace · pergola, fire pit and skyline at dusk |
 | `terrace-evening.jpg` | Amenities | Terrace · evening with the fire pit lit |
 
-### Withheld: seven watermarked frames
+Every other slot resolves to a photograph. The five screenshot-sourced files are
+the ones to re-pull at full size when the listing originals are to hand.
 
-The owner has supplied thirteen photographs across two batches. **Six are in use;
-seven carry a syndication watermark in the bottom-right corner — a five-petal
-pinwheel — and are not in this repository.**
+### Where the photography comes from
 
-From the first batch, five: the refurnished community room, the lobby corridor,
-the laundry closet, a current aerial, and the leasing lounge. All five are better
-than what they would replace, and the aerial in particular beats `hero-aerial.jpg`
-outright: mature trees, the full solar array, the whole block.
+Evolution24 holds a paid Apartments.com listing account, and the photography on
+that listing is licensed to them. The watermark on the copies served from the
+listing is a syndication mark on *that copy*, not a claim on the photograph, and
+Gianni supplied unmarked versions for the site. The library is legitimate.
 
-From the second batch, two kitchens (commit `bd371f8`, both 2048×1365, no EXIF).
-They are the **unstaged** frames of the room that `plan-1br.webp` shows staged —
-same island, same granite, same pendants, same appliance run, opposite ends of the
-room. They are larger than anything in the library and they are the only honest,
-unfurnished interiors anyone has sent. They landed at the repository root, where
-Pages would have served them at `charlottesquareroc.com/charlotte-square-rochester-ny-building-photo.jpg`;
-they were removed from the tree rather than published, and `git show bd371f8:<name>`
-still recovers them.
+Thirteen files arrived watermarked across two batches. Seven are now in use:
 
-**The watermark is not cropped off.** It sits over floor in both frames, so a
-crop would cost almost nothing compositionally — and that is exactly why it
-should not be done quietly. The mark asserts a syndication licence over *that
-copy* of the photograph, not over the photograph; Evolution24 almost certainly
-holds the underlying rights, since the owner commissioned the shoot. The fix is
-to obtain the masters, not to scrub someone's mark off their file.
+| In the library | Came from |
+|---|---|
+| `residence-kitchen.jpg`, `residence-kitchen-2.jpg` | Two angles of one kitchen, unfurnished |
+| `community-room.jpg` | The refurnished community room |
+| `lobby-corridor.jpg` | The lobby, reclaimed wood and local photography |
+| `leasing-lounge.jpg` | The leasing lounge, wood ceiling and yellow wall |
+| `residence-laundry.jpg` | An in-home laundry closet |
+| `hero-aerial.jpg` | A current aerial — replaced the older one outright |
 
-Claiming the Apartments.com listing yields the unwatermarked originals. That is
-the same step that corrects the Home Leasing attribution, the old phone number
-and the rooftop-terrace claim, so it is one task that unblocks four things. The
-listing is also where these filenames come from — `charlotte-square-rochester-ny-building-photo.jpg`
-is Apartments.com's own download naming, which is the tell that the copies came
-off the public listing rather than out of the photographer's delivery.
+The watermark sat in the bottom-right of every one, inside the last 95px across
+and 85px up, measured on a magnified grid rather than guessed. Each was cropped
+100px off the bottom, which clears the mark on all seven and costs bare floor or
+foreground in every frame. The crop is recorded in `develop_all.py` as `WM_CROP`.
+
+Five more came as unmarked screenshots and are in the library at their native
+size — `terrace.jpg`, `parking-garage.jpg`, `residence-bath-accessible.jpg`,
+`exterior-corner.jpg` and `charlotte-street.jpg`. They are around 1,150px on the
+long edge, which is smaller than the rest of the library and is the one thing
+worth improving: the underlying photographs exist at full size on the listing.
+`terrace.jpg` is the smallest at 572px and sits in a large tile, so it is the
+first one to replace.
+
+### The grading pass
+
+Every new file went through `grade.py`, a small development pass written for this
+library. It is adaptive: each amount is derived from the image's own histogram
+and then capped, so a well-exposed frame moves by almost nothing and a flat one
+gets the full correction. Order follows a raw workflow — white balance, black and
+white points, shadows and highlights, contrast, vibrance, and sharpening last,
+after the resize.
+
+Two decisions are worth knowing about, because both are places the obvious
+implementation is wrong:
+
+- **The illuminant estimate ignores sky.** A grey-world estimator on a frame that
+  is 40% blue concludes the frame is too blue, pulls blue down, and hands back a
+  grey sky over orange brick. Sky and near-clipping pixels are masked out before
+  the estimate. On `terrace.jpg` that moved the blue channel's gain from 0.87 to
+  0.97 — the difference between a graded photograph and a broken one.
+- **Vibrance, not saturation.** The boost is weighted by `(1 - sat)²`, so it
+  lands on the beiges, greys and woods that carry an interior and spends almost
+  nothing on the one already-vivid surface. Flat saturation is what makes red
+  brick go fluorescent.
+
+`develop_report.json` records the exact amounts applied to each file.
 
 The capture day is still worth doing for everything else: the fitness frame is
 780px, the terrace and park frames are the 2016 shoot, and the owner's newer
@@ -444,18 +471,24 @@ EXIF before committing — phone and camera files carry GPS and serial numbers.
 
 ### The owner's uploads
 
-Six WebP frames from the owner, September 2026, replacing the weakest files on
-the site: `fitness-center.webp` (the old one was 780px), and five staged unit
-interiors across the floor-plan cards and the residences page. All carry no EXIF
-and the five staged ones carry the disclosure badge.
+Three batches from the owner across September 2026:
 
-A second batch followed — two kitchen JPGs — and both were watermarked. See
-**Withheld** above. Every photograph reaching this repository gets the same two
-checks before it is slotted: corners magnified to 9× for a watermark, and a
-perceptual hash against the existing library for a duplicate. Both have caught
-something. Neither is skippable because a file looks clean at page size.
+1. **Eleven WebP frames.** Six went straight in — `fitness-center.webp` (the old
+   one was 780px) and five staged unit interiors. Five were watermarked.
+2. **Two kitchen JPGs.** Both watermarked, and both the unfurnished version of
+   the room `plan-1br.webp` shows staged.
+3. **Eleven unmarked screenshots.** Six were new subjects; the other five
+   duplicated frames from batches 1 and 2, where a 2,000px original already
+   existed, so the original was used and the screenshot discarded.
 
-### What is in the 21 that remain
+Every photograph reaching this repository gets the same two checks before it is
+slotted: **corners magnified to 9×** for a watermark, and a **perceptual hash
+against the whole library** for a duplicate. Both have caught something. Neither
+is skippable because a file looks clean at page size. The hash pass on the
+current library plus all twelve candidates flagged three pairs, all of them a
+screenshot matching its own original — no duplicates went in.
+
+### What is in the 32
 
 - **Building, amenities and aerials** — professional photography from the
   architect's project page ([SWBR: Charlotte Square at the East
@@ -466,13 +499,16 @@ something. Neither is skippable because a file looks clean at page size.
   models in period clothing across every frame, and the landscaping has had ten
   years to grow, so these undersell the property as it stands. They are out of
   the hero rotation and kept only as context on the amenities page.
-- **Fitness center** — still the 780 px frame from the previous website. The
-  weakest file on the site.
+- **The owner's listing photography** — twelve files, September 2026: two
+  unfurnished kitchens, the community room, the lobby corridor, the leasing
+  lounge, an in-home laundry, a current aerial, the terrace, the podium garage,
+  an accessible bath and two exteriors. Graded through `grade.py`; the seven that
+  came from watermarked originals are cropped 100px off the bottom.
 - **Neighborhood** — two Creative Commons photographs from Wikimedia Commons,
   credited on the privacy page and below.
 
-The home hero now runs three architectural frames — exterior, aerial, community
-room. Architecture does not date the way people in 2016 clothing do.
+The home hero runs two architectural frames — exterior and the current aerial.
+Architecture does not date the way people in 2016 clothing do.
 
 ### Photo credits
 
@@ -535,6 +571,32 @@ Type: **Bricolage Grotesque**, **Manrope**, **Instrument Serif** and **DM Sans**
 
 The same tokens, mark treatment (`Evolution<b>24</b>`) and type pairing can carry straight over to the new Evolution24 site so the portfolio reads as one family.
 
+### The gallery hero is a desktop composition
+
+Gallery style puts the headline in one column and a framed photograph in the
+other, on a paper ground. That needs two columns. Below 900px there is only one,
+and the photograph became a postcard stacked under the type instead of carrying
+the page — so below the split, gallery inherits the base hero: photograph
+full-bleed, scrim over it, type on top, exactly as Brick & Stone does.
+
+Three things move with it, and each one is a place where the desktop value is
+wrong over a photograph:
+
+- The **accent colour** on the italic line. Gallery's `--accent` is `#7A1F12`, a
+  deep brick red chosen against white paper; over a photograph it disappears. The
+  base rule `.hero .accent` already reaches for `--accent-on-dark` (`#E8A48F`), so
+  the override is simply scoped to the desktop breakpoint and the base takes over.
+- The **text shadow**, which gallery switches off because its type sits on paper.
+  On the phone hero it sits on a photograph and needs it.
+- The **display size**. `--fs-display` bottoms out at `3.4rem` in gallery against
+  `3rem` elsewhere; that extra 6px pushed the slideshow caption and controls off
+  a 390px screen, so below the split it steps back to the base scale.
+  `--fs-display` has exactly one consumer, `.hero__title`, so nothing else moves.
+
+Worth knowing if you touch this: the style token blocks are
+`html:root[data-style="…"]`, specificity (0,2,1). A plain `[data-style="…"]`
+override is (0,1,0) and loses silently — no error, the old value just stays.
+
 ### Locking in a style for launch
 
 The switcher is a review tool. Once a direction is chosen:
@@ -546,6 +608,8 @@ The switcher is a review tool. Once a direction is chosen:
 ## A note on the terrace
 
 The shared outdoor space with the pergola, fire pit and grills is on the **podium level**, the deck above the ground-floor garage. It is not a roof deck, and there is no resident roof access. The building's own roof carries the solar array. Earlier drafts of this site, and some third-party listings, describe a "rooftop terrace"; that wording is wrong and has been removed throughout, including from the cross-section diagram on the story page.
+
+`terrace.jpg` is a current frame of that deck — the pergola, the shared grills and the bar. It is the smallest file in the library at 572px, because it arrived as a screenshot; the full-size original is on the Apartments.com listing and is worth pulling.
 
 ## The Charlotte Street block
 
@@ -577,11 +641,10 @@ These came from public listings or the previous site and should be verified with
 - [ ] Legal review of `privacy/index.html`
 - [ ] The Charlotte Street block list, especially East End Tavern, and any neighbors worth adding
 - [ ] Rights to the SWBR and Home Leasing photography, or a reshoot
-- [ ] **Shoot the two missing terrace frames** (see the shot list under Photos) — the only
-      slots still rendering placeholders; every other slot now resolves to a real photograph
-- [ ] **Get the unwatermarked masters** for the seven withheld frames — two kitchens, a
-      current aerial, the community room, the lobby corridor, the laundry and the leasing
-      lounge. Ask the photographer or the previous owner for the delivery files; do not
-      re-download the listing copies
+- [ ] **Shoot the terrace at dusk with the fire pit lit** — `terrace-evening.jpg` is the
+      only slot still rendering a placeholder
+- [ ] **Pull five frames at full size from the Apartments.com listing** — the terrace,
+      garage, accessible bath and two exteriors are in at ~1,150px because they came in
+      as screenshots. `terrace.jpg` at 572px is the one that shows
 - [ ] Claim the Apartments.com listing — it still names Home Leasing, gives the old phone
       number, and describes a rooftop terrace
