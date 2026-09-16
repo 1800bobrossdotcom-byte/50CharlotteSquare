@@ -9,6 +9,26 @@
   const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ---- Missing photo -> show the labelled placeholder --------------------
+     This used to be an onerror="" attribute on every <img>. Inline event
+     handlers are blocked by the Content Security Policy even when the inline
+     <script> hashes are allowed, so it lives here instead.
+     Two halves, and both are needed: the listener catches images that fail
+     after this file runs, and the sweep catches the ones that already failed
+     while the parser was still working, since 'error' does not replay. It is
+     registered in the capture phase because 'error' does not bubble. */
+  const dropImage = (img) => {
+    const fig = img.parentNode;
+    if (fig && fig.classList) fig.classList.add('is-empty');
+    img.remove();
+  };
+  document.addEventListener('error', (e) => {
+    if (e.target && e.target.tagName === 'IMG') dropImage(e.target);
+  }, true);
+  $$('img').forEach((img) => {
+    if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) dropImage(img);
+  });
+
   /* ---- Header: solid once the page scrolls ------------------------------- */
   const topbar = $('.topbar');
   const onScroll = () => topbar && topbar.classList.toggle('is-scrolled', window.scrollY > 24);

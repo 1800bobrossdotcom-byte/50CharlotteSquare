@@ -1,0 +1,9 @@
+Contact: https://www.charlottesquareroc.com/contact/
+Expires: 2027-09-16T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://www.charlottesquareroc.com/.well-known/security.txt
+Policy: https://www.charlottesquareroc.com/privacy/
+
+# Charlotte Square is a static site: no accounts, no database, no payments.
+# Report anything you find through the contact form above, or by phone to
+# Vicki Barone at (585) 748-5588. We will acknowledge within five business days.

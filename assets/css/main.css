@@ -1387,6 +1387,35 @@ p, .lead, .hero__lead, .prose p, .feature p, .card p, .step p, .tile__sub,
    REDUCED MOTION — last block in the file so it overrides every rule above.
    Anything that parks an element off its resting position must be undone here.
    ============================================================================= */
+/* ---------------------------------------------------------------------------
+   Rules that used to live in style="" attributes.
+   Moved here so the Content Security Policy can drop 'unsafe-inline' from
+   style-src. With it, the policy is decoration — an injected
+   <span style="position:fixed;inset:0"> still lands. Without it, it cannot.
+   --------------------------------------------------------------------------- */
+.styler__sw--brick   { --a: #F4F1EB; --b: #D2452D; --c: #121316; }
+.styler__sw--gallery { --a: #FFFFFF; --b: #7A1F12; --c: #1A1A1A; }
+.styler__sw--atelier { --a: #EFEAE1; --b: #A8482A; --c: #241E19; }
+.styler__sw--dusk    { --a: #15110E; --b: #E0734A; --c: #F0E8DC; }
+
+/* Three class selectors, to tie [data-style="dusk"] .diagram .diagram__label on
+   specificity and beat it on source order — which is how the inline style used
+   to win. Drop one of these and the park label turns accent-coloured in Dusk. */
+.diagram .diagram__label.diagram__label--park { fill: var(--sage); }
+
+/* Two class selectors, because `.diagram text` (0,1,1) outranks an SVG
+   presentation attribute — which is why fill="#121316" silently lost and the
+   inline style did not. */
+.diagram .diagram__t--podium  { fill: #121316; font-size: 12px; }
+.diagram .diagram__t--terrace { fill: #F08A6A; font-size: 11px; font-weight: 700; }
+.diagram .diagram__t--balcony { fill: currentColor; font-size: 12px; }
+
+.legend__dot--roof    { background: var(--sky); }
+.legend__dot--upper   { background: #8E2A19; }
+.legend__dot--terrace { background: var(--brick); }
+.legend__dot--podium  { background: #C9BFAE; }
+.legend__dot--park    { background: var(--sage); }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   html.js .reveal { opacity: 1; transform: none; transition: none; }
