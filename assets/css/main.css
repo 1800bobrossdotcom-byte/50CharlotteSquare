@@ -1042,9 +1042,15 @@ body.lightbox-open { overflow: hidden; }
 .street__also { display: block; font-size: 1.05rem; margin-top: .7rem; }
 /* The marked row is flagged by its ground and a rule, not by recoloring the
    name: accent text on an accent tint does not clear the contrast floor. */
+/* The marked row used to take `padding-left: 1rem` for the accent bar, which
+   pushed its house number and its name 12px right of every other row — the one
+   row meant to stand out was the one that did not line up. The panel now bleeds
+   outward by the same amount it pads inward, so the highlight grows and the
+   columns stay put. */
 .street__row--here {
   background: var(--accent-tint); border-radius: var(--radius-sm); border-bottom-color: transparent;
-  box-shadow: inset 3px 0 0 var(--accent); padding-left: 1rem;
+  box-shadow: inset 3px 0 0 var(--accent);
+  margin-inline: -.75rem; padding-inline: 1rem;
 }
 .street__row--here .street__no { color: var(--accent); }
 .street__row--here strong { color: var(--fg); }
