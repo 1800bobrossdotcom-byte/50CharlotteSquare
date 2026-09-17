@@ -3,59 +3,88 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://www.charlottesquareroc.com/</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <priority>1.0</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-exterior.jpg</image:loc><image:title>Charlotte Square apartments at 50 Charlotte Street, Rochester NY</image:title></image:image>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-aerial.jpg</image:loc><image:title>Charlotte Square from above, showing the rooftop solar array</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/community-room.jpg</image:loc><image:title>The community room at Charlotte Square, with lounge seating along a wall of windows</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/detail-terrace.jpg</image:loc><image:title>Private terrace detail at Charlotte Square</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://www.charlottesquareroc.com/residences/</loc>
-    <lastmod>2026-09-16</lastmod>
-    <priority>0.9</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-1br.webp</image:loc><image:title>One-bedroom kitchen at Charlotte Square</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-2br.webp</image:loc><image:title>Two-bedroom living room at Charlotte Square</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-3br.webp</image:loc><image:title>Three-bedroom bedroom at Charlotte Square</image:title></image:image>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-bedroom.webp</image:loc><image:title>A bedroom at Charlotte Square</image:title></image:image>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-bath.webp</image:loc><image:title>A bathroom at Charlotte Square</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://www.charlottesquareroc.com/amenities/</loc>
-    <lastmod>2026-09-16</lastmod>
-    <priority>0.8</priority>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-terrace.jpg</image:loc><image:title>The shared terrace at Charlotte Square, with pergola and skyline</image:title></image:image>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-lounge.jpg</image:loc><image:title>The community room at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/terrace.jpg</image:loc><image:title>The terrace at Charlotte Square, with the pergola, the shared grills and bar seating</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/fitness-center.webp</image:loc><image:title>Fitness center at Charlotte Square</image:title></image:image>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/pocket-park-summer.jpg</image:loc><image:title>The pocket park beside Charlotte Square in summer</image:title></image:image>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/gallery-01.jpg</image:loc><image:title>Amenities</image:title></image:image>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/gallery-04.jpg</image:loc><image:title>Amenities</image:title></image:image>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/gallery-05.jpg</image:loc><image:title>Amenities</image:title></image:image>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/gallery-06.jpg</image:loc><image:title>Amenities</image:title></image:image>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/fitness-rig.jpg</image:loc><image:title>Strength training equipment at Charlotte Square</image:title></image:image>
-  </url>
-  <url>
-    <loc>https://www.charlottesquareroc.com/neighborhood/</loc>
-    <lastmod>2026-09-16</lastmod>
-    <priority>0.7</priority>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/neighborhood-hero.jpg</image:loc><image:title>Rochester's East End</image:title></image:image>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/neighborhood-streets.jpg</image:loc><image:title>Streets of the East End, Rochester NY</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/lobby-lounge.jpg</image:loc><image:title>Reclaimed wood and leather in the lobby lounge</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-park.jpg</image:loc><image:title>Luxury Apartments in Rochester, NY</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/east-end-street.jpg</image:loc><image:title>East Avenue in Rochester's East End</image:title></image:image>
   </url>
   <url>
+    <loc>https://www.charlottesquareroc.com/residences/</loc>
+    <lastmod>2026-09-17</lastmod>
+    <priority>0.9</priority>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-bedroom.webp</image:loc><image:title>A bedroom at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-1br.webp</image:loc><image:title>One-bedroom kitchen at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-2br.webp</image:loc><image:title>Two-bedroom living room at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-3br.webp</image:loc><image:title>Three-bedroom bedroom at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/unit-bath.jpg</image:loc><image:title>A bathroom at Charlotte Square, with an oak vanity, granite counter and a tub-shower</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-kitchen.jpg</image:loc><image:title>A kitchen at Charlotte Square, with a granite island, stainless appliances and pendant lighting</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-laundry.jpg</image:loc><image:title>An in-home laundry closet at Charlotte Square with a stacked washer and dryer</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-bath-accessible.jpg</image:loc><image:title>An accessible bathroom at Charlotte Square with a roll-in shower and grab bars</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-closet.jpg</image:loc><image:title>A walk-in closet at Charlotte Square with wire shelving on three walls</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-balcony.jpg</image:loc><image:title>A private covered balcony at Charlotte Square looking over the East End rooftops</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/unit-kitchen-range.jpg</image:loc><image:title>The range wall of a kitchen at Charlotte Square, with a full-height pantry beside the refrigerator</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/unit-living.jpg</image:loc><image:title>A living room at Charlotte Square, with a sectional facing the balcony doors</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/unit-bedroom-2.jpg</image:loc><image:title>A bedroom at Charlotte Square, with a bench at the foot of the bed</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/unit-open-plan.jpg</image:loc><image:title>An open-plan kitchen and living room at Charlotte Square, running from the island to the balcony doors</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/unit-kitchen-run.jpg</image:loc><image:title>The full kitchen run at Charlotte Square, with granite counters and stainless appliances</image:title></image:image>
+  </url>
+  <url>
+    <loc>https://www.charlottesquareroc.com/amenities/</loc>
+    <lastmod>2026-09-17</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-lounge.jpg</image:loc><image:title>The community room at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-terrace.jpg</image:loc><image:title>The shared terrace at Charlotte Square, with pergola and skyline</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/fitness-center.webp</image:loc><image:title>Fitness center at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/community-room.jpg</image:loc><image:title>Amenities</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/lobby-lounge.jpg</image:loc><image:title>Reclaimed wood and leather in the lobby lounge</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-park.jpg</image:loc><image:title>Amenities</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/terrace.jpg</image:loc><image:title>The shared terrace at Charlotte Square, with the pergola, the grills and the Rochester skyline beyond</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/fitness-rig.jpg</image:loc><image:title>Strength training equipment at Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/leasing-lounge.jpg</image:loc><image:title>The leasing lounge at Charlotte Square, under a reclaimed wood ceiling</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/pocket-park-summer.jpg</image:loc><image:title>The pocket park beside Charlotte Square in summer</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/parking-garage.jpg</image:loc><image:title>The podium parking garage under Charlotte Square</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-kitchen-2.jpg</image:loc><image:title>A kitchen at Charlotte Square, photographed before any furniture was added</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/exterior-corner.jpg</image:loc><image:title>Charlotte Square seen from the corner, with the ground-floor retail</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/charlotte-street.jpg</image:loc><image:title>Charlotte Street along the building, with the retail frontage and the garage entrance</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/lobby-corridor.jpg</image:loc><image:title>The lobby corridor at Charlotte Square, with a reclaimed wood wall and local photography</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/gallery-06.jpg</image:loc><image:title>Charlotte Square from above, with the rooftop solar array and the pocket park terrace</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/community-fireplace.jpg</image:loc><image:title>The community room at Charlotte Square, looking across to the fireplace and the kitchen bar</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/aerial-close.jpg</image:loc><image:title>Charlotte Square from the air, close on the balconies and the podium</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/exterior-plaza.jpg</image:loc><image:title>Charlotte Square from the plaza, with the sculpture in the foreground</image:title></image:image>
+  </url>
+  <url>
+    <loc>https://www.charlottesquareroc.com/neighborhood/</loc>
+    <lastmod>2026-09-17</lastmod>
+    <priority>0.7</priority>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/neighborhood-hero.jpg</image:loc><image:title>Rochester's East End</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/neighborhood-streets.jpg</image:loc><image:title>Streets of the East End, Rochester NY</image:title></image:image>
+  </url>
+  <url>
     <loc>https://www.charlottesquareroc.com/story/</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <priority>0.6</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-aerial.jpg</image:loc><image:title>Charlotte Square from above, showing the rooftop solar array</image:title></image:image>
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/contact/</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <priority>0.9</priority>
-    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-exterior.jpg</image:loc><image:title>Charlotte Square apartments at 50 Charlotte Street, Rochester NY</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/lobby-corridor.jpg</image:loc><image:title>Contact &amp; Tours</image:title></image:image>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/exterior-sign.jpg</image:loc><image:title>The Charlotte Square at the East End sign above the ground-floor retail on Charlotte Street</image:title></image:image>
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/privacy/</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <priority>0.2</priority>
+    <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-aerial.jpg</image:loc><image:title>Charlotte Square from above, showing the rooftop solar array</image:title></image:image>
   </url>
 </urlset>
