@@ -257,6 +257,20 @@
      "@type": "ListItem",
      "position": 1,
      "item": {
+      "@type": "HealthClub",
+      "name": "FMR Fitness & Wellness",
+      "address": {
+       "@type": "PostalAddress",
+       "streetAddress": "15 Charlotte Street",
+       "addressLocality": "Rochester",
+       "addressRegion": "NY"
+      }
+     }
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "item": {
       "@type": "Restaurant",
       "name": "Chick'n Out",
       "address": {
@@ -269,10 +283,24 @@
     },
     {
      "@type": "ListItem",
-     "position": 2,
+     "position": 3,
      "item": {
       "@type": "CafeOrCoffeeShop",
       "name": "Ugly Duck Coffee",
+      "address": {
+       "@type": "PostalAddress",
+       "streetAddress": "89 Charlotte Street",
+       "addressLocality": "Rochester",
+       "addressRegion": "NY"
+      }
+     }
+    },
+    {
+     "@type": "ListItem",
+     "position": 4,
+     "item": {
+      "@type": "ClothingStore",
+      "name": "Rosebud Retro",
       "address": {
        "@type": "PostalAddress",
        "streetAddress": "89 Charlotte Street",
@@ -347,16 +375,17 @@
   <div class="container split">
     <div class="reveal">
       <p class="eyebrow">Your block</p>
-      <h2 id="block-title">Coffee at 89. Fried chicken at 37.</h2>
-      <p class="lead">Charlotte Street is a short street, and most of it is useful. Here is the block in house-number order, with your front door in the middle of it.</p>
+      <h2 id="block-title">A gym at 15. Chicken at 37. Coffee and vintage at 89.</h2>
+      <p class="lead">Charlotte Street is a short street, and more of it is useful this year than last. Here is the block in house-number order, with your front door in the middle of it.</p>
       <p class="mt-2"><a class="link-arrow" href="../contact/?interest=tour">Come see the block</a></p>
     </div>
     <div class="reveal" data-delay="1">
     <p class="street__head" id="street-head">Charlotte Street</p>
     <ol class="street" aria-labelledby="street-head">
+      <li class="street__row"><span class="street__no">15</span><div><strong>FMR Fitness &amp; Wellness</strong><span class="street__note">Personal training and recovery, Monday to Saturday</span></div></li>
       <li class="street__row"><span class="street__no">37</span><div><strong>Chick&rsquo;n Out</strong><span class="street__note">Hand-breaded tenders and Belgian-style chicken and waffles, open from noon</span></div></li>
       <li class="street__row street__row--here"><span class="street__no">50</span><div><strong>Charlotte Square</strong><span class="street__note">50 Charlotte Street, Rochester, NY 14607 &mdash; you are here</span></div></li>
-      <li class="street__row"><span class="street__no">89</span><div><strong>Ugly Duck Coffee</strong><span class="street__note">Multi-roaster espresso bar, open at seven on weekdays</span></div></li>
+      <li class="street__row"><span class="street__no">89</span><div><strong>Ugly Duck Coffee</strong><span class="street__note">Multi-roaster espresso bar, open at seven on weekdays</span><strong class="street__also">Rosebud Retro</strong><span class="street__note">Vintage clothing collective in the same house, closed Tuesdays</span></div></li>
     </ol>
     </div>
   </div>

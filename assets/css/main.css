@@ -1042,6 +1042,11 @@ body.lightbox-open { overflow: hidden; }
 }
 .street__row strong { display: block; font-size: 1.05rem; }
 .street__note { display: block; color: var(--fg-muted); font-size: .95rem; margin-top: .15rem; }
+/* A second business at the same house number — 89 Charlotte holds both the coffee
+   bar and the vintage collective. The number is printed once, because a directory
+   that repeats it down the left column reads as a duplication error even when
+   both rows are true. */
+.street__also { display: block; font-size: 1.05rem; margin-top: .7rem; }
 /* The marked row is flagged by its ground and a rule, not by recoloring the
    name: accent text on an accent tint does not clear the contrast floor. */
 /* The marked row used to take `padding-left: 1rem` for the accent bar, which

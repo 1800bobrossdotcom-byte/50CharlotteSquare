@@ -4,16 +4,16 @@ A fresh, bold marketing site for **Charlotte Square**, the 72-home apartment com
 
 No framework, no build step. Plain HTML, one stylesheet, one script. Open `index.html` in a browser and it works.
 
-**Three design directions ship in this build.** A floating "Style" switcher in the bottom-right corner of every page toggles between them, and the choice sticks on that device:
+**The site ships in one style: Gallery.** Editorial white space, hairlines, serif
+italics and framed photography, on Instrument Serif and DM Sans with an oxblood
+`#7A1F12` accent. Every `<html>` carries `data-style="gallery"` and there is no
+switcher.
 
-| Style | Feel | Type | Accent |
-|---|---|---|---|
-| **Brick & Stone** (default) | Warm stone ground, bold grotesk, rounded cards | Bricolage Grotesque + Manrope | Brick `#D2452D` |
-| **Gallery** | Editorial: white space, hairlines, serif italics, framed photography | Instrument Serif + DM Sans | Oxblood `#7A1F12` |
-| **Atelier** | Bone paper, hairline structure, editorial serif over grotesk. The headline sits on a paper banner that wipes in over the photograph while everything else stays condensed on the image. Scrolls differently: the amenity grid is a horizontal snap rail, amenity images pin beside their text, sections are numbered in the margin, and a hairline tracks page progress | Instrument Serif + Manrope | Clay `#A8482A` |
-| **Dusk** | The dark option. Composed the other way round from the rest: the photograph runs as a film still across the top and the type sits beneath it on a warm espresso ground, with the slide caption between them. Nothing overlays the picture, a trace of film grain keeps the dark fields photographic, and the brick is warmed to an ember so it holds on dark without vibrating | Bricolage Grotesque + DM Sans | Ember `#E0734A` |
-
-You can also link straight to a style with `?style=gallery`, `?style=atelier` or `?style=dusk` on any page. An earlier dark direction called Night was replaced by Atelier; a saved `night` preference maps to Atelier automatically.
+Three other directions — Atelier, Dusk and the switcher itself — were built,
+then archived rather than deleted. They are in `archive/`, with a restore guide.
+Brick & Stone is not archived: it is the base layer Gallery overrides, so its
+tokens are still load-bearing and live in `assets/css/main.css`. See *One style,
+three archived* below.
 
 ## Pages
 
@@ -22,7 +22,7 @@ You can also link straight to a style with `?style=gallery`, `?style=atelier` or
 | `/` | `index.html` | Animated hero gallery, at-a-glance stats, intro, residences preview, amenity bento grid, East End ticker, management intro, tour CTA |
 | `/residences/` | `residences/index.html` | Filterable 1/2/3-bedroom floor plans, what's included, in-home features, FAQ |
 | `/amenities/` | `amenities/index.html` | Bento overview, detail rows (terrace, fitness, community room, pocket park), sustainability, gallery with lightbox |
-| `/neighborhood/` | `neighborhood/index.html` | Walk/bike/transit, ticker, what's-near cards, Google map |
+| `/neighborhood/` | `neighborhood/index.html` | Walk/bike/transit, the Charlotte Street index, what's-near cards, Google map |
 | `/story/` | `story/index.html` | The Charlotte story, podium cross-section diagram, LEED features, about Evolution24 |
 | `/contact/` | `contact/index.html` | Working inquiry form, contact cards, resident portal, map |
 | `/privacy/` | `privacy/index.html` | Privacy policy, accessibility statement, fair housing |
@@ -935,9 +935,21 @@ The shared outdoor space with the pergola, fire pit and grills is on the **podiu
 
 The neighborhood page carries a street index listing the block in house-number order, which is the most local thing the site can say. The entries are in `neighborhood/index.html` as an `<ol class="street">`; add or remove a row and the layout follows.
 
-Currently listed: Chick'n Out (37), Charlotte Square (50), Ugly Duck Coffee (89). Both businesses were confirmed from their own websites and both also appear in the ticker on the home page. The same two, and only those two, are the `LocalBusiness` nodes in the neighborhood page's JSON-LD graph, so the list and the structured data cannot drift apart without someone noticing.
+Currently listed, in house-number order:
 
-37 Charlotte has turned over twice in a decade — Kirkpatrick's Irish Pub, then East End Tavern, then Chick'n Out — and the site carried the middle one for a while after it closed. Anything added here needs a dated source from the business itself; see *Three of the neighbors had closed*.
+| No. | Business | Source |
+| --- | --- | --- |
+| 15 | FMR Fitness & Wellness — personal training and recovery | Own booking page, Mon–Fri 7–6 and Sat 8:30–1 |
+| 37 | Chick'n Out | Own site and menu |
+| **50** | **Charlotte Square — you are here** | — |
+| 89 | Ugly Duck Coffee | Own site |
+| 89 | Rosebud Retro — vintage clothing collective | 13WHAM, 1 Sept 2026, naming the shop and its owner on Charlotte Street |
+
+Those five, and only those five, are also the `LocalBusiness` nodes in the neighborhood page's JSON-LD graph (`HealthClub`, `Restaurant`, `CafeOrCoffeeShop`, `ClothingStore`), so the visible list and the structured data cannot drift apart without someone noticing. Ugly Duck Coffee, Chick'n Out and Rosebud Retro also run in the home page ticker; FMR does not, because the ticker is a list of places worth walking to and there is a rig downstairs already.
+
+**89 has two tenants.** Ugly Duck Coffee and Rosebud Retro share a turn-of-the-century house. The number is printed once and carries both names — `.street__also` on the second — because a directory that repeats a house number down the left column reads as a duplication error even when both rows are true. That rule was written for 37, retired when East End Tavern turned out to be closed, and restored for 89, where both names check out.
+
+**37 Charlotte has turned over twice in a decade** — Kirkpatrick's Irish Pub, then East End Tavern, then Chick'n Out — and the site carried the middle one for a while after it closed. 89 turned over too: The Op Shop, a vintage collective that ran there from 2017, closed in 2026 and Rosebud Retro took the space. Anything added here needs a dated source from the business itself or news coverage of it; see *Three of the neighbors had closed*.
 
 ## Interaction rules this build follows
 
@@ -961,7 +973,8 @@ These came from public listings or the previous site and should be verified with
 - [ ] Rent Manager online application link (add an "Apply" button once it exists)
 - [ ] Ownership of the existing Facebook page and the `charlottesquareroc.com` domain
 - [ ] Legal review of `privacy/index.html`
-- [ ] The Charlotte Street block list — confirm Chick'n Out and Ugly Duck Coffee are still trading, and add any neighbors worth naming (with a dated source)
+- [ ] The Charlotte Street block list — confirm all four businesses are still trading, and add any neighbors worth naming (with a dated source)
+- [ ] **The gated lot at Winthrop and Charlotte.** 13WHAM reported on 1 Sept 2026 that 10 Winthrop Street LLC gated the lot on that corner for its own tenants' exclusive use, and that Ugly Duck Coffee and Rosebud Retro expect to lose customers over it. Worth knowing where Charlotte Square's visitors are meant to park, and worth not being caught out by it on a tour
 - [ ] Rights to the SWBR and Home Leasing photography, or a reshoot
 - [ ] **Shoot the terrace at dusk with the fire pit lit** — `terrace-evening.jpg` is the
       only slot still rendering a placeholder
