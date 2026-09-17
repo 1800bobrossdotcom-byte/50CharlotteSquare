@@ -1025,6 +1025,12 @@ body.lightbox-open { overflow: hidden; }
 /* =============================================================================
    STREET INDEX — the block in house-number order, with this address marked
    ============================================================================= */
+/* The list names its own street. Without it the column of house numbers means
+   nothing once the prose beside it stacks away on a phone. */
+.street__head {
+  margin: 0 0 .5rem; font-size: var(--fs-eyebrow); font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--fg-subtle);
+}
 .street { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
 .street__row {
   display: grid; grid-template-columns: 3.25rem 1fr; gap: .25rem 1.1rem; align-items: baseline;
@@ -1062,7 +1068,8 @@ body.lightbox-open { overflow: hidden; }
    single short word from being stranded on the last line (a widow).
    ============================================================================= */
 p, .lead, .hero__lead, .prose p, .feature p, .card p, .step p, .tile__sub,
-.plan__list li, .checklist li span, .card ul li, .faq details > div, .footer__tag, .band p, .form__note {
+.plan__list li, .checklist li span, .card ul li, .faq details > div, .footer__tag, .band p, .form__note,
+.street__note, .closer > figcaption {
   text-wrap: pretty;
 }
 
