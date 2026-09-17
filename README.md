@@ -511,11 +511,11 @@ Where furniture was added digitally the frame says so."*
 
 ### The copy audit, September 2026
 
-Gianni spotted that house number 37 appeared twice in the street index. It did,
-and both rows were true — Chick'n Out and East End Tavern share the address, the
-tavern round the side. But a directory that prints the same number twice reads
-as a duplication error whether or not it is one. The number is printed once now
-and carries both names, which is how a street directory has always handled it.
+Gianni spotted that house number 37 appeared twice in the street index. The
+first fix printed the number once and hung both names off it, which is how a
+street directory has always handled a shared address. The better fix came a day
+later, when he asked what the East End Tavern was: it closed in 2022. The row
+is gone and 37 Charlotte carries one name, the business actually in it.
 
 Pulling that thread turned up seven more. No spelling errors — 3,753 words of
 visible copy checked, every flag a proper noun or the regex splitting *Café* at
@@ -561,6 +561,43 @@ the reason is in the next section.
 - *"These six were photographed empty"* — one of the six has a canister set and
   a plant on the counter. No furniture is the claim that matters and the only
   one that is strictly true, so that is what it says now.
+
+### Three of the neighbors had closed
+
+Gianni asked a four-word question — *what is the east end tavern* — and the
+answer was that it had been shut since 2022. Checking the rest of the block
+found two more the site was advertising as open:
+
+| Named on the site as open | Actually |
+| --- | --- |
+| East End Tavern, 37 Charlotte St | Closed 2022. Its liquor license was suspended in 2021 for repeat COVID-capacity violations and it did not come back. |
+| Kirkpatrick's Irish Pub, 37 Charlotte St | Closed. It had the same storefront before the Tavern did — both names were the same address, one tenant apart. |
+| Hart's Local Grocers, 10 Winthrop St | Closed 24 March 2019, seven years ago. It was downtown's only full grocery, which is why it was worth naming and why naming it now is worse than saying nothing. |
+
+Chick'n Out has 37 Charlotte now, which is the third tenant the site had listed
+for one storefront. All three closures were confirmed against news coverage of
+the closing, not against a listing aggregator — aggregators are where two of
+these came from in the first place, and they keep dead businesses live for
+years.
+
+The replacements are things that do not close. The Public Market has been at
+280 N Union Street since 1905 and its hours (Tue and Thu 6–1, Sat 6–3) are
+published by the city; it takes the grocery slot Hart's held, in the ticker, in
+the home page's *Everyday* feature, in the neighborhood card and in the page
+description. Kirkpatrick's slot in *Eat & drink* went to Chick'n Out, which is
+on the block. The Tavern's `BarOrPub` node came out of the neighborhood page's
+JSON-LD graph, leaving two nearby businesses in it, both confirmed open.
+
+One more thing came out in the same pass. The street index credited Chick'n Out
+as *"voted the city's best three years running."* That is not on their site,
+their press page or any award list — it was mine, and it was unsourced praise
+put in a real business's mouth. It now says what their own menu says: hand-breaded
+tenders, Belgian-style chicken and waffles, open from noon.
+
+**The rule this leaves:** every business named on this site needs a source that
+is the business itself or a news story about it, dated. A listing site saying
+"open" is not evidence. Check the whole list before launch, and again yearly —
+restaurants in a nightlife district turn over faster than a website does.
 
 ### The dedupe method has a blind spot
 
@@ -898,7 +935,9 @@ The shared outdoor space with the pergola, fire pit and grills is on the **podiu
 
 The neighborhood page carries a street index listing the block in house-number order, which is the most local thing the site can say. The entries are in `neighborhood/index.html` as an `<ol class="street">`; add or remove a row and the layout follows.
 
-Currently listed: Chick'n Out (37), East End Tavern (37), Charlotte Square (50), Ugly Duck Coffee (89). The first and last were confirmed from their own websites. East End Tavern came from listing sites rather than its own page, and a Greek restaurant that shared 37 Charlotte has since closed, so confirm that one before launch. Ugly Duck Coffee and Chick'n Out also appear in the ticker on the home and neighborhood pages.
+Currently listed: Chick'n Out (37), Charlotte Square (50), Ugly Duck Coffee (89). Both businesses were confirmed from their own websites and both also appear in the ticker on the home page. The same two, and only those two, are the `LocalBusiness` nodes in the neighborhood page's JSON-LD graph, so the list and the structured data cannot drift apart without someone noticing.
+
+37 Charlotte has turned over twice in a decade — Kirkpatrick's Irish Pub, then East End Tavern, then Chick'n Out — and the site carried the middle one for a while after it closed. Anything added here needs a dated source from the business itself; see *Three of the neighbors had closed*.
 
 ## Interaction rules this build follows
 
@@ -922,7 +961,7 @@ These came from public listings or the previous site and should be verified with
 - [ ] Rent Manager online application link (add an "Apply" button once it exists)
 - [ ] Ownership of the existing Facebook page and the `charlottesquareroc.com` domain
 - [ ] Legal review of `privacy/index.html`
-- [ ] The Charlotte Street block list, especially East End Tavern, and any neighbors worth adding
+- [ ] The Charlotte Street block list — confirm Chick'n Out and Ugly Duck Coffee are still trading, and add any neighbors worth naming (with a dated source)
 - [ ] Rights to the SWBR and Home Leasing photography, or a reshoot
 - [ ] **Shoot the terrace at dusk with the fire pit lit** — `terrace-evening.jpg` is the
       only slot still rendering a placeholder
