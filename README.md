@@ -159,6 +159,68 @@ Realistic target: page one for the East End and brand-qualified variants within 
 few months of the cutover, and a map-pack slot once the profile is live. The
 unqualified head term is a longer campaign.
 
+### The SEO pass, 21 September 2026
+
+A second pass, against the live SERP rather than against theory. What actually
+ranks for **"luxury apartments Rochester NY"** today, in order: Apartments.com,
+Zillow, 933 The U (Morgan Properties), Ethan Pointe, Excelsior Communities,
+Dunnwood Green, VIDA Rochester, The Linc, **300 Alexander**, Redfin.
+
+Two things fall out of that list. The aggregators hold the top two and are not
+going to be displaced by a single-property domain. But **seven of the ten are
+single-property sites**, so page one is reachable; it is the first two slots that
+are not. And 300 Alexander is the direct comparison — East Avenue at Alexander
+Street, the same East End, the same renter. It is the site to measure against,
+not Zillow.
+
+**Five of seven meta descriptions were over length.** Google truncates around
+155 characters; the home page description ran 225 and the story page 214, so both
+were being cut mid-sentence in results. All seven are now 139–155, with the
+category term moved to the front where truncation cannot reach it.
+
+**The amenities page contained no local or category term at all.** Not
+"apartment", not "Rochester", not "East End" — 568 words about "the terrace" and
+"the gym" with nothing to say where they were. Title and meta carried the terms;
+the body did not, so the page could not rank for anything local. Fixed in the
+hero lead and the closing call to action, in the page's own voice.
+
+**The residences page had the word "apartment" nowhere in its body.** It sells
+"homes" and "residences" throughout, which is the right voice for the building
+and stays. But it is the page for "1, 2 and 3 bedroom apartments Rochester", and
+it now says the word renters actually type, twice.
+
+**The apex redirect was missing from two of the three host dialects.** `.htaccess`
+had forced one host from the start, via `%{HTTP_HOST}`. `_redirects` (Netlify,
+Cloudflare Pages) and `vercel.json` did not, and this site is documented as
+deployable to all of them. Serving on both `charlottesquareroc.com` and
+`www.charlottesquareroc.com` splits every ranking signal between two URLs Google
+reads as separate pages, and it is the largest technical problem on the site.
+All three dialects now force `www` before anything else. GitHub Pages cannot do
+host redirects in-repo; there, set the custom domain to `www` and let GitHub
+redirect the apex.
+
+**Schema.** Added `hasMap` on the property, and `logo` plus `areaServed`
+(Rochester, Syracuse, Geneva) on Evolution24 so the management company can
+resolve to a knowledge panel.
+
+**What the schema still cannot say, and why it matters.** The three fields that
+drive rich results for a rental listing are all blocked on facts the leasing team
+has not supplied:
+
+| Field | Needs | Effect |
+| --- | --- | --- |
+| `priceRange` | Current rent range | Price shows in the result; its absence is conspicuous next to competitors that publish one |
+| `openingHoursSpecification` | Confirmed office hours | Required for the "Open now" line in the map pack |
+| `aggregateRating` | Real resident reviews | Stars in the result. **Never fabricate this** — invented review markup is a manual-action penalty, and it is fraud |
+
+Getting those three answered is worth more than any further on-page work.
+
+**Not done, deliberately.** No doorway pages for "downtown Rochester apartments",
+"apartments near Eastman School of Music" and the like. Thin pages built for a
+keyword are a documented way to lose rankings rather than gain them. The same
+intent is better served by the neighborhood page, which has the one thing no
+aggregator has: a real, verified index of the block.
+
 ### After the cutover
 
 1. Verify `www.charlottesquareroc.com` in Google Search Console and Bing Webmaster Tools, submit `sitemap.xml`, and use the URL Inspection tool on each of the seven pages.

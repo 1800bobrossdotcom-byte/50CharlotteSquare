@@ -1,6 +1,17 @@
 {
   "redirects": [
     {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "charlottesquareroc.com"
+        }
+      ],
+      "destination": "https://www.charlottesquareroc.com/$1",
+      "permanent": true
+    },
+    {
       "source": "/the-charlotte-story",
       "destination": "/story/",
       "permanent": true
