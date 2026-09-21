@@ -203,17 +203,37 @@ redirect the apex.
 (Rochester, Syracuse, Geneva) on Evolution24 so the management company can
 resolve to a knowledge panel.
 
-**What the schema still cannot say, and why it matters.** The three fields that
-drive rich results for a rental listing are all blocked on facts the leasing team
-has not supplied:
+**Rent is now published.** Gianni sent the building's own Apartments.com listing,
+refreshed there five days before it was read on 21 September 2026: **$1,750 –
+$3,695**, 1–3 bd, 1–2 ba, 765–1,640 sq ft. The last three match this site exactly,
+which is what makes the first one safe to use. It is now the `priceRange` on the
+property, a stat in the home page row, a dated line under the floor plans, and a
+line in `llms.txt`. `RENT_MIN`, `RENT_MAX` and `RENT_AS_OF` are single constants in
+the generator so the four cannot drift apart.
+
+**No per-plan pricing.** The listing publishes a property-level range only. A
+"from $X" on each floor-plan card would have to be inferred, and it would be
+stale within a month. The cards still say *Pricing on request*, which is true.
+
+The rent stat took the row back over five columns, so the `24/7` stat came out —
+the "24/7 emergency maintenance" feature block repeats it verbatim a screen
+below, so nothing was lost.
+
+**What the schema still cannot say.** Two of the three rich-result fields are
+still blocked, and both are now blocked on one small thing each:
 
 | Field | Needs | Effect |
 | --- | --- | --- |
-| `priceRange` | Current rent range | Price shows in the result; its absence is conspicuous next to competitors that publish one |
-| `openingHoursSpecification` | Confirmed office hours | Required for the "Open now" line in the map pack |
-| `aggregateRating` | Real resident reviews | Stars in the result. **Never fabricate this** — invented review markup is a manual-action penalty, and it is fraud |
+| `openingHoursSpecification` | The **full week** of office hours. The listing showed "Open 8am – 4pm Today" — one day is not a week, and the rest is one click behind *View All Hours* | Required for the "Open now" line in the map pack |
+| `aggregateRating` | Real resident reviews. The listing reads **"Be the First to Rate & Review"** — the building has none anywhere | Stars in the result. **Never fabricate this.** Invented review markup is a manual action, and in a housing context it is fraud |
 
-Getting those three answered is worth more than any further on-page work.
+Zero reviews is the more serious of the two. It is also the one thing on this
+list that only residents can fix, so asking them is worth starting now.
+
+**The second phone number is not an error.** The listing shows (585) 514-5945,
+which is not the (585) 748-5588 on this site. It is an alternate line for the
+same person, confirmed by Gianni. Both reach Vicki; the site publishes one.
+Do not "correct" either.
 
 **Not done, deliberately.** No doorway pages for "downtown Rochester apartments",
 "apartments near Eastman School of Music" and the like. Thin pages built for a
@@ -226,7 +246,13 @@ aggregator has: a real, verified index of the block.
 1. Verify `www.charlottesquareroc.com` in Google Search Console and Bing Webmaster Tools, submit `sitemap.xml`, and use the URL Inspection tool on each of the seven pages.
 2. Confirm the apex 301s to `www` and that all four old URLs land on their replacement — `curl -sI https://charlottesquareroc.com/the-charlotte-story` should show a single 301 chain ending in 200.
 3. Watch Search Console → Pages for "Duplicate, Google chose a different canonical" for a fortnight. It is the symptom the two-canonical bug leaves behind, and it should clear.
-4. Claim and correct the third-party listings. Apartments.com, Homes.com and ApartmentFinder still name Home Leasing as manager, carry the old phone number, and describe a rooftop terrace. They outrank the site for the building's own name, so they are the first thing a prospect reads.
+4. On the Apartments.com listing itself: the description is still Home Leasing's
+   copy — *"Charlotte Square is all about convenience and fun"* — and the
+   breadcrumb files the building under **Downtown Rochester**, not the East End.
+   The breadcrumb is worth leaving alone, because "downtown Rochester apartments"
+   is a term the aggregator already ranks the building for; the description is
+   worth rewriting.
+5. Claim and correct the third-party listings. Apartments.com, Homes.com and ApartmentFinder still name Home Leasing as manager, carry the old phone number, and describe a rooftop terrace. They outrank the site for the building's own name, so they are the first thing a prospect reads.
 5. Create or claim the Google Business Profile at 50 Charlotte Street with Vicki's number and the `www` URL. For a single-address building this moves more than anything on the site.
 
 ## Security
