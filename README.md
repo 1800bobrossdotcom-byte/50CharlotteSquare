@@ -599,6 +599,66 @@ is the business itself or a news story about it, dated. A listing site saying
 "open" is not evidence. Check the whole list before launch, and again yearly —
 restaurants in a nightlife district turn over faster than a website does.
 
+### The grammar and punctuation pass, September 2026
+
+Gianni asked for a grammar and punctuation check. Every rendered page was pulled
+through headless Chromium — `innerText`, alt text, figcaptions, form labels,
+`<title>` and `<meta name="description">` — and checked mechanically before
+being read.
+
+**What was already right.** All 26 em dashes are real em dashes, spaced the same
+way, with none unspaced. All 7 en dashes are in number ranges, which is what an
+en dash is for. No double spaces, no space before punctuation, no stray
+ellipses. Whoever set the dashes was careful; the gap was elsewhere.
+
+**Typographic apostrophes.** The site had 32 straight `'` and exactly one curly
+`’` — and the one curly was *Chick’n Out* in the street index, three inches
+from *Chick'n Out* in the same page's dining card. Same shop, two spellings, one
+screen. All 40 are now `’`.
+
+They are the literal character, not `&rsquo;`. HTML entities are **not** parsed
+inside a `<script type="application/ld+json">` block, so `&rsquo;` would have
+reached the structured data as the five characters `&rsquo;`. The one remaining
+straight apostrophe on the site is deliberate: *Part of Rochester's skyline at
+night* in `credits.json` is a Creative Commons photograph's title, reproduced as
+the licensor published it. Leave it.
+
+**The serial comma.** Genuinely mixed — 22 places used it, 10 did not, and the
+home page's own hero sentence used both: *"...secure podium parking, and the
+East End's theaters, cafés and nightlife."* Two meta descriptions also
+contradicted the page copy they summarised. Settled on the Oxford comma, since
+that was already the majority and it is the safer choice on a page that spends
+its time listing amenities.
+
+**Four real punctuation errors**
+
+| Was | Now | Why |
+| --- | --- | --- |
+| `Largest homes; plans start at 765` | `Largest homes — plans from 765 sq ft` | A semicolon needs an independent clause on both sides. *Largest homes* is not one. The figure was also missing its unit |
+| `Where furniture was added digitally the frame says so.` | `...digitally, the frame says so.` | Comma after a fronted subordinate clause |
+| `...happens indoors and the car is out of the snow...` | `...indoors, and the car...` | Two independent clauses joined by *and* |
+| `Oversized private terraces, and the shared pergola terrace` | `...terraces and the shared...` | Two items, so no comma before *and* |
+
+**One spelling of soundproof, not three.** The site had *Sound-proofed* on the
+home tile, *Sound-proofed* on the amenities tile, and *a sound-proof room* in the
+amenities detail — and `sound-proof practice room` in both the amenity schema and
+`llms.txt`. It is one word: *soundproof*, *soundproofed*.
+
+**Not changed, on purpose.** The spaced em dash is a style choice, applied
+consistently, so it stays. Sentence fragments in the display copy (*"Live above
+it all." "Because it does." "Same great building, sharper service."*) are doing
+deliberate work. Abbreviations run without periods throughout — *East Ave*,
+*Gibbs St*, *176 N Water Street* — which is consistent, so it stays.
+
+**Left for a human.** Two things are voice, not grammar, and are the leasing
+team's call:
+
+- The site asks you to contact leasing four different ways: *Ask the leasing
+  team*, *Ask leasing*, *Ask our team*, *Please contact the leasing team*.
+- Evolution24 is described twice, differently: *"a commitment to clear
+  communication with residents"* on the residences FAQ, *"a commitment to
+  excellent communication and service"* on the story page.
+
 ### The dedupe method has a blind spot
 
 The perceptual hash compares a 17x16 luminance gradient, and a **crop shifts
