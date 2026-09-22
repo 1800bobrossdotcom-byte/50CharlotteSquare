@@ -205,3 +205,53 @@ body.signin { display: grid; place-items: center; min-height: 100vh; padding: 24
 .empty { color: var(--ink-3); font-size: .86rem; padding: .9rem 0; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ---------- Enquiries -------------------------------------------------------
+   Cards rather than a table. Every row here carries a sentence somebody typed,
+   and a table column either truncates that or forces a horizontal scroll on the
+   phone a leasing agent actually reads this on. */
+.panel--leads { grid-column: 1 / -1; }
+.seg--sm button { font-size: .78rem; padding: .3rem .6rem; min-height: 28px; }
+
+.warn {
+  margin: 0 0 .85rem; padding: .6rem .75rem;
+  border: 1px solid var(--warn); border-radius: 8px;
+  color: var(--warn); font-size: .85rem; line-height: 1.45;
+}
+
+.leads { display: grid; gap: 12px; }
+@media (min-width: 46rem) { .leads { grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr)); } }
+
+.lead {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: .8rem .9rem .7rem; background: var(--card);
+  /* The unread ones carry the accent; handled ones lose it rather than turning
+     a different colour, so the eye lands on what is still owed a reply. */
+  box-shadow: inset 3px 0 0 var(--brand);
+}
+.lead--done { box-shadow: none; opacity: .62; }
+
+.lead__head { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
+.lead__who { margin: 0; font-size: 1rem; font-weight: 700; color: var(--ink); }
+.lead__tag {
+  font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+  padding: .12rem .4rem; border-radius: 5px;
+  background: var(--line-soft); color: var(--ink-2);
+}
+.lead__when { margin-left: auto; font-size: .78rem; color: var(--ink-3); white-space: nowrap; }
+
+.lead__contact { margin: .35rem 0 0; font-size: .87rem; }
+.lead__contact a { color: var(--brand); text-decoration: none; }
+.lead__contact a:hover { text-decoration: underline; }
+.lead__meta { margin: .3rem 0 0; font-size: .82rem; color: var(--ink-2); }
+
+.lead__msg {
+  margin: .55rem 0 0; padding: .5rem .6rem;
+  background: var(--bg); border-radius: 8px;
+  font-size: .87rem; line-height: 1.5; color: var(--ink);
+  white-space: pre-wrap;         /* their line breaks, kept */
+  overflow-wrap: anywhere;       /* and a pasted URL cannot widen the card */
+}
+
+.lead__foot { display: flex; align-items: center; gap: .6rem; margin-top: .7rem; }
+.lead__flag { font-size: .76rem; font-weight: 600; color: var(--warn); }

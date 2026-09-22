@@ -285,6 +285,187 @@
     table('#t-countries', d.countries.map((r) => ({ k: r.country, v: r.views })), ['Country', 'Views']);
   }
 
+  /* ---- Enquiries -----------------------------------------------------------
+     Every value below is something a stranger typed into a form on the public
+     internet, so it reaches the page through textContent and never innerHTML.
+     The panel is above Traffic because this is what a leasing team opens the
+     dashboard to see. */
+  let leadScope = 'open';
+
+  const INTEREST = {
+    tour: 'Wants a tour', availability: 'Asking availability',
+    pricing: 'Asking pricing', question: 'General question',
+  };
+  const PLAN = { 1: 'One bedroom', 2: 'Two bedroom', 3: 'Three bedroom' };
+  const SOURCE = {
+    search: 'Search', listing: 'Listing site', social: 'Social',
+    walkby: 'Walked by', referral: 'Referral',
+  };
+
+  /** "3 minutes ago" down to the day, then a date. Leasing is a same-day game;
+   *  "22 Sep" is no use when what matters is whether this came in over lunch. */
+  function ago(ts) {
+    const secs = Math.floor(Date.now() / 1000) - ts;
+    if (secs < 90) return 'just now';
+    const mins = Math.round(secs / 60);
+    if (mins < 60) return `${mins} min ago`;
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return `${hrs} hour${hrs === 1 ? '' : 's'} ago`;
+    const d = Math.round(hrs / 24);
+    if (d <= 6) return `${d} day${d === 1 ? '' : 's'} ago`;
+    return new Date(ts * 1000).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  }
+
+  function leadCard(r) {
+    const card = document.createElement('article');
+    card.className = 'lead' + (r.handled ? ' lead--done' : '');
+
+    const head = document.createElement('div');
+    head.className = 'lead__head';
+
+    const who = document.createElement('h3');
+    who.className = 'lead__who';
+    who.textContent = `${r.first_name} ${r.last_name}`.trim();
+    head.append(who);
+
+    if (r.interest) {
+      const tag = document.createElement('span');
+      tag.className = 'lead__tag';
+      tag.textContent = INTEREST[r.interest] || r.interest;
+      head.append(tag);
+    }
+
+    const when = document.createElement('time');
+    when.className = 'lead__when';
+    when.dateTime = new Date(r.ts * 1000).toISOString();
+    when.textContent = ago(r.ts);
+    when.title = new Date(r.ts * 1000).toLocaleString();
+    head.append(when);
+    card.append(head);
+
+    // Tappable on a phone, which is where a leasing agent reads this.
+    const contact = document.createElement('p');
+    contact.className = 'lead__contact';
+    const mail = document.createElement('a');
+    mail.href = `mailto:${encodeURIComponent(r.email)}`;
+    mail.textContent = r.email;
+    contact.append(mail);
+    if (r.phone) {
+      contact.append(document.createTextNode(' \u00b7 '));
+      const tel = document.createElement('a');
+      tel.href = `tel:${String(r.phone).replace(/[^0-9+]/g, '')}`;
+      tel.textContent = r.phone;
+      contact.append(tel);
+    }
+    card.append(contact);
+
+    const facts = [
+      r.plan && `Wants ${PLAN[r.plan] || r.plan}`,
+      r.move_in && `Moving ${r.move_in}`,
+      r.source && `Found us: ${SOURCE[r.source] || r.source}`,
+    ].filter(Boolean);
+    if (facts.length) {
+      const meta = document.createElement('p');
+      meta.className = 'lead__meta';
+      meta.textContent = facts.join(' \u00b7 ');
+      card.append(meta);
+    }
+
+    if (r.message) {
+      const msg = document.createElement('p');
+      msg.className = 'lead__msg';
+      msg.textContent = r.message;      // never innerHTML: this is their text
+      card.append(msg);
+    }
+
+    const foot = document.createElement('div');
+    foot.className = 'lead__foot';
+
+    const done = document.createElement('button');
+    done.type = 'button';
+    done.className = 'ghost';
+    done.textContent = r.handled ? 'Reopen' : 'Mark handled';
+    done.addEventListener('click', async () => {
+      done.disabled = true;
+      try {
+        const res = await fetch('/api/inquiries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: r.id, handled: r.handled ? 0 : 1 }),
+        });
+        if (res.status === 401) { location.reload(); return; }
+        if (!res.ok) throw new Error();
+        loadLeads();
+      } catch {
+        done.disabled = false;
+        done.textContent = 'Could not save — retry';
+      }
+    });
+    foot.append(done);
+
+    if (!r.notified) {
+      const flag = document.createElement('span');
+      flag.className = 'lead__flag';
+      flag.textContent = 'No email sent';
+      flag.title = 'Saved here, but the notification email did not go out.';
+      foot.append(flag);
+    }
+    card.append(foot);
+    return card;
+  }
+
+  async function loadLeads() {
+    const host = $('#leads');
+    const warn = $('#lead-warn');
+    try {
+      const qs = leadScope === 'all' ? '?all=1&limit=200' : '?limit=200';
+      const res = await fetch(`/api/inquiries${qs}`, { headers: { Accept: 'application/json' } });
+      if (res.status === 401) { location.reload(); return; }
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      const d = await res.json();
+
+      host.replaceChildren();
+      if (!d.inquiries.length) {
+        const p = document.createElement('p');
+        p.className = 'empty';
+        p.textContent = leadScope === 'all'
+          ? 'No enquiries yet.'
+          : 'Nothing waiting — every enquiry has been handled.';
+        host.append(p);
+      } else {
+        const list = document.createElement('div');
+        list.className = 'leads';
+        d.inquiries.forEach((r) => list.append(leadCard(r)));
+        host.append(list);
+      }
+
+      // The only place anyone learns that email delivery is broken: to the
+      // visitor a lead that was stored but not emailed looks like success.
+      if (d.unnotified > 0) {
+        warn.hidden = false;
+        warn.textContent = `${d.unnotified} enquir${d.unnotified === 1 ? 'y was' : 'ies were'} saved without a notification email going out. `
+          + 'The leads are safe here, but check RESEND_API_KEY and LEAD_TO on the Pages project.';
+      } else {
+        warn.hidden = true;
+      }
+    } catch (err) {
+      host.replaceChildren();
+      const p = document.createElement('p');
+      p.className = 'empty';
+      p.textContent = `Could not load the enquiries — ${err.message}.`;
+      host.append(p);
+    }
+  }
+
+  document.querySelectorAll('.seg [data-leads]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      leadScope = btn.dataset.leads;
+      document.querySelectorAll('.seg [data-leads]').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b === btn)));
+      loadLeads();
+    });
+  });
+
   /* ---- Controls ------------------------------------------------------------ */
   document.querySelectorAll('.seg [data-days]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -310,4 +491,5 @@
   });
 
   load();
+  loadLeads();
 })();

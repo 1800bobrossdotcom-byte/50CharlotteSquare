@@ -35,6 +35,18 @@
 
   <div class="grid" id="panels" hidden>
 
+    <section class="panel panel--leads">
+      <div class="panel__head">
+        <h2>Enquiries</h2>
+        <div class="seg seg--sm" role="group" aria-label="Which enquiries">
+          <button type="button" data-leads="open" aria-pressed="true">Open</button>
+          <button type="button" data-leads="all" aria-pressed="false">All</button>
+        </div>
+      </div>
+      <p class="warn" id="lead-warn" hidden></p>
+      <div id="leads"></div>
+    </section>
+
     <section class="panel">
       <div class="panel__head">
         <h2>Traffic</h2>

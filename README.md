@@ -1276,9 +1276,42 @@ minutes — all verified locally, including that the sixth is refused.
 Every inquiry is a row in `inquiries`, with `notified` recording whether the
 email also went and `handled` there for the dashboard to mark off.
 
-> **Still to build:** `/admin/` does not yet show the `inquiries` table. Until
-> it does, read them with
-> `wrangler d1 execute charlotte-analytics --remote --command="SELECT * FROM inquiries ORDER BY ts DESC LIMIT 20"`.
+### Reading the enquiries
+
+`/admin/` opens on them, above Traffic, because that is what a leasing team
+signs in to see. Cards rather than a table: every enquiry carries a sentence
+somebody typed, and a table column either truncates it or forces a sideways
+scroll on the phone an agent actually reads this on.
+
+Each card carries the name, what they asked about, a tappable email and phone,
+the plan and move-in month, how they found the building, and their message. An
+unhandled one is marked with an accent stripe; **Mark handled** clears it from
+the default view, **All** brings the handled ones back dimmed with **Reopen**.
+The time is relative — *3 hours ago* rather than *22 Sep* — because leasing is
+a same-day business.
+
+| | |
+| --- | --- |
+| `GET /api/inquiries?limit=&all=` | Newest first; without `all` only the unhandled. Session-gated |
+| `POST /api/inquiries` | `{id, handled}`. Session-gated |
+
+No CSRF token: the session cookie is `SameSite=Strict`, so it is never attached
+to a request that began on another site, which is the thing a token would guard
+against. Every field is rendered with `textContent` — an enquiry is a stranger's
+text typed into a public form, and none of it goes near `innerHTML`.
+
+**The banner that matters.** If any enquiry was stored without its notification
+email going out, the panel says so and names the two secrets to check. This is
+the only place that failure is ever visible: from the visitor's side a lead that
+was saved but not emailed looks exactly like one that was.
+
+Verified locally against `wrangler pages dev` with a real D1: three seeded
+enquiries render at 1280 and 390, relative times read correctly across *just
+now*, *2 min*, *3 hours* and *3 days*, marking one handled removes it from the
+open list, and — the part worth checking, since these are real people's contact
+details — an unauthenticated `GET` or `POST` to either route returns 401, a
+forged cookie returns 401, no lead data appears in the 401 body, and none of the
+dashboard markup is in the bytes served to a signed-out visitor.
 
 ## Confirm before launch
 
