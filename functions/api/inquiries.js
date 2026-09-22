@@ -40,7 +40,10 @@ export async function onRequestGet({ request, env }) {
       env.DB.prepare(
         `SELECT COUNT(*)                         AS total,
                 SUM(handled = 0)                 AS open,
-                SUM(notified = 0)                AS unnotified
+                SUM(notified = 0)                AS unnotified,
+                (SELECT notify_err FROM inquiries
+                  WHERE notified = 0 AND notify_err IS NOT NULL
+                  ORDER BY ts DESC LIMIT 1)      AS last_error
            FROM inquiries`,
       ),
     ]);
@@ -54,6 +57,9 @@ export async function onRequestGet({ request, env }) {
       // out that email delivery is misconfigured, because the visitor's side
       // looks identical either way.
       unnotified: c.unnotified || 0,
+      // The provider's own sentence, so the banner can name the fix instead of
+      // just reporting that something went wrong.
+      lastError: c.last_error || null,
     });
   } catch (err) {
     return json({ error: 'Could not read the enquiries.' }, 500);

@@ -83,11 +83,17 @@ async function overLimit(env, ip, now) {
   }
 }
 
-/** Returns true only when the provider accepted the message. */
+/** Returns {ok} or {ok:false, error} — the provider's own words, kept so the
+ *  dashboard can say WHY rather than just that it failed. The likeliest failure
+ *  is Resend's 403: the onboarding@resend.dev sender only delivers to the
+ *  address that owns the Resend account, so a LEAD_TO that is any other address
+ *  is refused until a domain is verified. "No email sent" alone would send
+ *  somebody hunting; the sentence tells them what to change. */
 async function notify(env, row, origin) {
   const key = env.RESEND_API_KEY;
   const to = env.LEAD_TO;
-  if (!key || !to) return false;
+  if (!key) return { ok: false, error: 'RESEND_API_KEY is not set on this deployment.' };
+  if (!to) return { ok: false, error: 'LEAD_TO is not set on this deployment.' };
 
   const who = `${row.first_name} ${row.last_name}`.trim();
   const line = (k, v) => `<tr><td style="padding:4px 14px 4px 0;color:#6b6b6b">${k}</td><td style="padding:4px 0"><strong>${esc(v)}</strong></td></tr>`;
@@ -121,9 +127,18 @@ ${row.message ? `<p style="margin:16px 0 4px;color:#6b6b6b">Message</p><p style=
         html,
       }),
     });
-    return res.ok;
-  } catch {
-    return false;
+    if (res.ok) return { ok: true };
+
+    // Resend answers with JSON carrying a human-readable message. Read it if we
+    // can, fall back to the status, and cap it — this ends up in a page.
+    let detail = '';
+    try {
+      const body = await res.json();
+      detail = (body && (body.message || body.error || body.name)) || '';
+    } catch { /* not JSON; the status line will have to do */ }
+    return { ok: false, error: `${res.status}: ${String(detail || res.statusText).slice(0, 300)}` };
+  } catch (err) {
+    return { ok: false, error: `Could not reach the email provider: ${String(err).slice(0, 200)}` };
   }
 }
 
@@ -183,15 +198,15 @@ export async function onRequestPost({ request, env }) {
   }
 
   const sent = await notify(env, { ...row, id }, new URL(request.url).origin);
-  if (sent) {
-    try {
-      await env.DB.prepare('UPDATE inquiries SET notified = 1 WHERE id = ?').bind(id).run();
-    } catch { /* stored and sent; the flag is bookkeeping */ }
-  }
+  try {
+    await env.DB.prepare('UPDATE inquiries SET notified = ?, notify_err = ? WHERE id = ?')
+      .bind(sent.ok ? 1 : 0, sent.ok ? null : (sent.error || 'Unknown error'), id).run();
+  } catch { /* stored either way; these two columns are bookkeeping */ }
 
-  // 202 either way: the lead is safe. `notified` tells /admin/ whether the
-  // email also went, which is what the dashboard's warning banner reads.
-  return json({ ok: true, notified: sent }, 202);
+  // 202 regardless: the lead is safe. notified and notify_err are what the
+  // dashboard's banner reads, and they are the only place this failure shows —
+  // from the visitor's side both outcomes look identical.
+  return json({ ok: true, notified: sent.ok }, 202);
 }
 
 // No generic onRequest export: in Pages Functions it takes over every method

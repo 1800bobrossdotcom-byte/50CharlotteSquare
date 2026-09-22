@@ -443,8 +443,19 @@
       // visitor a lead that was stored but not emailed looks like success.
       if (d.unnotified > 0) {
         warn.hidden = false;
-        warn.textContent = `${d.unnotified} enquir${d.unnotified === 1 ? 'y was' : 'ies were'} saved without a notification email going out. `
-          + 'The leads are safe here, but check RESEND_API_KEY and LEAD_TO on the Pages project.';
+        warn.replaceChildren();
+        const head = document.createElement('strong');
+        head.textContent = `${d.unnotified} enquir${d.unnotified === 1 ? 'y was' : 'ies were'} saved without a notification email going out.`;
+        warn.append(head);
+        warn.append(document.createTextNode(' The leads are safe here. '));
+        if (d.lastError) {
+          warn.append(document.createTextNode('The email provider said: '));
+          const why = document.createElement('code');
+          why.textContent = d.lastError;      // provider text, so textContent
+          warn.append(why);
+        } else {
+          warn.append(document.createTextNode('Check RESEND_API_KEY and LEAD_TO on the Pages project.'));
+        }
       } else {
         warn.hidden = true;
       }

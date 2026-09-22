@@ -56,8 +56,13 @@ CREATE TABLE IF NOT EXISTS inquiries (
   message    TEXT,
   country    TEXT,
   notified   INTEGER NOT NULL DEFAULT 0,       -- 1 once the email actually left
+  notify_err TEXT,                             -- why it did not, in the provider's words
   handled    INTEGER NOT NULL DEFAULT 0        -- for marking off in the dashboard
 );
+
+-- Already created the table before notify_err existed? SQLite has no
+-- ADD COLUMN IF NOT EXISTS, so run this once and ignore a duplicate-column error:
+--   ALTER TABLE inquiries ADD COLUMN notify_err TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_inquiries_ts      ON inquiries(ts DESC);
 CREATE INDEX IF NOT EXISTS idx_inquiries_handled ON inquiries(handled, ts DESC);

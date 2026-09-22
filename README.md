@@ -1188,26 +1188,72 @@ dashboard, which has no entry for it. So the notification goes out over a REST
 API instead. `functions/api/inquiry.js` calls Resend; its free tier is 3,000
 emails a month, which is far more than a 72-home building will ever send.
 
-1. Sign up at resend.com and add `charlottesquareroc.com` as a domain.
-2. It gives you DKIM and SPF records. Add them in Cloudflare DNS — two minutes,
-   and it is why doing DNS first is easier.
-3. Create an API key → `RESEND_API_KEY`.
-4. `LEAD_FROM` becomes something on the verified domain, e.g.
-   `Charlotte Square <leasing@charlottesquareroc.com>`.
+**The form already works without any of this.** The row goes into D1 first and
+the D1 write is what decides whether the visitor is told it worked. With no key
+set the endpoint still returns `{"ok":true,"notified":false}` and the lead is in
+the table and on the dashboard. Email is an addition, never a dependency.
 
-**Until the domain is verified, Resend's free tier will only deliver to the
-address that owns the Resend account.** Signing up with the same address you
-put in `LEAD_TO` therefore works immediately, and verifying the domain
-afterwards is what lets the From: address stop saying `resend.dev`.
+#### The rule that decides your evening
 
-**The form works before any of this is configured.** The row goes into D1 first
-and the D1 write is what decides whether the visitor is told it worked; the
-email is attempted afterwards. With no `RESEND_API_KEY` the endpoint still
-returns `{"ok":true,"notified":false}` and the lead is in the database. A
-provider that is missing, misconfigured or rate-limited costs a notification,
-never a lead. That is also why **you must actually check that the first test
-submission arrives by email** — a silent `notified:false` looks identical to
-success from the visitor's side.
+Resend's shared `onboarding@resend.dev` sender **only delivers to the address
+that owns the Resend account**. Anything else comes back
+`403: You can only send testing emails to your own email address`. So:
+
+- **Sign up for Resend with the same address you are going to put in
+  `LEAD_TO`.** Do that and email works in about five minutes, before DNS has
+  moved anywhere.
+- To send to *any* other address — a second agent, a shared leasing inbox — you
+  must verify a domain first.
+
+#### Fast path, works before DNS moves
+
+1. Sign up at resend.com **with the intake address itself**.
+2. **API Keys → Create**, sending permission. Copy it once; it is not shown again.
+3. Set `RESEND_API_KEY` and `LEAD_TO`. Leave `LEAD_FROM` unset — the code falls
+   back to `Charlotte Square <onboarding@resend.dev>`.
+4. Submit the form and confirm it arrives.
+
+From: will read `onboarding@resend.dev`, which is fine for a night and wrong for
+a month.
+
+#### Proper path, once DNS is on Cloudflare
+
+1. **Domains → Add Domain** → `charlottesquareroc.com`.
+2. Resend gives you DKIM and SPF records. Add them in Cloudflare DNS, DNS-only
+   (grey cloud, not orange) — proxying a TXT record is meaningless and proxying
+   a mail record breaks it.
+3. Wait for **Verified**. Usually minutes.
+4. Set `LEAD_FROM` to something on that domain, e.g.
+   `Charlotte Square <leasing@charlottesquareroc.com>`, and redeploy so the
+   Function picks the secret up.
+
+The `from` domain must match the verified domain **exactly** — verifying
+`charlottesquareroc.com` and sending from `mail.charlottesquareroc.com` is still
+a 403.
+
+Deliverability note: `LEAD_FROM` is the envelope sender and must stay on your
+own domain. Putting a Gmail address there fails DMARC and lands in spam. The
+visitor's address rides in `reply_to`, so hitting reply in Gmail answers the
+prospect rather than the robot.
+
+#### When it does not work, the dashboard tells you why
+
+A failed send stores the provider's own sentence in `inquiries.notify_err`, and
+the banner on `/admin/` prints it. Verified locally with a deliberately invalid
+key: the lead stored, the endpoint returned `notified:false`, and the banner
+read *"1 enquiry was saved without a notification email going out. The leads are
+safe here. The email provider said: `401: API key is invalid`."*
+
+| What it says | What to change |
+| --- | --- |
+| `401: API key is invalid` | `RESEND_API_KEY` is wrong or was revoked |
+| `403: You can only send testing emails to your own email address` | `LEAD_TO` is not the Resend account's address, and no domain is verified |
+| `403: The domain is not verified` | `LEAD_FROM` uses a domain Resend has not verified |
+| `RESEND_API_KEY is not set on this deployment` | Secret missing, or set but not redeployed since |
+| `422` | Malformed `LEAD_FROM` — it needs `Name <address>` or a bare address |
+
+Secrets are read at invocation, but a Pages deployment pins its own environment:
+**set a secret, then redeploy**, or the Function keeps running without it.
 
 ### 5. DNS, from GoDaddy to Cloudflare
 
