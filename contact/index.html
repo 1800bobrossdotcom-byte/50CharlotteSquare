@@ -336,7 +336,7 @@
   <div class="container contact-grid">
     <div class="card reveal">
       <h2 id="form-title">Send a message</h2>
-      <form class="form" data-contact data-endpoint="" data-email="vbarone22@gmail.com" data-phone="(585) 748-5588" method="post" novalidate>
+      <form class="form" data-contact data-endpoint="/api/inquiry" data-phone="(585) 748-5588" method="post" novalidate>
         <div class="form__row form__row--2">
           <div class="field"><label for="f-first">First name <i aria-hidden="true">*</i></label><input id="f-first" name="first_name" type="text" autocomplete="given-name" required><span class="field__error">Please enter your first name.</span></div>
           <div class="field"><label for="f-last">Last name <i aria-hidden="true">*</i></label><input id="f-last" name="last_name" type="text" autocomplete="family-name" required><span class="field__error">Please enter your last name.</span></div>
@@ -351,7 +351,7 @@
         </div>
         <div class="form__row form__row--2">
           <div class="field"><label for="f-movein">Target move-in</label><input id="f-movein" name="move_in" type="month"></div>
-          <div class="field"><label for="f-how">How did you hear about us?</label><select id="f-how" name="source"><option value="">Select one</option><option>Search</option><option>Apartment listing site</option><option>Social media</option><option>Walked by</option><option>Friend or resident</option></select></div>
+          <div class="field"><label for="f-how">How did you hear about us?</label><select id="f-how" name="source"><option value="">Select one</option><option value="search">Search</option><option value="listing">Apartment listing site</option><option value="social">Social media</option><option value="walkby">Walked by</option><option value="referral">Friend or resident</option></select></div>
         </div>
         <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" name="message" placeholder="Tell us what you’re looking for…"></textarea></div>
         <div class="hp" aria-hidden="true"><label for="f-web">Website</label><input id="f-web" name="website" type="text" tabindex="-1" autocomplete="off"></div>

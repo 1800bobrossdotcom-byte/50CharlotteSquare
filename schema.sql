@@ -33,3 +33,38 @@ CREATE TABLE IF NOT EXISTS login_attempts (
   fails  INTEGER NOT NULL DEFAULT 0,
   until  INTEGER NOT NULL DEFAULT 0   -- locked out until this unix second
 );
+
+-- One row per contact-form inquiry.
+--
+-- Written before the notification email is attempted, and the write is what
+-- decides whether the visitor is told it worked. An email provider that is
+-- misconfigured, rate-limited or simply not set up yet then costs a
+-- notification, never a lead: everything is still here and still in the
+-- dashboard. `notified` records which of those two happened.
+CREATE TABLE IF NOT EXISTS inquiries (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts         INTEGER NOT NULL,                 -- unix seconds, UTC
+  day        TEXT    NOT NULL,                 -- YYYY-MM-DD
+  first_name TEXT    NOT NULL,
+  last_name  TEXT    NOT NULL,
+  email      TEXT    NOT NULL,
+  phone      TEXT,
+  interest   TEXT,                             -- tour | availability | pricing | question
+  plan       TEXT,                             -- 1 | 2 | 3, or null for no preference
+  move_in    TEXT,                             -- YYYY-MM
+  source     TEXT,                             -- how they heard about us
+  message    TEXT,
+  country    TEXT,
+  notified   INTEGER NOT NULL DEFAULT 0,       -- 1 once the email actually left
+  handled    INTEGER NOT NULL DEFAULT 0        -- for marking off in the dashboard
+);
+
+CREATE INDEX IF NOT EXISTS idx_inquiries_ts      ON inquiries(ts DESC);
+CREATE INDEX IF NOT EXISTS idx_inquiries_handled ON inquiries(handled, ts DESC);
+
+-- Per-IP submission throttle, same shape as login_attempts.
+CREATE TABLE IF NOT EXISTS inquiry_attempts (
+  ip     TEXT    PRIMARY KEY,
+  count  INTEGER NOT NULL DEFAULT 0,
+  window INTEGER NOT NULL DEFAULT 0   -- unix second the current window opened
+);

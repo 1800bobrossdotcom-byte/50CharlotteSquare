@@ -1,8 +1,7 @@
-# Netlify / Cloudflare Pages. One host first, then old site URLs.
-http://charlottesquareroc.com/*  https://www.charlottesquareroc.com/:splat  301!
-https://charlottesquareroc.com/*  https://www.charlottesquareroc.com/:splat  301!
-/the-charlotte-story  /story/  301!
-/roc-the-east-end  /neighborhood/  301!
-/life-at-the-square  /amenities/  301!
-/contact-us  /contact/  301!
-/*  /404.html  404
+# Old site URLs must not 404. Cloudflare Pages dialect, which
+# Netlify also accepts; the apex -> www redirect is a host match
+# and is configured at the host, not here.
+/the-charlotte-story  /story/  301
+/roc-the-east-end  /neighborhood/  301
+/life-at-the-square  /amenities/  301
+/contact-us  /contact/  301

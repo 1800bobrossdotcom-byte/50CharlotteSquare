@@ -1122,6 +1122,164 @@ Checked against a design catalogue of cross-estate findings (Sept 2026 pass). Th
 
 Known departures, kept deliberately: the Gallery style uses a pure white ground rather than a warm one, and buttons in Brick & Stone lift on hover where Gallery and Atelier only change colour.
 
+## Launch runbook — going live on charlottesquareroc.com
+
+Cloudflare Pages, because the Functions in `functions/`, the D1 analytics and
+the `/admin/` gate only run there. On GitHub Pages the site renders but the
+contact form, the dashboard and the analytics are all dead.
+
+### Read this first
+
+- **The domain is currently serving the old Home Leasing site.** Pointing DNS
+  takes that site down. Reversible, but not instantly — DNS caches.
+- **Check for MX records before moving nameservers.** If anything currently
+  receives mail at `charlottesquareroc.com`, moving nameservers to Cloudflare
+  without carrying the MX records across breaks it. Cloudflare's onboarding
+  scans and imports existing records; read that list before you click through it
+  rather than after.
+- **`www` is the canonical host.** Every canonical tag, the sitemap and every
+  absolute URL on this site say `www.charlottesquareroc.com`. The apex must
+  redirect to `www`, not the other way round.
+
+### 1. The Pages project
+
+Connect the repo in the Cloudflare dashboard: **Workers & Pages → Create →
+Pages → Connect to Git**. There is no build step.
+
+| Setting | Value |
+| --- | --- |
+| Framework preset | None |
+| Build command | *(leave empty)* |
+| Build output directory | `/` |
+| Production branch | whichever branch you are shipping |
+
+### 2. The database
+
+```bash
+wrangler d1 create charlotte-analytics          # paste the id into wrangler.toml
+wrangler d1 execute charlotte-analytics --file=./schema.sql --remote
+```
+
+`schema.sql` is idempotent — every statement is `IF NOT EXISTS`, so running it
+again on an existing database adds the new tables and leaves the old data alone.
+
+### 3. Secrets
+
+```bash
+node tools/hash-password.mjs 'a long passphrase'    # prints two of these values
+wrangler pages secret put ADMIN_PASSWORD_HASH --project=charlotte-square
+wrangler pages secret put SESSION_SECRET      --project=charlotte-square
+wrangler pages secret put VISITOR_SALT        --project=charlotte-square
+wrangler pages secret put LEAD_TO             --project=charlotte-square
+wrangler pages secret put LEAD_FROM           --project=charlotte-square
+wrangler pages secret put RESEND_API_KEY      --project=charlotte-square
+```
+
+`LEAD_TO` is where inquiry notifications land. It is a secret and not a
+`data-email` attribute because in the attribute it sat in the page source of
+every contact page, which is the first place an address harvester looks. It is
+no longer anywhere in this repository either.
+
+### 4. Email
+
+`send_email`, Cloudflare's own Email Routing binding, is a Workers binding and
+is **not available to Pages Functions** — Functions take their bindings from the
+dashboard, which has no entry for it. So the notification goes out over a REST
+API instead. `functions/api/inquiry.js` calls Resend; its free tier is 3,000
+emails a month, which is far more than a 72-home building will ever send.
+
+1. Sign up at resend.com and add `charlottesquareroc.com` as a domain.
+2. It gives you DKIM and SPF records. Add them in Cloudflare DNS — two minutes,
+   and it is why doing DNS first is easier.
+3. Create an API key → `RESEND_API_KEY`.
+4. `LEAD_FROM` becomes something on the verified domain, e.g.
+   `Charlotte Square <leasing@charlottesquareroc.com>`.
+
+**Until the domain is verified, Resend's free tier will only deliver to the
+address that owns the Resend account.** Signing up with the same address you
+put in `LEAD_TO` therefore works immediately, and verifying the domain
+afterwards is what lets the From: address stop saying `resend.dev`.
+
+**The form works before any of this is configured.** The row goes into D1 first
+and the D1 write is what decides whether the visitor is told it worked; the
+email is attempted afterwards. With no `RESEND_API_KEY` the endpoint still
+returns `{"ok":true,"notified":false}` and the lead is in the database. A
+provider that is missing, misconfigured or rate-limited costs a notification,
+never a lead. That is also why **you must actually check that the first test
+submission arrives by email** — a silent `notified:false` looks identical to
+success from the visitor's side.
+
+### 5. DNS, from GoDaddy to Cloudflare
+
+Add the site at **Cloudflare → Add a site → charlottesquareroc.com**, let it
+scan the existing records, and check that scan against what GoDaddy currently
+holds — especially MX. Cloudflare gives you two nameservers; put those into
+GoDaddy under **My Products → Domain → Nameservers → Change → I'll use my own**.
+Propagation is usually minutes and can be up to 24 hours.
+
+Then in the Pages project, **Custom domains → Set up a domain**, and add
+**`www.charlottesquareroc.com`**. Cloudflare writes the CNAME itself.
+
+For the apex, add `charlottesquareroc.com` as well — and then send it to `www`
+with a **Redirect Rule** (Rules → Redirect Rules → Create):
+
+| Field | Value |
+| --- | --- |
+| When incoming requests match | Hostname **equals** `charlottesquareroc.com` |
+| Then | Dynamic redirect, `concat("https://www.charlottesquareroc.com", http.request.uri.path)` |
+| Status | 301, preserve query string |
+
+This cannot live in `_redirects`. Cloudflare Pages allows relative sources only,
+so a rule matching on hostname is rejected outright — see the next section.
+
+### 6. `_redirects` has a dialect, and it is not Netlify's
+
+`wrangler pages dev` parsed **0 of 7** rules in this file before it was fixed.
+Cloudflare Pages rejects all three of these:
+
+| Written | Why Pages refuses it |
+| --- | --- |
+| `/contact-us  /contact/  301!` | The trailing `!` is Netlify's force flag |
+| `https://charlottesquareroc.com/*  …` | Sources must be relative; no host matching |
+| `/*  /404.html  404` | 404 is not an allowed status; Pages serves `404.html` itself |
+
+The file now carries the intersection both hosts accept, and wrangler parses
+**4 of 4**. Verified locally: all four legacy URLs return a real `301`, the stub
+directories at those paths do not shadow them, and `/nope` still 404s without
+the catch-all rule.
+
+### 7. Verify, in this order
+
+```bash
+curl -sI https://charlottesquareroc.com/          # 301 → https://www....
+curl -sI https://www.charlottesquareroc.com/      # 200
+curl -sI https://www.charlottesquareroc.com/contact-us   # 301 → /contact/
+```
+
+Then, in a browser:
+
+1. Send a real message through the form. Confirm the success notice.
+2. **Confirm it arrives in the `LEAD_TO` inbox.** If it does not, the lead is
+   still safe — see step 4 — but email is not working yet.
+3. Sign in at `/admin/` and confirm the submission and the pageviews are there.
+4. Search Console: add `www.charlottesquareroc.com`, submit `sitemap.xml`.
+
+### What the form does now
+
+`POST /api/inquiry`, same-origin, so `form-action 'self'` and
+`connect-src 'self'` in the CSP stay as they are and no third-party form
+service is involved. It validates, drops anything not on the allow-list for the
+three `<select>` fields, caps every text field, strips control characters,
+honours the existing honeypot, and throttles to five submissions per IP per ten
+minutes — all verified locally, including that the sixth is refused.
+
+Every inquiry is a row in `inquiries`, with `notified` recording whether the
+email also went and `handled` there for the dashboard to mark off.
+
+> **Still to build:** `/admin/` does not yet show the `inquiries` table. Until
+> it does, read them with
+> `wrangler d1 execute charlotte-analytics --remote --command="SELECT * FROM inquiries ORDER BY ts DESC LIMIT 20"`.
+
 ## Confirm before launch
 
 These came from public listings or the previous site and should be verified with the leasing team:

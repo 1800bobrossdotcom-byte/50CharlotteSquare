@@ -244,7 +244,7 @@
           document.dispatchEvent(new CustomEvent('cs:lead', { detail: { plan: planName } }));
         }
       } catch (err) {
-        showStatus(false, `Something went wrong sending your message. Please call ${phone} or email us directly.`);
+        showStatus(false, `Something went wrong sending your message. Please call ${phone} and we'll take your details.`);
       } finally {
         btn.disabled = false;
         btn.innerHTML = label;
