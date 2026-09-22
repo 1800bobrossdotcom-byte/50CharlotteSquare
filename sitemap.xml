@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://www.charlottesquareroc.com/</loc>
-    <lastmod>2026-09-21</lastmod>
+    <lastmod>2026-09-22</lastmod>
     <priority>1.0</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-exterior.jpg</image:loc><image:title>Charlotte Square apartments at 50 Charlotte Street, Rochester NY</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/community-room.jpg</image:loc><image:title>The community room at Charlotte Square, with lounge seating along a wall of windows</image:title></image:image>
@@ -19,7 +19,7 @@
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/residences/</loc>
-    <lastmod>2026-09-21</lastmod>
+    <lastmod>2026-09-22</lastmod>
     <priority>0.9</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-bedroom.webp</image:loc><image:title>A bedroom at Charlotte Square</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-1br.webp</image:loc><image:title>One-bedroom kitchen at Charlotte Square</image:title></image:image>
@@ -39,7 +39,7 @@
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/amenities/</loc>
-    <lastmod>2026-09-21</lastmod>
+    <lastmod>2026-09-22</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-lounge.jpg</image:loc><image:title>The community room at Charlotte Square</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-terrace.jpg</image:loc><image:title>The shared terrace at Charlotte Square, with pergola and skyline</image:title></image:image>
@@ -63,27 +63,27 @@
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/neighborhood/</loc>
-    <lastmod>2026-09-21</lastmod>
+    <lastmod>2026-09-22</lastmod>
     <priority>0.7</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/neighborhood-hero.jpg</image:loc><image:title>Rochester’s East End</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/neighborhood-streets.jpg</image:loc><image:title>Streets of the East End, Rochester NY</image:title></image:image>
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/story/</loc>
-    <lastmod>2026-09-21</lastmod>
+    <lastmod>2026-09-22</lastmod>
     <priority>0.6</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-aerial.jpg</image:loc><image:title>Charlotte Square from above, showing the rooftop solar array</image:title></image:image>
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/contact/</loc>
-    <lastmod>2026-09-21</lastmod>
+    <lastmod>2026-09-22</lastmod>
     <priority>0.9</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/lobby-corridor.jpg</image:loc><image:title>Contact &amp; Tours</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/exterior-sign.jpg</image:loc><image:title>The Charlotte Square at the East End sign above the ground-floor retail on Charlotte Street</image:title></image:image>
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/privacy/</loc>
-    <lastmod>2026-09-21</lastmod>
+    <lastmod>2026-09-22</lastmod>
     <priority>0.2</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-aerial.jpg</image:loc><image:title>Charlotte Square from above, showing the rooftop solar array</image:title></image:image>
   </url>

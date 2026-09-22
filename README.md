@@ -219,16 +219,29 @@ The rent stat took the row back over five columns, so the `24/7` stat came out �
 the "24/7 emergency maintenance" feature block repeats it verbatim a screen
 below, so nothing was lost.
 
-**What the schema still cannot say.** Two of the three rich-result fields are
-still blocked, and both are now blocked on one small thing each:
+**Office hours are now published.** Monday to Friday, 8 am to 4 pm, confirmed by
+Gianni on 22 September 2026 — the Apartments.com listing showed "Open 8am – 4pm
+Today" and he supplied the days. That is `openingHoursSpecification` on the
+property (`Place` carries the field, and `ApartmentComplex` is a `Place`), the
+line on the leasing card, the line under the phone number in the home page hero,
+and a line in `llms.txt`. `OFFICE_DAYS`, `OFFICE_OPEN`, `OFFICE_CLOSE` and
+`OFFICE_HOURS_TEXT` are constants, like the rent, so the four cannot drift.
+
+The hours first went onto the Visit card as well, which put the same sentence in
+two cards stacked directly on top of each other. The Visit card is the address
+and the directions link; the Leasing agent card is the phone number and when
+somebody is behind it. Hours live on the second one only.
+
+**One rich-result field is left.**
 
 | Field | Needs | Effect |
 | --- | --- | --- |
-| `openingHoursSpecification` | The **full week** of office hours. The listing showed "Open 8am – 4pm Today" — one day is not a week, and the rest is one click behind *View All Hours* | Required for the "Open now" line in the map pack |
-| `aggregateRating` | Real resident reviews. The listing reads **"Be the First to Rate & Review"** — the building has none anywhere | Stars in the result. **Never fabricate this.** Invented review markup is a manual action, and in a housing context it is fraud |
+| `aggregateRating` | Real resident reviews. The Apartments.com listing reads **"Be the First to Rate & Review"** — the building has none, anywhere | Stars in the result. **Never fabricate this.** Invented review markup is a manual action, and in a housing context it is fraud |
 
-Zero reviews is the more serious of the two. It is also the one thing on this
-list that only residents can fix, so asking them is worth starting now.
+Zero reviews is now the only thing standing between this site and a complete
+rich result, and it is the one item on the whole list that only residents can
+fix. Nothing in this repository can substitute for it, so asking them is worth
+starting now.
 
 **The second phone number is not an error.** The listing shows (585) 514-5945,
 which is not the (585) 748-5588 on this site. It is an alternate line for the
