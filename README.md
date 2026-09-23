@@ -1108,7 +1108,7 @@ Currently listed, in house-number order:
 
 Those five, and only those five, are also the `LocalBusiness` nodes in the neighborhood page's JSON-LD graph (`HealthClub`, `Restaurant`, `CafeOrCoffeeShop`, `ClothingStore`), so the visible list and the structured data cannot drift apart without someone noticing. Ugly Duck Coffee, Chick'n Out and Rosebud Retro also run in the home page ticker; FMR does not, because the ticker is a list of places worth walking to and there is a rig downstairs already.
 
-**89 has two tenants.** Ugly Duck Coffee and Rosebud Retro share a turn-of-the-century house. The number is printed once and carries both names — `.street__also` on the second — because a directory that repeats a house number down the left column reads as a duplication error even when both rows are true. That rule was written for 37, retired when East End Tavern turned out to be closed, and restored for 89, where both names check out.
+**89 has two tenants.** Ugly Duck Coffee and Rosebud Retro share a turn-of-the-century house. Each has its own row with the full house number, like every other entry — the earlier treatment printed 89 once with both names under it, which left Rosebud Retro looking like it had no address at all.
 
 **37 Charlotte has turned over twice in a decade** — Kirkpatrick's Irish Pub, then East End Tavern, then Chick'n Out — and the site carried the middle one for a while after it closed. 89 turned over too: The Op Shop, a vintage collective that ran there from 2017, closed in 2026 and Rosebud Retro took the space. Anything added here needs a dated source from the business itself or news coverage of it; see *Three of the neighbors had closed*.
 
