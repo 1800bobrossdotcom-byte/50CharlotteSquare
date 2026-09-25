@@ -1,7 +1,7 @@
 /* =============================================================================
    Charlotte Square — main.js (vanilla, no dependencies)
    Header state · mobile drawer · reveal-on-scroll · ticker · plan filters
-   · contact form (endpoint or mailto fallback) · footer year
+   · contact and tour forms (post to /api/inquiry) · footer year
    ============================================================================= */
 (() => {
   'use strict';
@@ -153,22 +153,19 @@
     const phone = form.dataset.phone || '';
     const status = $('.form__status', form);
 
-    // Prefill from the query string, e.g. contact/?plan=2&interest=tour
+    // Prefill from the query string, e.g. contact/?plan=2&interest=tour. Only
+    // into a select, and only a value it offers: on the tour page interest is a
+    // hidden field that the page itself sets.
     const prefill = (q) => {
       ['plan', 'interest'].forEach((name) => {
         const el = form.elements[name];
         const v = q.get(name);
-        if (el && v && Array.from(el.options).some((o) => o.value === v)) el.value = v;
+        if (el && v && el.options && Array.from(el.options).some((o) => o.value === v)) el.value = v;
       });
     };
     prefill(new URLSearchParams(location.search));
     document.addEventListener('cs:prefill', (e) => prefill(e.detail));
 
-    const labelFor = (name) => {
-      const el = form.elements[name];
-      const lab = el && el.id ? $(`label[for="${el.id}"]`, form) : null;
-      return lab ? lab.textContent.replace('*', '').trim() : name;
-    };
     const showStatus = (ok, msg) => {
       if (!status) return;
       status.textContent = msg;
@@ -208,40 +205,19 @@
       const data = new FormData(form);
       data.delete('website');
       const endpoint = (form.dataset.endpoint || '').trim();
-      const to = (form.dataset.email || '').trim();
 
+      // The old open-your-email-app fallback is gone on purpose: it needed the
+      // leasing address in the page source, and /api/inquiry now stores every
+      // enquiry server-side and notifies from there.
       try {
         if (endpoint) {
-          // Formspree / Basin / your own handler: any endpoint that accepts a POSTed form.
           const res = await fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
           if (!res.ok) throw new Error('Request failed: ' + res.status);
           form.reset();
           showStatus(true, 'Thanks — your message is on its way. We typically reply within one business day.');
-        } else if (!to) {
-          // Nowhere to deliver to yet: say so plainly and hand over the phone number.
-          showStatus(false, `We can't send messages from the site just yet. Please call ${phone} and we'll take your details.`);
         } else {
-          // No endpoint configured yet: open the visitor's email app with the message pre-filled.
-          // Read the controls rather than the FormData so a dropdown sends what the
-          // visitor actually chose ("Two bedroom"), not its value ("2").
-          const lines = [];
-          Array.from(form.elements).forEach((el) => {
-            if (!el.name || el.name === 'website') return;
-            if (el.tagName === 'SELECT' && !el.value) return;   // an unchosen placeholder
-            const chosen = el.tagName === 'SELECT' && el.selectedOptions[0] ? el.selectedOptions[0].text : el.value;
-            if (!String(chosen).trim()) return;
-            lines.push(`${labelFor(el.name)}: ${String(chosen).trim()}`);
-          });
-          const who = `${data.get('first_name') || ''} ${data.get('last_name') || ''}`.trim();
-          const subject = encodeURIComponent(`Charlotte Square inquiry — ${who}`);
-          const body = encodeURIComponent(lines.join('\n'));
-          window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
-          showStatus(true, `Your email app should open with your message ready to send. If it doesn't, call us at ${phone}.`);
-          // Announced, not reported: analytics.js listens if it is loaded, and
-          // nothing happens if it is not.
-          const planSel = form.elements['plan'];
-          const planName = planSel && planSel.selectedOptions[0] ? planSel.selectedOptions[0].text : '';
-          document.dispatchEvent(new CustomEvent('cs:lead', { detail: { plan: planName } }));
+          // Nowhere to deliver to: say so plainly and hand over the phone number.
+          showStatus(false, `We can't send messages from the site just yet. Please call ${phone} and we'll take your details.`);
         }
       } catch (err) {
         showStatus(false, `Something went wrong sending your message. Please call ${phone} and we'll take your details.`);

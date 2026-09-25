@@ -15,8 +15,12 @@
    LEAD_TO is a secret rather than a data-email="" attribute on purpose. In the
    attribute it sat in the page source of every contact page, which is the first
    place an address harvester looks.
+
+   With ANTHROPIC_API_KEY also set, Claude reads the enquiry after the visitor
+   has their answer and leaves a summary and a draft reply in the dashboard.
    ============================================================================= */
-import { json, today } from '../_lib/auth.js';
+import { json, today, visitorHash } from '../_lib/auth.js';
+import { aiEnabled, triageInquiry } from '../_lib/ai.js';
 
 /* Submissions per IP per window. High enough that a couple sent in earnest, or
    a shared office NAT, never trips it; low enough to be useless to a script. */
@@ -28,6 +32,8 @@ const WINDOW_SECONDS = 10 * 60;
 const INTERESTS = new Set(['tour', 'availability', 'pricing', 'question']);
 const PLANS = new Set(['1', '2', '3']);
 const SOURCES = new Set(['search', 'listing', 'social', 'walkby', 'referral']);
+const FORMS = new Set(['contact', 'tour']);
+const VARIANTS = new Set(['a', 'b', 'c']);
 
 const LIMITS = {
   first_name: 80, last_name: 80, email: 160, phone: 40,
@@ -57,6 +63,35 @@ const LABEL = {
   walkby: 'Walked by', referral: 'Friend or resident', website: 'Website',
 };
 const label = (v) => (v && LABEL[v]) || v || '—';
+
+/** "google / cpc · spring-lease · tour page B", or '' when nothing is known. */
+const cameVia = (row) => [
+  row.utm_source && [row.utm_source, row.utm_medium].filter(Boolean).join(' / '),
+  row.utm_campaign && `campaign ${row.utm_campaign}`,
+  !row.utm_source && row.referrer,
+  row.variant && `tour page ${row.variant.toUpperCase()}`,
+].filter(Boolean).join(' · ');
+
+/** Where this visitor came from, read off their own pageviews: the first one
+ *  today — or yesterday, for an enquiry sent just after midnight UTC — that
+ *  carries a campaign tag or an outside referrer, else simply the first.
+ *  Found by the same daily hash /api/collect writes, so it needs no cookie and
+ *  stores nothing new about anyone. It finds nothing for a visitor who blocked
+ *  analytics or sent Do Not Track, and that is correct. */
+async function firstTouch(env, ip, ua) {
+  const salt = env.VISITOR_SALT || 'unset';
+  const now = new Date();
+  const d0 = today(now);
+  const d1 = today(new Date(now.getTime() - 86400000));
+  const [v0, v1] = await Promise.all([visitorHash(ip, ua, salt, d0), visitorHash(ip, ua, salt, d1)]);
+  return env.DB.prepare(
+    `SELECT path, ref, utm_source, utm_medium, utm_campaign
+       FROM events
+      WHERE kind = 'pageview' AND ((day = ? AND visitor = ?) OR (day = ? AND visitor = ?))
+      ORDER BY (utm_source IS NULL AND ref IS NULL), ts
+      LIMIT 1`,
+  ).bind(d0, v0, d1, v1).first();
+}
 
 /** Sliding-window throttle. Missing table or DB fails open: a throttle that
  *  cannot be read must not become an outage on the one form that earns money. */
@@ -109,6 +144,7 @@ ${line('Interested in', label(row.interest))}
 ${line('Preferred home', label(row.plan))}
 ${line('Target move-in', row.move_in || '—')}
 ${line('Heard about us', label(row.source))}
+${cameVia(row) ? line('Came via', cameVia(row)) : ''}
 </table>
 ${row.message ? `<p style="margin:16px 0 4px;color:#6b6b6b">Message</p><p style="margin:0;white-space:pre-wrap">${esc(row.message)}</p>` : ''}
 <p style="margin:20px 0 0;font-size:13px;color:#8a8a8a">Inquiry #${row.id} · also saved at ${esc(origin)}/admin/</p>
@@ -142,7 +178,7 @@ ${row.message ? `<p style="margin:16px 0 4px;color:#6b6b6b">Message</p><p style=
   }
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   if (!env.DB) return json({ error: 'Not configured.' }, 503);
 
   let form;
@@ -172,6 +208,8 @@ export async function onRequestPost({ request, env }) {
     move_in: clean(form.get('move_in'), LIMITS.move_in),
     source: SOURCES.has(form.get('source')) ? form.get('source') : null,
     message: clean(form.get('message'), LIMITS.message),
+    form: FORMS.has(form.get('form')) ? form.get('form') : 'contact',
+    variant: VARIANTS.has(form.get('variant')) ? form.get('variant') : null,
   };
 
   if (!row.first_name || !row.last_name || !looksLikeEmail(row.email)) {
@@ -197,11 +235,32 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'We could not save your message. Please call us.' }, 500);
   }
 
+  /* Attribution, written in its own statement after the lead is safe. A
+     database from before these columns existed then still takes the lead; it
+     just arrives without the "came via" line. */
+  try {
+    const t = (await firstTouch(env, ip, request.headers.get('User-Agent') || '')) || {};
+    Object.assign(row, {
+      utm_source: t.utm_source || null, utm_medium: t.utm_medium || null,
+      utm_campaign: t.utm_campaign || null, referrer: t.ref || null, landing: t.path || null,
+    });
+    await env.DB.prepare(
+      `UPDATE inquiries SET form = ?, variant = ?, utm_source = ?, utm_medium = ?,
+                            utm_campaign = ?, referrer = ?, landing = ?
+        WHERE id = ?`,
+    ).bind(row.form, row.variant, row.utm_source, row.utm_medium,
+      row.utm_campaign, row.referrer, row.landing, id).run();
+  } catch { /* stored either way */ }
+
   const sent = await notify(env, { ...row, id }, new URL(request.url).origin);
   try {
     await env.DB.prepare('UPDATE inquiries SET notified = ?, notify_err = ? WHERE id = ?')
       .bind(sent.ok ? 1 : 0, sent.ok ? null : (sent.error || 'Unknown error'), id).run();
   } catch { /* stored either way; these two columns are bookkeeping */ }
+
+  // After the response, so the visitor never waits on it; the dashboard shows
+  // the result, or why there is none, whenever someone next opens it.
+  if (aiEnabled(env) && waitUntil) waitUntil(triageInquiry(env, id));
 
   // 202 regardless: the lead is safe. notified and notify_err are what the
   // dashboard's banner reads, and they are the only place this failure shows —

@@ -22,7 +22,8 @@ for p in \
   index.html 404.html robots.txt sitemap.xml llms.txt site.webmanifest \
   _headers _redirects .well-known assets admin \
   residences amenities neighborhood story contact privacy \
-  the-charlotte-story roc-the-east-end life-at-the-square contact-us
+  the-charlotte-story roc-the-east-end life-at-the-square contact-us \
+  tour-a tour-b tour-c
 do
   cp -R "$p" public/
 done

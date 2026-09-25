@@ -35,6 +35,15 @@
 
   <div class="grid" id="panels" hidden>
 
+    <section class="panel panel--ai" id="insight-panel" aria-labelledby="insight-title">
+      <div class="panel__head">
+        <h2 id="insight-title">In plain English</h2>
+        <span class="panel__note" id="insight-note"></span>
+        <button type="button" class="ghost" id="insight-ask" hidden>Ask Claude</button>
+      </div>
+      <div id="insight" aria-live="polite"></div>
+    </section>
+
     <section class="panel panel--leads">
       <div class="panel__head">
         <h2>Enquiries</h2>
@@ -73,8 +82,20 @@
         <div id="t-pages"></div>
       </section>
       <section class="panel">
-        <div class="panel__head"><h2>Where they came from</h2></div>
-        <div id="t-refs"></div>
+        <div class="panel__head"><h2>Where enquiries come from</h2><span class="panel__note">each visitor counted once a day, by how they arrived</span></div>
+        <div id="t-sources"></div>
+      </section>
+      <section class="panel">
+        <div class="panel__head"><h2>Tour page test</h2><span class="panel__note">/tour/ shows each visitor one of three versions</span></div>
+        <div id="t-test"></div>
+      </section>
+      <section class="panel">
+        <div class="panel__head"><h2>Campaigns</h2><span class="panel__note">links tagged with the builder below</span></div>
+        <div id="t-campaigns"></div>
+      </section>
+      <section class="panel">
+        <div class="panel__head"><h2>From visit to enquiry</h2></div>
+        <div id="t-funnel"></div>
       </section>
       <section class="panel">
         <div class="panel__head"><h2>Floor plan interest</h2><span class="panel__note">from enquiries and filters</span></div>
@@ -93,6 +114,51 @@
         <div id="t-countries"></div>
       </section>
     </div>
+
+    <section class="panel" aria-labelledby="builder-title">
+      <div class="panel__head">
+        <h2 id="builder-title">Make a tracking link</h2>
+        <span class="panel__note">Use it in an ad, a post, an email or behind a QR code, and its visitors and enquiries show up under Campaigns.</span>
+      </div>
+      <form class="builder" id="builder" autocomplete="off">
+        <label>Page
+          <select name="page">
+            <option value="/tour/">Tour page (A/B/C test)</option>
+            <option value="/">Home</option>
+            <option value="/residences/">Residences</option>
+            <option value="/contact/">Contact</option>
+          </select>
+        </label>
+        <label>Where it will run
+          <input name="source" list="builder-sources" placeholder="facebook" required>
+          <datalist id="builder-sources">
+            <option value="facebook"></option><option value="instagram"></option>
+            <option value="google"></option><option value="apartments.com"></option>
+            <option value="zillow"></option><option value="craigslist"></option>
+            <option value="newsletter"></option><option value="flyer"></option>
+            <option value="sign"></option>
+          </datalist>
+        </label>
+        <label>Kind
+          <select name="medium">
+            <option value="paid_social">Paid social ad</option>
+            <option value="social">Unpaid social post</option>
+            <option value="cpc">Search ad</option>
+            <option value="listing">Listing site</option>
+            <option value="email">Email</option>
+            <option value="print">Print or QR code</option>
+            <option value="referral">Partner or referral</option>
+          </select>
+        </label>
+        <label>Campaign name
+          <input name="campaign" placeholder="fall-lease-2026" required>
+        </label>
+        <div class="builder__out">
+          <input id="builder-url" readonly aria-label="Tracking link" placeholder="Fill in the boxes to get a link">
+          <button type="button" class="ghost" id="builder-copy" disabled>Copy</button>
+        </div>
+      </form>
+    </section>
   </div>
 </main>
 

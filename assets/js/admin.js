@@ -30,6 +30,14 @@
   let current = null;
   let days = 30;
 
+  // Tracking links always point at the real site, whichever address the
+  // dashboard happens to be open on.
+  const SITE = 'https://www.charlottesquareroc.com';
+
+  /** A rate from counts, or a dash when it would mislead: no visitors, or more
+   *  enquiries than visitors (people who block analytics still send forms). */
+  const pct = (part, whole) => (!whole || part > whole ? '—' : `${Math.round((part / whole) * 1000) / 10}%`);
+
   /* ---- Load ---------------------------------------------------------------- */
   async function load() {
     statusEl.hidden = false;
@@ -43,6 +51,7 @@
       tilesEl.hidden = false;
       panelsEl.hidden = false;
       render();
+      loadInsight();
     } catch (err) {
       statusEl.hidden = false;
       statusEl.textContent = `Could not load the numbers — ${err.message}. Reload to try again.`;
@@ -265,10 +274,100 @@
     host.append(t);
   }
 
+  /* Several number columns. rows are {k: label, w: 0..1 bar width, cells: []}. */
+  function tableN(hostSel, cols, rows, empty = 'Nothing yet.') {
+    const host = $(hostSel);
+    host.replaceChildren();
+    if (!rows.length) {
+      const p = document.createElement('p'); p.className = 'empty'; p.textContent = empty;
+      host.append(p); return;
+    }
+    const t = document.createElement('table'); t.className = 'tbl tbl--n';
+    const thead = document.createElement('thead');
+    const hr = document.createElement('tr');
+    cols.forEach((c) => { const th = document.createElement('th'); th.textContent = c; hr.append(th); });
+    thead.append(hr);
+    const tb = document.createElement('tbody');
+    rows.forEach((r) => {
+      const tr = document.createElement('tr');
+      const td1 = document.createElement('td');
+      td1.className = 'meter';
+      td1.style.setProperty('--w', `${Math.round(Math.min(1, r.w || 0) * 100)}%`);
+      const span = document.createElement('span');
+      span.className = 'name';
+      span.textContent = r.k;
+      span.title = r.k;
+      td1.append(span);
+      tr.append(td1);
+      r.cells.forEach((c) => { const td = document.createElement('td'); td.textContent = c; tr.append(td); });
+      tb.append(tr);
+    });
+    t.append(thead, tb);
+    // Wide tables scroll inside their panel rather than widening the page.
+    const wrap = document.createElement('div');
+    wrap.className = 'tbl-wrap';
+    wrap.append(t);
+    host.append(wrap);
+  }
+
+  const channelName = (c) => (c === 'direct' ? 'Typed in or bookmarked' : String(c).replace(/_/g, ' '));
+
+  function renderSources(rows) {
+    const max = Math.max(1, ...rows.map((r) => r.visits));
+    tableN('#t-sources', ['Channel', 'Visitors', 'Enquiries', 'Rate'],
+      rows.map((r) => ({ k: channelName(r.channel), w: r.visits / max,
+        cells: [num(r.visits), num(r.leads), pct(r.leads, r.visits)] })));
+  }
+
+  function renderCampaigns(rows) {
+    const max = Math.max(1, ...rows.map((r) => r.visits));
+    tableN('#t-campaigns', ['Campaign', 'Visitors', 'Enquiries', 'Rate'],
+      rows.map((r) => ({ k: r.campaign, w: r.visits / max,
+        cells: [num(r.visits), num(r.leads), pct(r.leads, r.visits)] })),
+      'None yet. Make a tracking link below and use it in an ad or a post.');
+  }
+
+  const VERSION = { a: 'A · Book a tour', b: 'B · Price first', c: 'C · The neighborhood' };
+
+  function renderTest(test) {
+    const host = $('#t-test');
+    if (!test) {
+      host.replaceChildren();
+      const p = document.createElement('p');
+      p.className = 'empty';
+      p.textContent = 'Not running yet. Point ads and posts at /tour/ (the link builder below does) and results appear here.';
+      host.append(p);
+      return;
+    }
+    tableN('#t-test', ['Version', 'Visitors', 'Started form', 'Enquiries', 'Rate', 'Chance best'],
+      test.arms.map((a) => ({ k: VERSION[a.variant], w: a.best,
+        cells: [num(a.visitors), num(a.starts), num(a.leads), pct(a.leads, a.visitors), `${Math.round(a.best * 100)}%`] })));
+    const lead = test.arms.find((a) => a.variant === test.leader);
+    const verdict = document.createElement('p');
+    verdict.className = 'verdict' + (test.verdict === 'winner' ? ' is-win' : '');
+    verdict.textContent = test.verdict === 'winner'
+      ? `Version ${test.leader.toUpperCase()} is winning: a ${Math.round(lead.best * 100)}% chance it is the best. Safe to make it the only version.`
+      : test.verdict === 'none'
+        ? 'No clear winner yet. Keep it running; a version needs a 95% chance of being the best before it is called.'
+        : `Too early to call. It needs ${test.rule.minLeads} enquiries in all, and ${test.rule.minVisitors} visitors for each version, before the numbers mean much.`;
+    host.append(verdict);
+  }
+
+  function renderFunnel(f) {
+    const steps = [
+      ['Visitors', f.visitors],
+      ['Started the enquiry form', f.starts],
+      ['Sent an enquiry', f.leads],
+    ];
+    const max = Math.max(1, ...steps.map((s) => s[1]));
+    tableN('#t-funnel', ['Step', 'People', 'Of visitors'],
+      steps.map(([k, v], i) => ({ k, w: v / max, cells: [num(v), i ? pct(v, f.visitors) : ''] })));
+  }
+
   const EVENT_NAMES = {
     tour_request: 'Enquiry sent', phone_click: 'Phone tapped', portal_click: 'Resident portal',
     plan_view: 'Floor plan filtered', gallery_open: 'Photo opened', map_click: 'Map opened',
-    outbound: 'Left the site',
+    outbound: 'Left the site', form_start: 'Started the form',
   };
 
   function render() {
@@ -278,7 +377,10 @@
     renderLeads(d.daily);
 
     table('#t-pages', d.pages.map((r) => ({ k: r.path, v: r.views })), ['Page', 'Views']);
-    table('#t-refs', d.referrers.map((r) => ({ k: r.ref, v: r.views })), ['Source', 'Views']);
+    renderSources(d.sources || []);
+    renderCampaigns(d.campaigns || []);
+    renderTest(d.test);
+    renderFunnel(d.funnel || { visitors: 0, starts: 0, leads: 0 });
     table('#t-plans', d.plans.map((r) => ({ k: r.plan, v: r.count })), ['Plan', 'Times']);
     table('#t-events', d.events.map((r) => ({ k: EVENT_NAMES[r.kind] || r.kind, v: r.count })), ['Action', 'Count']);
     table('#t-devices', d.devices.map((r) => ({ k: r.device, v: r.views })), ['Device', 'Views']);
@@ -301,6 +403,95 @@
     search: 'Search', listing: 'Listing site', social: 'Social',
     walkby: 'Walked by', referral: 'Referral',
   };
+  const TOPIC = {
+    tour: 'Tour', availability: 'Availability', pricing: 'Pricing', parking: 'Parking',
+    pets: 'Pets', amenities: 'Amenities', 'lease-terms': 'Lease terms',
+    application: 'Applying', accessibility: 'Accessibility', neighborhood: 'Neighborhood',
+    other: 'Other',
+  };
+
+  // Whether the server has an Anthropic key, as /api/inquiries reports it.
+  let leadAi = false;
+
+  const button = (text, cls = 'ghost') => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = cls;
+    b.textContent = text;
+    return b;
+  };
+
+  /** "facebook / paid social · fall-lease-2026 · tour page B" */
+  const cameVia = (r) => [
+    r.utm_source && [r.utm_source, r.utm_medium].filter(Boolean).join(' / ').replace(/_/g, ' '),
+    r.utm_campaign,
+    !r.utm_source && r.referrer,
+    r.variant && `tour page ${String(r.variant).toUpperCase()}`,
+  ].filter(Boolean).join(' \u00b7 ');
+
+  /* Claude's read of one enquiry. Everything in it is model output about a
+     stranger's text, so it goes in through textContent like the rest. The
+     draft is a textarea because it is a starting point: nothing here sends. */
+  function aiBlock(r) {
+    const box = document.createElement('div');
+    box.className = 'lead__ai';
+
+    const sum = document.createElement('p');
+    sum.className = 'lead__sum';
+    sum.textContent = r.ai.summary;
+    box.append(sum);
+
+    const tags = (r.ai.topics || []).map((t) => TOPIC[t] || t);
+    if (r.ai.spam || tags.length) {
+      const row = document.createElement('p');
+      row.className = 'lead__topics';
+      if (r.ai.spam) {
+        const s = document.createElement('span');
+        s.className = 'lead__topic is-spam';
+        s.textContent = 'Looks like spam';
+        row.append(s);
+      }
+      tags.forEach((t) => {
+        const s = document.createElement('span');
+        s.className = 'lead__topic';
+        s.textContent = t;
+        row.append(s);
+      });
+      box.append(row);
+    }
+
+    const det = document.createElement('details');
+    det.className = 'lead__draft';
+    const head = document.createElement('summary');
+    head.textContent = 'Draft reply';
+    const ta = document.createElement('textarea');
+    ta.value = r.ai.reply || '';
+    ta.rows = 9;
+    ta.setAttribute('aria-label', `Draft reply to ${r.first_name}, editable`);
+
+    const acts = document.createElement('div');
+    acts.className = 'lead__draft-actions';
+    const mail = document.createElement('a');
+    mail.className = 'ghost';
+    mail.textContent = 'Open in email';
+    const setMail = () => {
+      mail.href = `mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent('Your Charlotte Square enquiry')}&body=${encodeURIComponent(ta.value)}`;
+    };
+    setMail();
+    ta.addEventListener('input', setMail);
+    const copy = button('Copy');
+    copy.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(ta.value); copy.textContent = 'Copied'; } catch { ta.select(); copy.textContent = 'Press Ctrl+C'; }
+      setTimeout(() => { copy.textContent = 'Copy'; }, 1800);
+    });
+    const note = document.createElement('small');
+    note.textContent = 'Written by Claude from their message. Check it before you send it.';
+    acts.append(mail, copy, note);
+
+    det.append(head, ta, acts);
+    box.append(det);
+    return box;
+  }
 
   /** "3 minutes ago" down to the day, then a date. Leasing is a same-day game;
    *  "22 Sep" is no use when what matters is whether this came in over lunch. */
@@ -371,6 +562,16 @@
       card.append(meta);
     }
 
+    const via = cameVia(r);
+    if (via) {
+      const v = document.createElement('p');
+      v.className = 'lead__via';
+      v.textContent = `Came via ${via}`;
+      card.append(v);
+    }
+
+    if (r.ai) card.append(aiBlock(r));
+
     if (r.message) {
       const msg = document.createElement('p');
       msg.className = 'lead__msg';
@@ -403,6 +604,30 @@
     });
     foot.append(done);
 
+    if (leadAi && !r.ai) {
+      const ask = button(r.ai_err ? 'Try Claude again' : 'Summarise with Claude');
+      ask.addEventListener('click', async () => {
+        ask.disabled = true;
+        ask.textContent = 'Reading…';
+        try {
+          const res = await fetch('/api/triage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: r.id }),
+          });
+          if (res.status === 401) { location.reload(); return; }
+          const d = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(d.error || `Server returned ${res.status}`);
+          loadLeads();
+        } catch (err) {
+          ask.disabled = false;
+          ask.textContent = 'Try Claude again';
+          ask.title = err.message;
+        }
+      });
+      foot.append(ask);
+    }
+
     if (!r.notified) {
       const flag = document.createElement('span');
       flag.className = 'lead__flag';
@@ -411,6 +636,14 @@
       foot.append(flag);
     }
     card.append(foot);
+
+    // Why there is no summary, in Claude's or the SDK's words.
+    if (leadAi && !r.ai && r.ai_err) {
+      const why = document.createElement('p');
+      why.className = 'lead__aierr';
+      why.textContent = r.ai_err;
+      card.append(why);
+    }
     return card;
   }
 
@@ -423,6 +656,7 @@
       if (res.status === 401) { location.reload(); return; }
       if (!res.ok) throw new Error(`Server returned ${res.status}`);
       const d = await res.json();
+      leadAi = Boolean(d.ai);
 
       host.replaceChildren();
       if (!d.inquiries.length) {
@@ -475,6 +709,144 @@
         b.setAttribute('aria-pressed', String(b === btn)));
       loadLeads();
     });
+  });
+
+  /* ---- In plain English ----------------------------------------------------
+     Claude's read of the numbers above, for the date range on screen. The
+     server keeps one per range per day, so opening the dashboard shows the
+     saved one for free; asking again is a button, never automatic. */
+  const insightEl = $('#insight');
+  const insightAsk = $('#insight-ask');
+  const insightNote = $('#insight-note');
+
+  function renderInsight(ins) {
+    insightEl.replaceChildren();
+    const h = document.createElement('p');
+    h.className = 'insight__headline';
+    h.textContent = ins.headline;
+    insightEl.append(h);
+
+    if (ins.points && ins.points.length) {
+      const ul = document.createElement('ul');
+      ul.className = 'insight__points';
+      ins.points.forEach((pt) => {
+        const li = document.createElement('li');
+        const b = document.createElement('strong');
+        b.textContent = pt.title;
+        li.append(b, document.createTextNode(` ${pt.detail}`));
+        ul.append(li);
+      });
+      insightEl.append(ul);
+    }
+    if (ins.next && ins.next.length) {
+      const k = document.createElement('p');
+      k.className = 'insight__k';
+      k.textContent = 'Worth trying next';
+      const ol = document.createElement('ol');
+      ol.className = 'insight__next';
+      ins.next.forEach((t) => { const li = document.createElement('li'); li.textContent = t; ol.append(li); });
+      insightEl.append(k, ol);
+    }
+    insightNote.textContent = ins.ts ? `Read ${ago(ins.ts)} · aggregate numbers only` : '';
+  }
+
+  function insightEmpty(text) {
+    insightEl.replaceChildren();
+    const p = document.createElement('p');
+    p.className = 'empty';
+    p.textContent = text;
+    insightEl.append(p);
+  }
+
+  async function loadInsight() {
+    const range = days;
+    try {
+      const res = await fetch(`/api/insights?days=${range}`, { headers: { Accept: 'application/json' } });
+      if (res.status === 401) { location.reload(); return; }
+      const d = await res.json();
+      if (range !== days) return;            // the range changed while this was in flight
+      if (!d.ai) {
+        insightAsk.hidden = true;
+        insightNote.textContent = '';
+        insightEmpty('Add an ANTHROPIC_API_KEY to the Pages project and Claude will explain these numbers here in a few sentences, and summarise each enquiry.');
+        return;
+      }
+      insightAsk.hidden = false;
+      insightAsk.disabled = false;
+      if (d.insight) {
+        renderInsight(d.insight);
+        insightAsk.textContent = 'Ask again';
+      } else {
+        insightNote.textContent = '';
+        insightEmpty(`Get a short written read of the last ${range} days: what changed, what is working and what to try next.`);
+        insightAsk.textContent = 'Ask Claude';
+      }
+    } catch {
+      insightEmpty('Could not load the summary.');
+    }
+  }
+
+  insightAsk.addEventListener('click', async () => {
+    const range = days;
+    const fresh = insightAsk.textContent === 'Ask again';
+    insightAsk.disabled = true;
+    insightAsk.textContent = 'Reading the numbers…';
+    try {
+      const res = await fetch('/api/insights', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ days: range, fresh }),
+      });
+      if (res.status === 401) { location.reload(); return; }
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error || `Server returned ${res.status}`);
+      if (range === days) renderInsight(d.insight);
+      insightAsk.textContent = 'Ask again';
+    } catch (err) {
+      insightEmpty(`Claude could not answer: ${err.message}`);
+      insightAsk.textContent = 'Ask Claude';
+    } finally {
+      insightAsk.disabled = false;
+    }
+  });
+
+  /* ---- Tracking link builder -----------------------------------------------
+     Tags a link with utm_source / utm_medium / utm_campaign, the three that
+     analytics.js reads. Spelled the way /api/collect stores them, so what is
+     typed here is exactly what appears under Campaigns. */
+  const builder = $('#builder');
+  const builderOut = $('#builder-url');
+  const builderCopy = $('#builder-copy');
+  const slug = (v) => String(v || '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9._-]/g, '');
+
+  function buildLink() {
+    const f = builder.elements;
+    const source = slug(f.source.value);
+    const campaign = slug(f.campaign.value);
+    if (!source || !campaign) {
+      builderOut.value = '';
+      builderCopy.disabled = true;
+      return;
+    }
+    const u = new URL(f.page.value, SITE);
+    u.searchParams.set('utm_source', source);
+    u.searchParams.set('utm_medium', f.medium.value);
+    u.searchParams.set('utm_campaign', campaign);
+    builderOut.value = u.toString();
+    builderCopy.disabled = false;
+  }
+  builder.addEventListener('input', buildLink);
+  builder.addEventListener('change', buildLink);
+  builder.addEventListener('submit', (e) => e.preventDefault());
+  builderCopy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(builderOut.value);
+      builderCopy.textContent = 'Copied';
+    } catch {
+      builderOut.select();
+      builderCopy.textContent = 'Press Ctrl+C';
+    }
+    setTimeout(() => { builderCopy.textContent = 'Copy'; }, 1800);
   });
 
   /* ---- Controls ------------------------------------------------------------ */

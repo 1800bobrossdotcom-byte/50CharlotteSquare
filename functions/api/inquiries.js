@@ -13,6 +13,7 @@
    parameterised.
    ============================================================================= */
 import { requireSession, json } from '../_lib/auth.js';
+import { aiEnabled } from '../_lib/ai.js';
 
 const MAX_LIMIT = 200;
 const DEFAULT_LIMIT = 50;
@@ -28,28 +29,41 @@ export async function onRequestGet({ request, env }) {
   const all = url.searchParams.get('all') === '1';
 
   const where = all ? '' : 'WHERE handled = 0';
+  const list = (extra) => env.DB.prepare(
+    `SELECT id, ts, first_name, last_name, email, phone, interest, plan,
+            move_in, source, message, country, notified, handled${extra}
+       FROM inquiries ${where}
+      ORDER BY ts DESC
+      LIMIT ?`,
+  ).bind(limit);
+
+  // A database from before campaign tracking and Claude has none of the newer
+  // columns. Ask for them, and on failure fall back to the list without them
+  // rather than showing no leads at all.
+  let rows;
   try {
-    const [rows, counts] = await env.DB.batch([
-      env.DB.prepare(
-        `SELECT id, ts, first_name, last_name, email, phone, interest, plan,
-                move_in, source, message, country, notified, handled
-           FROM inquiries ${where}
-          ORDER BY ts DESC
-          LIMIT ?`,
-      ).bind(limit),
-      env.DB.prepare(
-        `SELECT COUNT(*)                         AS total,
-                SUM(handled = 0)                 AS open,
-                SUM(notified = 0)                AS unnotified,
-                (SELECT notify_err FROM inquiries
-                  WHERE notified = 0 AND notify_err IS NOT NULL
-                  ORDER BY ts DESC LIMIT 1)      AS last_error
-           FROM inquiries`,
-      ),
-    ]);
-    const c = (counts.results && counts.results[0]) || {};
+    rows = await list(`, form, variant, utm_source, utm_medium, utm_campaign,
+            referrer, landing, ai, ai_err`).all();
+  } catch {
+    try { rows = await list('').all(); } catch { return json({ error: 'Could not read the enquiries.' }, 500); }
+  }
+
+  try {
+    const c = (await env.DB.prepare(
+      `SELECT COUNT(*)                         AS total,
+              SUM(handled = 0)                 AS open,
+              SUM(notified = 0)                AS unnotified,
+              (SELECT notify_err FROM inquiries
+                WHERE notified = 0 AND notify_err IS NOT NULL
+                ORDER BY ts DESC LIMIT 1)      AS last_error
+         FROM inquiries`,
+    ).first()) || {};
     return json({
-      inquiries: rows.results || [],
+      // ai is stored as JSON text; hand it over parsed so the page never has to.
+      inquiries: (rows.results || []).map((r) => {
+        if (typeof r.ai !== 'string') return r;
+        try { return { ...r, ai: JSON.parse(r.ai) }; } catch { return { ...r, ai: null }; }
+      }),
       total: c.total || 0,
       open: c.open || 0,
       // How many leads arrived without the notification email going out. The
@@ -60,6 +74,8 @@ export async function onRequestGet({ request, env }) {
       // The provider's own sentence, so the banner can name the fix instead of
       // just reporting that something went wrong.
       lastError: c.last_error || null,
+      // Whether the dashboard should offer Claude's summaries at all.
+      ai: aiEnabled(env),
     });
   } catch (err) {
     return json({ error: 'Could not read the enquiries.' }, 500);

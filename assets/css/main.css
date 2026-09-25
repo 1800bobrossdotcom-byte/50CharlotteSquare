@@ -1157,3 +1157,11 @@ p, .lead, .hero__lead, .prose p, .feature p, .card p, .step p, .tile__sub,
   .gallery__item:hover .ph > img { transform: none; }
   .lightbox[open], .lightbox__img { animation: none; }
 }
+
+/* ---------- Tour pages ------------------------------------------------------
+   /tour/ and its three versions: the site's own hero, cards and form, with the
+   navigation taken out so the page has one job. Only the footer needs telling
+   that it has lost its columns. */
+.footer--lp { padding-top: 0; }
+.footer--lp .footer__bottom { margin-top: 0; }
+.lp__note { font-size: .82rem; color: var(--fg-subtle); }

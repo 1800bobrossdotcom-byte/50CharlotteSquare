@@ -26,6 +26,8 @@ three archived* below.
 | `/story/` | `story/index.html` | The Charlotte story, podium cross-section diagram, LEED features, about Evolution24 |
 | `/contact/` | `contact/index.html` | Working inquiry form, contact cards, resident portal, map |
 | `/privacy/` | `privacy/index.html` | Privacy policy, accessibility statement, fair housing |
+| `/tour/` | `tour-a/`, `tour-b/`, `tour-c/` | Booking page for ads, in three versions under test; see *The tour page test*. Not in the sitemap, `noindex` |
+| `/admin/` | `admin/index.html` | The dashboard, behind a password |
 | `404.html` | | Self-contained not-found page (works at any depth) |
 
 ## Structure
@@ -46,6 +48,9 @@ _headers                             Netlify / Cloudflare header block
 .well-known/security.txt             RFC 9116 contact, regenerated each build
 the-charlotte-story/ roc-the-east-end/ life-at-the-square/ contact-us/
                            redirect stubs, for hosts that honour none of the three
+tour-a/ tour-b/ tour-c/    the three versions /tour/ chooses between
+admin/ functions/ schema.sql wrangler.toml   dashboard, API and database (see Analytics)
+package.json               one dependency, the Anthropic SDK, bundled into functions/
 ```
 
 ## Preview locally
@@ -400,22 +405,27 @@ Cloudflare. That is the part a client-side gate can never do.
 | File | Does |
 | --- | --- |
 | `functions/_lib/auth.js` | PBKDF2 password check, HMAC session cookie, visitor hashing |
+| `functions/_lib/stats.js` | Every number on the dashboard, and the tour test's arithmetic |
+| `functions/_lib/ai.js` | Claude: enquiry summaries and the plain-English read. Optional |
 | `functions/admin/_middleware.js` | Serves the sign-in page instead of the dashboard when there is no session |
 | `functions/api/collect.js` | Records one pageview or event |
 | `functions/api/login.js` | Password → signed session cookie, throttled per IP |
 | `functions/api/logout.js` | Clears it |
 | `functions/api/stats.js` | The whole dashboard payload, session-gated |
+| `functions/api/insights.js` | Claude's read of the dashboard, one saved per range per day |
+| `functions/api/triage.js` | The dashboard's "Summarise with Claude" button |
+| `functions/tour/index.js` | Serves `/tour/`: picks version A, B or C for each visitor |
 | `admin/index.html`, `assets/js/admin.js` | The dashboard |
 | `assets/js/analytics.js` | The tracker on every page |
-| `schema.sql` | Two tables |
-| `tools/hash-password.mjs` | Generates the password hash and session secret |
+| `schema.sql` | Five tables, and the upgrade for a database made before campaigns |
+| `tools/hash-password.mjs` | Makes a password, its hash, the session secret and the visitor salt |
 
 ### Setup
 
 ```bash
 wrangler d1 create charlotte-analytics                              # id → wrangler.toml
 wrangler d1 execute charlotte-analytics --file=./schema.sql --remote
-node tools/hash-password.mjs 'a long passphrase'                    # prints both values
+node tools/hash-password.mjs                                        # makes the password, prints all three values
 # Pages secrets take --project; --name is the Workers flag and will not work here
 wrangler pages secret put ADMIN_PASSWORD_HASH --project=charlotte-square
 wrangler pages secret put SESSION_SECRET      --project=charlotte-square
@@ -425,15 +435,27 @@ wrangler pages secret put VISITOR_SALT        --project=charlotte-square
 Then `/admin/` asks for the password. Sessions last 12 hours; six wrong
 attempts locks that IP out for fifteen minutes.
 
-The password is never stored, here or anywhere — only a PBKDF2 hash at 210,000
-iterations, in a Cloudflare secret. Nothing in this repository grants access to
-anything.
+The password is never stored, here or anywhere — only a PBKDF2 hash in a
+Cloudflare secret. Nothing in this repository grants access to anything.
+
+**Why 10,000 iterations and not OWASP's 600,000.** Cloudflare's free plan stops
+a request after 10 ms of CPU. PBKDF2 at 210,000 rounds measured about 97 ms, so
+sign-in would have failed in production every time while working perfectly on a
+laptop; 10,000 rounds is about 5 ms on a slow core. Stretching only slows down
+someone who already holds the hash, and here that means someone inside the
+Cloudflare account, where secrets are write-only. What protects the password is
+its randomness: run with no argument, the tool makes one of about 79 bits,
+which no cracking rig reaches at any iteration count, and it refuses a
+hand-picked one under 16 characters. On Workers Paid the count can go back up;
+it travels inside the hash, so old and new hashes both keep working.
 
 ### What it records, and what it refuses to
 
 Per hit: timestamp, path, referrer **host** (never the full URL, which carries
 search terms and session tokens), country, device class, which design style was
-active, and a visitor hash.
+active, and a visitor hash. On the page someone lands on, also the three
+campaign tags from the link they followed (`utm_source`, `utm_medium`,
+`utm_campaign`, lowercased and capped), and on `/tour/` which version they saw.
 
 That hash is `SHA-256(day + server salt + IP + user agent)`, truncated. It
 groups one person's hits within a day and becomes a different value at
@@ -444,10 +466,10 @@ choice is that "visitors" cannot be de-duplicated across days, so the dashboard
 says so on the panel rather than quietly overcounting.
 
 Named events are the reason to run this in-house rather than read someone
-else's chart: `tour_request` (with the floor plan asked about), `phone_click`,
-`portal_click`, `plan_view`, `gallery_open`, `map_click`, `outbound`. That is
-lead attribution per floor plan, which no general analytics product will give
-you for a single building.
+else's chart: `phone_click`, `portal_click`, `plan_view` (with the floor plan),
+`gallery_open`, `map_click`, `outbound`, and `form_start`, the first touch on an
+enquiry form. Enquiries themselves are counted from the `inquiries` table, not
+from a browser event, so the count cannot disagree with the list.
 
 An explicit Do Not Track or Global Privacy Control signal is honoured. Nothing
 collected is personal, so this is a choice rather than a duty — flip
@@ -455,8 +477,67 @@ collected is personal, so this is a choice rather than a duty — flip
 to be complete.
 
 `analytics.js` is self-contained: delete the file and its `<script>` tag and
-the site is exactly as it was. `main.js` only *announces* a completed enquiry
-as a `cs:lead` event; if nothing is listening, nothing happens.
+the site is exactly as it was.
+
+### Campaigns: which ad or post brought the enquiry
+
+The dashboard's **Make a tracking link** box tags a link with
+`utm_source`, `utm_medium` and `utm_campaign`. Use a new campaign name for each
+ad, post, email or flyer (a QR code is just the link), and each gets its own row
+under **Campaigns** with visitors, enquiries and the rate between them.
+
+No cookie carries this to the form. When an enquiry arrives, `/api/inquiry`
+looks up the same visitor's first pageview that day (or the day before, for a
+form sent just after midnight UTC) by the same daily hash, and copies its tags,
+referrer and landing page onto the enquiry. Two consequences, both deliberate:
+someone who clicks an ad on Monday and writes on Wednesday is not linked to the
+ad, and someone who blocks analytics is never linked to anything. **Where
+enquiries come from** counts visitors and enquiries by the same rule, so a row
+compares like with like.
+
+### The tour page test (A/B/C)
+
+`/tour/` is a booking page in three versions: A leads with booking a tour, B
+with the price (from $1,750, parking included), C with the neighborhood. Send
+ads and posts there. `functions/tour/index.js` picks a version per visitor per
+day from a hash of the day, salt, IP and user agent, so there is no cookie and
+a reload shows the same version. The three files are `/tour-a/`, `/tour-b/` and
+`/tour-c/`; opened directly, or previewed with `/tour/?v=b`, they are not
+counted.
+
+The dashboard shows each version's visitors, form starts, enquiries and its
+**chance of being best**, computed exactly from Beta posteriors rather than
+eyeballed from rates. It says "too early to call" until there are 10 enquiries
+and 100 visitors per version, and names a winner only at 95%. When one wins,
+point the ads at that version's copy and retire the others; the pitch is the
+only difference between them.
+
+### Claude, optional
+
+With an `ANTHROPIC_API_KEY` secret on the Pages project, two things switch on.
+Without it, nothing changes and nothing is sent anywhere.
+
+- **Each enquiry** gets a one-line summary, topic tags, a spam flag and a
+  draft reply, shown on its card in the dashboard. The draft is a text box to
+  edit and send yourself; nothing is ever sent automatically. Claude sees the
+  first name, the form's choices and the message, never the surname, email,
+  phone or country. The prompt carries the fair housing rules: it never infers
+  or mentions anything about who someone is, never scores or ranks people, and
+  treats the message as text to summarise rather than instructions.
+- **In plain English**, at the top of the dashboard, is a button that sends the
+  period's aggregate numbers (no enquiry text, no person) and gets back a
+  headline, three to five observations and up to three things to try. One read
+  is saved per date range per day.
+
+Both use `claude-opus-5` through the official SDK (`@anthropic-ai/sdk`, the
+repository's one dependency; Cloudflare installs and bundles it at build time).
+Server-side fallback is on, so a request that model declines is retried on the
+model Anthropic recommends for that case instead of coming back empty. At this
+building's volume the cost is small: a few cents per enquiry and per read.
+
+The facts Claude may use in a draft (rent range, what is included, hours) are
+written into `functions/_lib/ai.js`. **When the rent or the office hours change
+on the site, change them there too.**
 
 ### The two charts
 
@@ -477,7 +558,11 @@ number on the page also exists in a table below.
 
 Free at this traffic. Cloudflare's free tier covers 100,000 Function requests a
 day and 5 million D1 row reads a month; a building this size will use a
-rounding error of both. The `events` table grows by one row per pageview — at
+rounding error of both. The limit that actually bites on the free plan is CPU:
+10 ms per request. Sign-in was the one thing over it, which is why the password
+hash uses 10,000 iterations (see Setup). Waiting on D1, email or Claude is not
+CPU time, and loading the code at startup counts against a separate 1-second
+limit, not the 10 ms. The `events` table grows by one row per pageview — at
 5,000 views a month that is 60,000 rows a year, far inside the 5 GB limit.
 There is no pruning job because there is nothing yet to prune; add one if this
 ever runs across all eleven properties.
@@ -986,15 +1071,18 @@ The footer carries both files and lets CSS pick: the knockout art on the dark fo
 
 ## Contact form
 
-The form in `contact/index.html` validates in the browser and then does one of two things:
+The forms on `contact/` and `/tour/` validate in the browser, then POST to
+`/api/inquiry` on this same site (see *What the form does now* in the launch
+runbook). The leasing address is a Cloudflare secret and is not in any page. If
+the post fails, the visitor is given the leasing phone number instead.
 
-- If `data-endpoint` on the `<form>` is set (Formspree, Basin, Netlify Forms, or your own handler), it POSTs there and shows an inline success or error message.
-- If `data-endpoint` is empty but `data-email` holds an address, it opens the visitor's own email app with the message pre-filled and addressed. This is how the site ships today, delivering to Vicki Barone. Dropdowns send what the visitor chose ("Two bedroom"), not the underlying value, and options left unchosen are dropped.
-- If both are empty, it tells the visitor the form is not connected and gives them the leasing phone number.
+The old fallback, which opened the visitor's own email app with the address
+filled in, is gone: it put the address in the page source for scrapers, and it
+lost every enquiry from someone with no mail app set up.
 
-**Worth upgrading before launch.** The mail-app route has two drawbacks: the address sits in the page source where scrapers can find it, and nothing reaches you if the visitor has no mail app configured or abandons the draft. Pointing `data-endpoint` at a form service such as Formspree or Basin fixes both, since the message is posted server-side and the address never appears in the page. Do that and you can clear `data-email`.
-
-To go live with a real inbox: create a form at Formspree (or similar), paste its URL into `data-endpoint`, done. A honeypot field is already included. Query strings pre-select fields, so `contact/?plan=2&interest=tour` opens the form ready for a two-bedroom tour request; the residences cards and every "Schedule a tour" button already use this.
+Query strings pre-select fields, so `contact/?plan=2&interest=tour` opens the
+form ready for a two-bedroom tour request; the residences cards and every
+"Schedule a tour" button already use this. A honeypot field is included.
 
 ## One style, three archived
 
@@ -1144,7 +1232,9 @@ contact form, the dashboard and the analytics are all dead.
 ### 1. The Pages project
 
 Connect the repo in the Cloudflare dashboard: **Workers & Pages → Create →
-Pages → Connect to Git**. There is no build step.
+Pages → Connect to Git**. The build only copies the website into `public/`.
+Because `package.json` is there, Cloudflare also installs its one dependency,
+the Anthropic SDK, on its own; there is nothing to configure for that.
 
 | Setting | Value |
 | --- | --- |
@@ -1181,17 +1271,22 @@ wrangler d1 execute charlotte-analytics --file=./schema.sql --remote
 
 `schema.sql` is idempotent — every statement is `IF NOT EXISTS`, so running it
 again on an existing database adds the new tables and leaves the old data alone.
+New *columns* are the exception, because SQLite cannot add one "if not exists".
+A database created before 25 September 2026 needs the `ALTER TABLE` lines at
+the bottom of `schema.sql` run once. Until then enquiries are still taken and
+listed; the campaign, test and Claude panels just stay empty.
 
 ### 3. Secrets
 
 ```bash
-node tools/hash-password.mjs 'a long passphrase'    # prints two of these values
+node tools/hash-password.mjs                         # makes the password, prints the first three values
 wrangler pages secret put ADMIN_PASSWORD_HASH --project=charlotte-square
 wrangler pages secret put SESSION_SECRET      --project=charlotte-square
 wrangler pages secret put VISITOR_SALT        --project=charlotte-square
 wrangler pages secret put LEAD_TO             --project=charlotte-square
 wrangler pages secret put LEAD_FROM           --project=charlotte-square
 wrangler pages secret put RESEND_API_KEY      --project=charlotte-square
+wrangler pages secret put ANTHROPIC_API_KEY   --project=charlotte-square   # optional: Claude
 ```
 
 `LEAD_TO` is where inquiry notifications land. It is a secret and not a
@@ -1349,7 +1444,10 @@ somebody typed, and a table column either truncates it or forces a sideways
 scroll on the phone an agent actually reads this on.
 
 Each card carries the name, what they asked about, a tappable email and phone,
-the plan and move-in month, how they found the building, and their message. An
+the plan and move-in month, how they found the building, the campaign or site
+that brought them (*Came via facebook / paid social · fall-lease-2026 · tour
+page B*), their message and, with Claude switched on, its summary, topic tags
+and an editable draft reply with **Open in email** and **Copy**. An
 unhandled one is marked with an accent stripe; **Mark handled** clears it from
 the default view, **All** brings the handled ones back dimmed with **Reopen**.
 The time is relative — *3 hours ago* rather than *22 Sep* — because leasing is
@@ -1359,6 +1457,9 @@ a same-day business.
 | --- | --- |
 | `GET /api/inquiries?limit=&all=` | Newest first; without `all` only the unhandled. Session-gated |
 | `POST /api/inquiries` | `{id, handled}`. Session-gated |
+| `POST /api/triage` | `{id}`: summarise one enquiry with Claude now. Session-gated |
+| `GET /api/insights?days=` | The saved plain-English read for that range today, or null. Session-gated |
+| `POST /api/insights` | `{days, fresh}`: ask Claude for one. Session-gated |
 
 No CSRF token: the session cookie is `SameSite=Strict`, so it is never attached
 to a request that began on another site, which is the thing a token would guard

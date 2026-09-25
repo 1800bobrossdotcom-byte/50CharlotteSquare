@@ -9,20 +9,29 @@ import { visitorHash, today, json } from '../_lib/auth.js';
 
 const KINDS = new Set([
   'pageview', 'tour_request', 'phone_click', 'portal_click',
-  'plan_view', 'gallery_open', 'map_click', 'outbound',
+  'plan_view', 'gallery_open', 'map_click', 'outbound', 'form_start',
 ]);
 
 const DEVICES = new Set(['mobile', 'tablet', 'desktop']);
 const STYLES = new Set(['brick', 'gallery', 'atelier', 'dusk']);
+const VARIANTS = new Set(['a', 'b', 'c']);
 
-const clamp = (v, n) => (typeof v === 'string' ? v.slice(0, n) : null);
+/** A campaign tag, folded to one spelling so "Facebook", "facebook " and
+ *  "FACEBOOK" land in one row, and stripped to characters a tag needs. Whoever
+ *  wrote the link chose the text, so it is capped and never trusted as more. */
+const tag = (v) => {
+  if (typeof v !== 'string') return null;
+  const s = v.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9._-]/g, '').slice(0, 60);
+  return s || null;
+};
 
 /** Referrers are reduced to a host. The full URL can carry search terms and
- *  session tokens, and none of that is wanted here. */
+ *  session tokens, and none of that is wanted here. The link-shim and mobile
+ *  prefixes go too, so l.facebook.com and m.facebook.com count as one source. */
 function refHost(ref, selfHost) {
   if (!ref) return null;
   try {
-    const host = new URL(ref).hostname.replace(/^www\./, '');
+    const host = new URL(ref).hostname.replace(/^(www|m|l|lm|mobile)\./, '');
     return host === selfHost.replace(/^www\./, '') ? null : host.slice(0, 120);
   } catch { return null; }
 }
@@ -55,10 +64,14 @@ export async function onRequestPost({ request, env }) {
     if (s.length <= 300) meta = s;
   }
 
+  // Campaign tags are only meaningful on the page they landed on.
+  const utm = kind === 'pageview' && body.utm && typeof body.utm === 'object' ? body.utm : {};
+
   try {
     await env.DB.prepare(
-      `INSERT INTO events (ts, day, kind, path, ref, country, device, style, meta, visitor)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO events (ts, day, kind, path, ref, country, device, style, meta, visitor,
+                           utm_source, utm_medium, utm_campaign, variant)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(
       Math.floor(now.getTime() / 1000),
       day,
@@ -70,6 +83,10 @@ export async function onRequestPost({ request, env }) {
       STYLES.has(body.style) ? body.style : null,
       meta,
       visitor,
+      tag(utm.source),
+      tag(utm.medium),
+      tag(utm.campaign),
+      VARIANTS.has(body.variant) ? body.variant : null,
     ).run();
   } catch (err) {
     // A failed metric must never surface to a visitor as a broken page.

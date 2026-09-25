@@ -1,0 +1,8 @@
+{
+  "name": "charlotte-square",
+  "private": true,
+  "description": "The Charlotte Square website. Its one dependency is the Anthropic SDK, which Cloudflare Pages installs and bundles into functions/ at build time; nothing here is published.",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0"
+  }
+}

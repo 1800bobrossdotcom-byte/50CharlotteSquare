@@ -30,6 +30,27 @@
 
   const style = () => document.documentElement.getAttribute('data-style') || 'brick';
 
+  // Which version of the /tour/ page this is. The server stamps it on the page
+  // when it picks one at random; on every other page it is absent.
+  const variant = document.documentElement.getAttribute('data-variant') || undefined;
+
+  /* Campaign tags on the address they arrived at (?utm_source=facebook&…),
+     read once from the address bar and sent with the pageview. Nothing is kept
+     in the browser: a later enquiry is matched to this pageview on the server.
+     Ad clicks that carry only a click id still say which network sent them. */
+  const utm = (() => {
+    const q = new URLSearchParams(location.search);
+    const out = {};
+    for (const k of ['source', 'medium', 'campaign']) {
+      const v = q.get(`utm_${k}`);
+      if (v) out[k] = v.slice(0, 80);
+    }
+    if (!out.source && q.has('gclid')) Object.assign(out, { source: 'google', medium: out.medium || 'cpc' });
+    if (!out.source && q.has('msclkid')) Object.assign(out, { source: 'bing', medium: out.medium || 'cpc' });
+    if (!out.source && q.has('fbclid')) out.source = 'facebook';
+    return Object.keys(out).length ? out : undefined;
+  })();
+
   function send(kind, meta) {
     const body = JSON.stringify({
       kind,
@@ -37,6 +58,8 @@
       ref: document.referrer || null,
       device: device(),
       style: style(),
+      variant,
+      utm: kind === 'pageview' ? utm : undefined,
       meta: meta || undefined,
     });
     try {
@@ -80,8 +103,12 @@
     if (chip) send('plan_view', { plan: (chip.textContent || '').trim().slice(0, 40) });
   });
 
-  // main.js announces a completed enquiry; nothing listens if this file is gone.
-  document.addEventListener('cs:lead', (e) => {
-    send('tour_request', (e.detail && e.detail.plan) ? { plan: String(e.detail.plan).slice(0, 40) } : undefined);
+  // The first time they touch the enquiry form: the step between reading and
+  // asking, and the one that shows whether a page loses people at the form.
+  let started = false;
+  document.addEventListener('focusin', (e) => {
+    if (started || !e.target.closest || !e.target.closest('form[data-contact]')) return;
+    started = true;
+    send('form_start');
   });
 })();
