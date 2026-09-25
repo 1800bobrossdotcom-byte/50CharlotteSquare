@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080">
+<meta name="ad-size" content="1080x1080">
+<title>03-terrace</title>
+<link rel="stylesheet" href="../../../assets/fonts/fonts.css">
+<style>
+:root {
+  --bg: #1A1613; --cream: #F1ECE1; --body: #BEB6A7; --muted: #8F877A;
+  --sand: #E2B07A; --line: rgba(241, 236, 225, .17); --brick: #A93B3F;
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { background: var(--bg); }
+.ad {
+  position: relative; overflow: hidden; width: 1080px; height: 1080px;
+  background: var(--bg); color: var(--cream);
+  font-family: 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+  padding: 70px 76px 54px; display: flex; flex-direction: column;
+}
+/* Stories keep clear of Instagram's own bars: the top 250 px carry the
+   progress bar and account name, the bottom 250 px the reply field and
+   wherever the link sticker goes. */
+.ad--story { height: 1920px; padding: 250px 80px 250px; }
+i { font-style: italic; }
+
+.ghost { position: absolute; right: -90px; bottom: -110px; width: 470px; height: 470px; color: var(--cream); opacity: .045; pointer-events: none; }
+
+.top { display: flex; align-items: flex-start; justify-content: space-between; position: relative; z-index: 2; }
+.brand { display: flex; align-items: center; gap: 16px; }
+.mark { width: 54px; height: 54px; border-radius: 5px; flex: none; }
+.wm { font-family: 'Instrument Serif', Georgia, serif; font-size: 36px; line-height: 1; letter-spacing: -.005em; }
+.wm i { color: var(--sand); }
+.wm-sub { margin-top: 7px; font-size: 11.5px; font-weight: 600; letter-spacing: .34em; color: var(--sand); }
+.kicker { margin-top: 12px; font-size: 15px; font-weight: 600; letter-spacing: .32em; color: var(--sand); }
+
+.hl {
+  font-family: 'Instrument Serif', Georgia, serif; font-weight: 400;
+  font-size: 118px; line-height: .94; letter-spacing: -.012em; margin-top: 96px;
+}
+.hl i { color: var(--sand); }
+.sub { margin-top: 30px; font-size: 25px; line-height: 1.45; color: var(--body); max-width: 860px; text-wrap: pretty; }
+
+.stats {
+  margin-top: 40px; padding: 26px 0 28px;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 28px;
+}
+.fig { font-family: 'Instrument Serif', Georgia, serif; font-size: 64px; line-height: 1; letter-spacing: -.01em; white-space: nowrap; }
+.lab { margin-top: 12px; font-size: 12.5px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); line-height: 1.5; }
+
+.bottom { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; position: relative; z-index: 2; }
+.tag { font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 38px; line-height: 1.15; color: var(--sand); max-width: 640px; margin-bottom: 26px; text-wrap: pretty; }
+.clab { font-size: 12.5px; font-weight: 600; letter-spacing: .28em; text-transform: uppercase; color: var(--sand); }
+.cval { margin-top: 5px; font-size: 27px; font-weight: 500; letter-spacing: -.005em; color: var(--cream); }
+.cval + .clab { margin-top: 20px; }
+.qr { display: flex; flex-direction: column; align-items: center; gap: 14px; flex: none; }
+.qr__card { width: 196px; height: 196px; background: #fff; border-radius: 18px; padding: 16px; }
+.qr__code { display: block; width: 100%; height: 100%; }
+
+.legal { margin-top: 28px; display: grid; grid-template-columns: auto 1fr; column-gap: 10px; row-gap: 3px; align-items: center; font-size: 12px; letter-spacing: .02em; line-height: 1.4; color: var(--muted); position: relative; z-index: 2; max-width: 600px; }
+.legal span + span { grid-column: 2; }
+.eho { width: 17px; height: 17px; flex: none; }
+
+/* ---- With a photograph: the picture fills the top and fades into the ground. */
+.ad--photo .shot { position: absolute; inset: 0 0 auto 0; height: 560px; }
+.ad--story.ad--photo .shot { height: 1180px; }
+/* On a photograph the small caps go cream, with a soft shadow, because sand
+   disappears against warm wood and brick. */
+.ad--photo .wm-sub, .ad--photo .kicker { color: var(--cream); }
+.ad--photo .top p { text-shadow: 0 1px 14px rgba(0, 0, 0, .55); }
+.shot { background: var(--bg); }
+.shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.shot img.low { object-position: 50% 85%; }   /* fewer pergola beams behind the logo */
+.shot::before, .shot::after { content: ""; position: absolute; left: 0; right: 0; }
+/* The logo row sits on the picture, so the top gets its own shade. */
+.shot::before { top: 0; height: 300px; background: linear-gradient(rgba(26, 22, 19, .88), rgba(26, 22, 19, .5) 45%, rgba(26, 22, 19, 0)); }
+/* Past the bottom edge by a few pixels, so no seam shows at 4/3 scale. */
+.shot::after { bottom: -4px; height: 72%; background: linear-gradient(rgba(26, 22, 19, 0), rgba(26, 22, 19, .9) 55%, #1A1613 90%); }
+.ad--story .shot::before { height: 560px; background: linear-gradient(rgba(26, 22, 19, .9), rgba(26, 22, 19, .6) 55%, rgba(26, 22, 19, 0)); }
+.ad--photo .hl { margin-top: auto; font-size: 104px; position: relative; z-index: 2; }
+.ad--photo .stats { position: relative; z-index: 2; margin-top: 34px; }
+.ad--photo .bottom { margin-top: 36px; }
+.ad--story .hl { font-size: 124px; }
+.ad--story .sub { position: relative; z-index: 2; font-size: 30px; }
+.ad--story .stats { margin-top: 46px; }
+.ad--story .fig { font-size: 70px; }
+.ad--story .lab { font-size: 15px; }
+.ad--story .cval { font-size: 34px; }
+.ad--story .clab { font-size: 15px; }
+.ad--story .legal { font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="ad ad--photo"><div class="shot"><img class="low" src="../../../assets/img/hero-terrace.jpg" alt=""></div><header class="top"><div class="brand"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#A93B3F"/><path d="M9 9 H55 V27 H45 V19 H19 V45 H55 V55 H9 Z" fill="#fff"/></svg><div><p class="wm">Charlotte <i>Square</i></p><p class="wm-sub">AT THE EAST END</p></div></div><p class="kicker">AMENITIES</p></header><h1 class="hl">Evenings on<br><i>the terrace.</i></h1><div class="stats"><div><p class="fig">Fire pit</p><p class="lab">And grills under the pergola</p></div><div><p class="fig">Fitness</p><p class="lab">Center on site</p></div><div><p class="fig">EV</p><p class="lab">Charging and bike storage</p></div></div><footer class="bottom"><div><p class="tag">A fire pit, grills and a view of downtown.</p><p class="clab">Book a tour</p><p class="cval">charlottesquareroc.com/tour</p><p class="clab">Call</p><p class="cval">(585) 748-5588</p></div><div class="qr"><div class="qr__card"><svg class="qr__code" viewBox="0 0 41 41" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h7v1h-7zM11 0h3v1h-3zM16 0h4v1h-4zM22 0h3v1h-3zM27 0h1v1h-1zM29 0h1v1h-1zM34 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h3v1h-3zM18 1h1v1h-1zM20 1h4v1h-4zM27 1h1v1h-1zM29 1h2v1h-2zM32 1h1v1h-1zM34 1h1v1h-1zM40 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h1v1h-1zM12 2h1v1h-1zM14 2h3v1h-3zM18 2h3v1h-3zM24 2h1v1h-1zM26 2h1v1h-1zM28 2h2v1h-2zM32 2h1v1h-1zM34 2h1v1h-1zM36 2h3v1h-3zM40 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM11 3h4v1h-4zM16 3h3v1h-3zM21 3h1v1h-1zM23 3h2v1h-2zM26 3h1v1h-1zM28 3h1v1h-1zM30 3h1v1h-1zM32 3h1v1h-1zM34 3h1v1h-1zM36 3h3v1h-3zM40 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM15 4h2v1h-2zM18 4h1v1h-1zM22 4h2v1h-2zM26 4h2v1h-2zM34 4h1v1h-1zM36 4h3v1h-3zM40 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM14 5h3v1h-3zM18 5h2v1h-2zM21 5h2v1h-2zM24 5h8v1h-8zM34 5h1v1h-1zM40 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM32 6h1v1h-1zM34 6h7v1h-7zM9 7h4v1h-4zM14 7h1v1h-1zM16 7h4v1h-4zM21 7h2v1h-2zM24 7h1v1h-1zM29 7h4v1h-4zM0 8h1v1h-1zM3 8h1v1h-1zM5 8h2v1h-2zM8 8h1v1h-1zM10 8h1v1h-1zM13 8h4v1h-4zM20 8h2v1h-2zM25 8h4v1h-4zM31 8h3v1h-3zM35 8h1v1h-1zM7 9h3v1h-3zM11 9h4v1h-4zM17 9h1v1h-1zM20 9h3v1h-3zM24 9h1v1h-1zM28 9h3v1h-3zM32 9h4v1h-4zM37 9h4v1h-4zM0 10h1v1h-1zM4 10h1v1h-1zM6 10h1v1h-1zM8 10h1v1h-1zM11 10h2v1h-2zM16 10h1v1h-1zM19 10h1v1h-1zM21 10h1v1h-1zM28 10h1v1h-1zM31 10h1v1h-1zM33 10h2v1h-2zM36 10h4v1h-4zM1 11h3v1h-3zM9 11h1v1h-1zM11 11h1v1h-1zM14 11h1v1h-1zM18 11h8v1h-8zM33 11h4v1h-4zM38 11h2v1h-2zM0 12h1v1h-1zM2 12h2v1h-2zM6 12h2v1h-2zM13 12h1v1h-1zM15 12h4v1h-4zM21 12h1v1h-1zM23 12h3v1h-3zM28 12h2v1h-2zM31 12h2v1h-2zM34 12h1v1h-1zM37 12h1v1h-1zM40 12h1v1h-1zM1 13h4v1h-4zM7 13h1v1h-1zM9 13h2v1h-2zM13 13h3v1h-3zM17 13h2v1h-2zM21 13h4v1h-4zM26 13h1v1h-1zM31 13h1v1h-1zM39 13h1v1h-1zM0 14h1v1h-1zM2 14h2v1h-2zM6 14h1v1h-1zM9 14h2v1h-2zM12 14h1v1h-1zM14 14h1v1h-1zM16 14h1v1h-1zM18 14h1v1h-1zM20 14h2v1h-2zM24 14h1v1h-1zM26 14h1v1h-1zM28 14h1v1h-1zM34 14h2v1h-2zM38 14h3v1h-3zM1 15h1v1h-1zM5 15h1v1h-1zM7 15h1v1h-1zM9 15h5v1h-5zM17 15h3v1h-3zM21 15h1v1h-1zM24 15h3v1h-3zM29 15h4v1h-4zM34 15h1v1h-1zM36 15h1v1h-1zM40 15h1v1h-1zM1 16h1v1h-1zM3 16h2v1h-2zM6 16h3v1h-3zM17 16h1v1h-1zM19 16h1v1h-1zM21 16h3v1h-3zM29 16h1v1h-1zM31 16h2v1h-2zM35 16h1v1h-1zM37 16h1v1h-1zM39 16h2v1h-2zM0 17h2v1h-2zM8 17h1v1h-1zM13 17h2v1h-2zM19 17h1v1h-1zM22 17h5v1h-5zM28 17h1v1h-1zM34 17h2v1h-2zM37 17h2v1h-2zM40 17h1v1h-1zM0 18h1v1h-1zM3 18h4v1h-4zM8 18h1v1h-1zM11 18h4v1h-4zM18 18h1v1h-1zM21 18h1v1h-1zM25 18h2v1h-2zM28 18h1v1h-1zM32 18h1v1h-1zM34 18h1v1h-1zM36 18h2v1h-2zM39 18h2v1h-2zM2 19h1v1h-1zM4 19h2v1h-2zM7 19h6v1h-6zM15 19h4v1h-4zM20 19h1v1h-1zM22 19h2v1h-2zM26 19h2v1h-2zM29 19h1v1h-1zM32 19h1v1h-1zM35 19h1v1h-1zM37 19h1v1h-1zM40 19h1v1h-1zM0 20h1v1h-1zM2 20h2v1h-2zM5 20h2v1h-2zM9 20h2v1h-2zM13 20h7v1h-7zM23 20h1v1h-1zM25 20h2v1h-2zM28 20h1v1h-1zM33 20h3v1h-3zM38 20h3v1h-3zM7 21h4v1h-4zM13 21h1v1h-1zM15 21h1v1h-1zM17 21h2v1h-2zM20 21h2v1h-2zM23 21h3v1h-3zM29 21h1v1h-1zM33 21h2v1h-2zM37 21h1v1h-1zM39 21h2v1h-2zM0 22h2v1h-2zM4 22h1v1h-1zM6 22h1v1h-1zM8 22h2v1h-2zM11 22h4v1h-4zM18 22h3v1h-3zM22 22h1v1h-1zM25 22h2v1h-2zM29 22h1v1h-1zM31 22h1v1h-1zM33 22h1v1h-1zM35 22h1v1h-1zM38 22h2v1h-2zM3 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM9 23h1v1h-1zM12 23h2v1h-2zM15 23h1v1h-1zM18 23h1v1h-1zM20 23h2v1h-2zM24 23h2v1h-2zM30 23h2v1h-2zM33 23h3v1h-3zM38 23h2v1h-2zM0 24h2v1h-2zM6 24h2v1h-2zM9 24h2v1h-2zM12 24h4v1h-4zM17 24h1v1h-1zM21 24h1v1h-1zM23 24h3v1h-3zM28 24h2v1h-2zM31 24h4v1h-4zM40 24h1v1h-1zM2 25h1v1h-1zM7 25h1v1h-1zM10 25h2v1h-2zM13 25h1v1h-1zM15 25h2v1h-2zM18 25h3v1h-3zM22 25h1v1h-1zM24 25h1v1h-1zM26 25h1v1h-1zM30 25h2v1h-2zM37 25h1v1h-1zM2 26h1v1h-1zM6 26h1v1h-1zM11 26h1v1h-1zM14 26h2v1h-2zM17 26h1v1h-1zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM32 26h2v1h-2zM36 26h1v1h-1zM39 26h2v1h-2zM0 27h3v1h-3zM4 27h2v1h-2zM7 27h3v1h-3zM12 27h2v1h-2zM16 27h3v1h-3zM21 27h6v1h-6zM28 27h3v1h-3zM32 27h1v1h-1zM35 27h1v1h-1zM0 28h1v1h-1zM4 28h1v1h-1zM6 28h2v1h-2zM9 28h6v1h-6zM17 28h1v1h-1zM19 28h6v1h-6zM27 28h3v1h-3zM32 28h2v1h-2zM39 28h2v1h-2zM1 29h1v1h-1zM3 29h1v1h-1zM5 29h1v1h-1zM7 29h4v1h-4zM12 29h4v1h-4zM18 29h2v1h-2zM21 29h2v1h-2zM28 29h3v1h-3zM33 29h2v1h-2zM39 29h2v1h-2zM0 30h1v1h-1zM6 30h2v1h-2zM10 30h1v1h-1zM12 30h1v1h-1zM14 30h2v1h-2zM18 30h3v1h-3zM24 30h1v1h-1zM28 30h1v1h-1zM35 30h1v1h-1zM37 30h1v1h-1zM39 30h2v1h-2zM2 31h4v1h-4zM7 31h2v1h-2zM10 31h1v1h-1zM12 31h1v1h-1zM14 31h1v1h-1zM16 31h6v1h-6zM23 31h1v1h-1zM26 31h1v1h-1zM28 31h3v1h-3zM33 31h1v1h-1zM35 31h1v1h-1zM37 31h1v1h-1zM0 32h1v1h-1zM2 32h1v1h-1zM4 32h1v1h-1zM6 32h1v1h-1zM9 32h3v1h-3zM14 32h1v1h-1zM19 32h1v1h-1zM21 32h1v1h-1zM23 32h1v1h-1zM25 32h1v1h-1zM28 32h1v1h-1zM32 32h5v1h-5zM38 32h1v1h-1zM40 32h1v1h-1zM8 33h2v1h-2zM11 33h1v1h-1zM14 33h2v1h-2zM20 33h3v1h-3zM24 33h3v1h-3zM28 33h2v1h-2zM32 33h1v1h-1zM36 33h5v1h-5zM0 34h7v1h-7zM9 34h3v1h-3zM15 34h3v1h-3zM19 34h2v1h-2zM25 34h1v1h-1zM28 34h1v1h-1zM32 34h1v1h-1zM34 34h1v1h-1zM36 34h1v1h-1zM38 34h2v1h-2zM0 35h1v1h-1zM6 35h1v1h-1zM8 35h2v1h-2zM12 35h3v1h-3zM17 35h1v1h-1zM19 35h1v1h-1zM21 35h2v1h-2zM24 35h2v1h-2zM27 35h2v1h-2zM30 35h1v1h-1zM32 35h1v1h-1zM36 35h1v1h-1zM38 35h3v1h-3zM0 36h1v1h-1zM2 36h3v1h-3zM6 36h1v1h-1zM10 36h5v1h-5zM22 36h3v1h-3zM26 36h1v1h-1zM29 36h1v1h-1zM32 36h5v1h-5zM40 36h1v1h-1zM0 37h1v1h-1zM2 37h3v1h-3zM6 37h1v1h-1zM8 37h3v1h-3zM17 37h1v1h-1zM19 37h3v1h-3zM24 37h1v1h-1zM29 37h3v1h-3zM33 37h2v1h-2zM36 37h1v1h-1zM38 37h2v1h-2zM0 38h1v1h-1zM2 38h3v1h-3zM6 38h1v1h-1zM9 38h1v1h-1zM11 38h1v1h-1zM16 38h1v1h-1zM18 38h1v1h-1zM20 38h1v1h-1zM23 38h3v1h-3zM31 38h1v1h-1zM36 38h2v1h-2zM39 38h2v1h-2zM0 39h1v1h-1zM6 39h1v1h-1zM10 39h2v1h-2zM16 39h1v1h-1zM18 39h8v1h-8zM27 39h6v1h-6zM34 39h2v1h-2zM39 39h1v1h-1zM0 40h7v1h-7zM8 40h1v1h-1zM11 40h2v1h-2zM14 40h3v1h-3zM19 40h1v1h-1zM21 40h2v1h-2zM24 40h1v1h-1zM29 40h2v1h-2zM32 40h6v1h-6zM39 40h1v1h-1z" fill="#1A1613"/></svg></div><p class="clab">Scan to book a tour</p></div></footer><p class="legal"><svg class="eho" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><path d="M7 20v-6h10v6"/><path d="M9 17h6"/></svg><span>Equal Housing Opportunity · Managed by Evolution24 Properties</span></p></div>
+</body>
+</html>
