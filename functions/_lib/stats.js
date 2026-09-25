@@ -68,10 +68,38 @@ export function chanceBest(arms, n = 2000) {
 
 const rate = (leads, visits) => (visits ? Math.round((leads / visits) * 1000) / 10 : 0);
 
-export async function loadStats(env, days) {
-  const from = new Date(Date.now() - (days - 1) * 86400000).toISOString().slice(0, 10);
-  const to = new Date().toISOString().slice(0, 10);
+/* ---- Date ranges ------------------------------------------------------------
+   Days are UTC calendar days, 'YYYY-MM-DD', the same as the day column. */
+export const isoDay = (d) => d.toISOString().slice(0, 10);
+export const addDays = (day, n) => isoDay(new Date(Date.parse(`${day}T00:00:00Z`) + n * 86400000));
+export const daysBetween = (from, to) => Math.round((Date.parse(to) - Date.parse(from)) / 86400000) + 1;
 
+/** The last `days` days, today included: what the dashboard's buttons mean. */
+export function rangeForDays(days) {
+  const to = isoDay(new Date());
+  return { from: addDays(to, -(days - 1)), to };
+}
+
+/** Headline counts only, for comparing a report with the period before it. */
+export async function loadTotals(env, { from, to }) {
+  const q = (sql) => env.DB.prepare(sql).bind(from, to);
+  const [ev, ld] = await env.DB.batch([
+    q(`SELECT SUM(kind = 'pageview')             AS pageviews,
+              COUNT(DISTINCT day || visitor)     AS visits,
+              SUM(kind = 'phone_click')          AS phone_clicks,
+              COUNT(DISTINCT CASE WHEN kind = 'form_start' THEN day || visitor END) AS starts
+         FROM events WHERE day BETWEEN ? AND ?`),
+    q(`SELECT COUNT(*) AS leads FROM inquiries WHERE day BETWEEN ? AND ?`),
+  ]);
+  const e = ev.results[0] || {};
+  return {
+    pageviews: e.pageviews || 0, visits: e.visits || 0, phone_clicks: e.phone_clicks || 0,
+    starts: e.starts || 0, leads: (ld.results[0] && ld.results[0].leads) || 0,
+  };
+}
+
+export async function loadStats(env, { from, to }) {
+  const days = daysBetween(from, to);
   const q = (sql, ...bind) => env.DB.prepare(sql).bind(...bind);
 
   const [totals, daily, pages, referrers, countries, devices, styles, events, plans] =
@@ -81,49 +109,49 @@ export async function loadStats(env, days) {
            COUNT(DISTINCT day || visitor)                          AS visits,
            SUM(kind = 'phone_click')                               AS phone_clicks,
            SUM(kind = 'portal_click')                              AS portal_clicks
-         FROM events WHERE day >= ?`, from),
+         FROM events WHERE day BETWEEN ? AND ?`, from, to),
 
       q(`SELECT day,
                 SUM(kind = 'pageview')     AS pageviews,
                 COUNT(DISTINCT visitor)    AS visits
-         FROM events WHERE day >= ? GROUP BY day ORDER BY day`, from),
+         FROM events WHERE day BETWEEN ? AND ? GROUP BY day ORDER BY day`, from, to),
 
       q(`SELECT path,
                 COUNT(*)                AS views,
                 COUNT(DISTINCT visitor) AS visits
-         FROM events WHERE day >= ? AND kind = 'pageview'
-         GROUP BY path ORDER BY views DESC LIMIT ?`, from, LIMIT),
+         FROM events WHERE day BETWEEN ? AND ? AND kind = 'pageview'
+         GROUP BY path ORDER BY views DESC LIMIT ?`, from, to, LIMIT),
 
       // A null ref is someone who typed the address or came from a bookmark —
       // worth showing as its own row rather than dropping.
       q(`SELECT COALESCE(ref, 'direct') AS ref, COUNT(*) AS views
-         FROM events WHERE day >= ? AND kind = 'pageview'
-         GROUP BY ref ORDER BY views DESC LIMIT ?`, from, LIMIT),
+         FROM events WHERE day BETWEEN ? AND ? AND kind = 'pageview'
+         GROUP BY ref ORDER BY views DESC LIMIT ?`, from, to, LIMIT),
 
       q(`SELECT COALESCE(country, '—') AS country, COUNT(*) AS views
-         FROM events WHERE day >= ? AND kind = 'pageview'
-         GROUP BY country ORDER BY views DESC LIMIT ?`, from, LIMIT),
+         FROM events WHERE day BETWEEN ? AND ? AND kind = 'pageview'
+         GROUP BY country ORDER BY views DESC LIMIT ?`, from, to, LIMIT),
 
       q(`SELECT COALESCE(device, '—') AS device, COUNT(*) AS views
-         FROM events WHERE day >= ? AND kind = 'pageview'
-         GROUP BY device ORDER BY views DESC`, from),
+         FROM events WHERE day BETWEEN ? AND ? AND kind = 'pageview'
+         GROUP BY device ORDER BY views DESC`, from, to),
 
       q(`SELECT COALESCE(style, '—') AS style, COUNT(*) AS views
-         FROM events WHERE day >= ? AND kind = 'pageview'
-         GROUP BY style ORDER BY views DESC`, from),
+         FROM events WHERE day BETWEEN ? AND ? AND kind = 'pageview'
+         GROUP BY style ORDER BY views DESC`, from, to),
 
       q(`SELECT kind, COUNT(*) AS count
-         FROM events WHERE day >= ? AND kind <> 'pageview'
-         GROUP BY kind ORDER BY count DESC`, from),
+         FROM events WHERE day BETWEEN ? AND ? AND kind <> 'pageview'
+         GROUP BY kind ORDER BY count DESC`, from, to),
 
       // Which floor plan people ask about — the number a leasing office
       // actually wants, and the reason this is worth running in-house.
       q(`SELECT json_extract(meta, '$.plan') AS plan, COUNT(*) AS count
          FROM events
-         WHERE day >= ? AND kind = 'plan_view' AND meta IS NOT NULL
+         WHERE day BETWEEN ? AND ? AND kind = 'plan_view' AND meta IS NOT NULL
            AND json_extract(meta, '$.plan') IS NOT NULL
            AND json_extract(meta, '$.plan') <> 'All homes'
-         GROUP BY plan ORDER BY count DESC LIMIT ?`, from, LIMIT),
+         GROUP BY plan ORDER BY count DESC LIMIT ?`, from, to, LIMIT),
     ]);
 
   /* ---- Leads come from the inquiries table, not from events ----------------
@@ -142,15 +170,15 @@ export async function loadStats(env, days) {
   const asked = { interests: [], topics: [] };
   try {
     const [lt, ld, lp, li] = await env.DB.batch([
-      q(`SELECT COUNT(*) AS n FROM inquiries WHERE day >= ?`, from),
-      q(`SELECT day, COUNT(*) AS leads FROM inquiries WHERE day >= ? GROUP BY day`, from),
+      q(`SELECT COUNT(*) AS n FROM inquiries WHERE day BETWEEN ? AND ?`, from, to),
+      q(`SELECT day, COUNT(*) AS leads FROM inquiries WHERE day BETWEEN ? AND ? GROUP BY day`, from, to),
       // Stored as '1'..'3'; labelled the way the residences filter chips are,
       // so an enquiry and a filter click for the same plan share one row.
       q(`SELECT plan || ' bedroom' AS plan, COUNT(*) AS count
-           FROM inquiries WHERE day >= ? AND plan IS NOT NULL GROUP BY plan`, from),
+           FROM inquiries WHERE day BETWEEN ? AND ? AND plan IS NOT NULL GROUP BY plan`, from, to),
       q(`SELECT interest, COUNT(*) AS count
-           FROM inquiries WHERE day >= ? AND interest IS NOT NULL
-          GROUP BY interest ORDER BY count DESC`, from),
+           FROM inquiries WHERE day BETWEEN ? AND ? AND interest IS NOT NULL
+          GROUP BY interest ORDER BY count DESC`, from, to),
     ]);
     leadTotal = (lt.results[0] && lt.results[0].n) || 0;
     for (const r of ld.results) leadByDay.set(r.day, r.leads);
@@ -163,19 +191,20 @@ export async function loadStats(env, days) {
     const { results } = await q(
       `SELECT t.value AS topic, COUNT(*) AS count
          FROM inquiries, json_each(json_extract(inquiries.ai, '$.topics')) AS t
-        WHERE inquiries.day >= ? AND inquiries.ai IS NOT NULL
-        GROUP BY t.value ORDER BY count DESC`, from).all();
+        WHERE inquiries.day BETWEEN ? AND ? AND inquiries.ai IS NOT NULL
+        GROUP BY t.value ORDER BY count DESC`, from, to).all();
     asked.topics = results;
   } catch { /* no ai column yet */ }
 
-  // Every day with traffic, plus any day with a lead but no recorded pageview
-  // (analytics blocked, say) — a lead is never dropped from the chart.
-  const dayRows = new Map(daily.results.map((r) => [r.day, { ...r, leads: 0 }]));
-  for (const [day, n] of leadByDay) {
-    if (!dayRows.has(day)) dayRows.set(day, { day, pageviews: 0, visits: 0, leads: 0 });
-    dayRows.get(day).leads = n;
+  // Every day in the range, zeros included, so a quiet day shows as a dip on
+  // the time axis instead of vanishing from it. A day with a lead but no
+  // recorded pageview (analytics blocked, say) keeps its lead.
+  const traffic = new Map(daily.results.map((r) => [r.day, r]));
+  const dailyOut = [];
+  for (let day = from; day <= to; day = addDays(day, 1)) {
+    const r = traffic.get(day) || {};
+    dailyOut.push({ day, pageviews: r.pageviews || 0, visits: r.visits || 0, leads: leadByDay.get(day) || 0 });
   }
-  const dailyOut = [...dayRows.values()].sort((a, b) => (a.day < b.day ? -1 : 1));
 
   const planCount = new Map();
   for (const r of [...plans.results, ...leadPlans]) {
@@ -212,27 +241,27 @@ export async function loadStats(env, days) {
            SELECT ${src('ref')} AS channel,
                   ROW_NUMBER() OVER (PARTITION BY day, visitor
                                      ORDER BY (utm_source IS NULL AND ref IS NULL), ts) AS n
-             FROM events WHERE day >= ? AND kind = 'pageview')
-          WHERE n = 1 GROUP BY channel`, from),
+             FROM events WHERE day BETWEEN ? AND ? AND kind = 'pageview')
+          WHERE n = 1 GROUP BY channel`, from, to),
       q(`SELECT ${src('referrer')} AS channel, COUNT(*) AS leads
-           FROM inquiries WHERE day >= ? GROUP BY channel`, from),
+           FROM inquiries WHERE day BETWEEN ? AND ? GROUP BY channel`, from, to),
       q(`SELECT utm_campaign AS campaign, COUNT(DISTINCT day || visitor) AS visits
-           FROM events WHERE day >= ? AND kind = 'pageview' AND utm_campaign IS NOT NULL
-          GROUP BY utm_campaign`, from),
+           FROM events WHERE day BETWEEN ? AND ? AND kind = 'pageview' AND utm_campaign IS NOT NULL
+          GROUP BY utm_campaign`, from, to),
       q(`SELECT utm_campaign AS campaign, COUNT(*) AS leads
-           FROM inquiries WHERE day >= ? AND utm_campaign IS NOT NULL
-          GROUP BY utm_campaign`, from),
+           FROM inquiries WHERE day BETWEEN ? AND ? AND utm_campaign IS NOT NULL
+          GROUP BY utm_campaign`, from, to),
       q(`SELECT variant, COUNT(DISTINCT day || visitor) AS n
-           FROM events WHERE day >= ? AND kind = 'pageview' AND variant IS NOT NULL
-          GROUP BY variant`, from),
+           FROM events WHERE day BETWEEN ? AND ? AND kind = 'pageview' AND variant IS NOT NULL
+          GROUP BY variant`, from, to),
       q(`SELECT variant, COUNT(DISTINCT day || visitor) AS n
-           FROM events WHERE day >= ? AND kind = 'form_start' AND variant IS NOT NULL
-          GROUP BY variant`, from),
+           FROM events WHERE day BETWEEN ? AND ? AND kind = 'form_start' AND variant IS NOT NULL
+          GROUP BY variant`, from, to),
       q(`SELECT variant, COUNT(*) AS n
-           FROM inquiries WHERE day >= ? AND variant IS NOT NULL
-          GROUP BY variant`, from),
+           FROM inquiries WHERE day BETWEEN ? AND ? AND variant IS NOT NULL
+          GROUP BY variant`, from, to),
       q(`SELECT COUNT(DISTINCT day || visitor) AS n
-           FROM events WHERE day >= ? AND kind = 'form_start'`, from),
+           FROM events WHERE day BETWEEN ? AND ? AND kind = 'form_start'`, from, to),
     ]);
 
     const join = (visitRows, leadRows, key) => {

@@ -44,6 +44,24 @@
       <div id="insight" aria-live="polite"></div>
     </section>
 
+    <section class="panel" id="reports-panel" aria-labelledby="reports-title">
+      <div class="panel__head">
+        <h2 id="reports-title">Reports</h2>
+        <span class="panel__note">One page of the numbers for a day, week or month, to share by link or save as a PDF. Totals only, never names or messages.</span>
+      </div>
+      <form class="report-form" id="report-form">
+        <div class="seg seg--sm" role="group" aria-label="Report length">
+          <button type="button" data-period="day" aria-pressed="false">Daily</button>
+          <button type="button" data-period="week" aria-pressed="true">Weekly</button>
+          <button type="button" data-period="month" aria-pressed="false">Monthly</button>
+        </div>
+        <select id="report-when" aria-label="Which one"></select>
+        <button type="submit" class="primary" id="report-make">Create report</button>
+      </form>
+      <p class="report-status" id="report-status" role="status" aria-live="polite"></p>
+      <ul class="report-list" id="report-list"></ul>
+    </section>
+
     <section class="panel panel--leads">
       <div class="panel__head">
         <h2>Enquiries</h2>

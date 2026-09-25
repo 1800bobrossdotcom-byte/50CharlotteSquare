@@ -415,9 +415,13 @@ Cloudflare. That is the part a client-side gate can never do.
 | `functions/api/insights.js` | Claude's read of the dashboard, one saved per range per day |
 | `functions/api/triage.js` | The dashboard's "Summarise with Claude" button |
 | `functions/tour/index.js` | Serves `/tour/`: picks version A, B or C for each visitor |
+| `functions/_lib/report.js` | Report periods, the snapshot, and the shared report page |
+| `functions/api/reports.js` | Make, list and stop sharing reports. Session-gated |
+| `functions/r/[token].js` | `/r/<token>`: a shared report, readable without signing in |
+| `assets/css/report.css`, `assets/js/report.js` | The report page, on screen and on paper |
 | `admin/index.html`, `assets/js/admin.js` | The dashboard |
 | `assets/js/analytics.js` | The tracker on every page |
-| `schema.sql` | Five tables, and the upgrade for a database made before campaigns |
+| `schema.sql` | Six tables, and the upgrade for a database made before campaigns |
 | `tools/hash-password.mjs` | Makes a password, its hash, the session secret and the visitor salt |
 
 ### Setup
@@ -538,6 +542,30 @@ building's volume the cost is small: a few cents per enquiry and per read.
 The facts Claude may use in a draft (rent range, what is included, hours) are
 written into `functions/_lib/ai.js`. **When the rent or the office hours change
 on the site, change them there too.**
+
+### Reports: daily, weekly, monthly
+
+The **Reports** panel makes one page for a day, a week (Monday to Sunday) or a
+month. Pick one and press **Create report**; it gets its own address,
+`/r/<random>`, which a colleague can open without signing in. The page has
+**Save as PDF**, which is the browser's print dialog with a layout made for
+Letter paper, and **Copy link**.
+
+- **On it:** visitors, enquiries, the share of visitors who enquired and phone
+  taps, each against the period before (or the same days of it, while a period
+  is still running); Claude's plain-English read when the key is set; visitors
+  and enquiries by day; sources, campaigns, the tour test, the funnel, what
+  people asked about, floor plans and the most viewed pages.
+- **Never on it:** a name, an email address, a phone number or a message. A
+  link is made to be forwarded, so the page holds totals only.
+- **A snapshot.** A report shows the numbers as they were when it was made. A
+  finished week asked for twice returns the same link; a "so far" report makes
+  a new one each time.
+- **Stop sharing** deletes the snapshot, and its link answers "not available"
+  from the next request on. Links do not expire on their own.
+- The address carries 128 random bits, so a report cannot be found by guessing;
+  `/r/` is disallowed in `robots.txt` and every report page sends `noindex`,
+  `no-referrer` and `no-store`.
 
 ### The two charts
 
@@ -1460,6 +1488,10 @@ a same-day business.
 | `POST /api/triage` | `{id}`: summarise one enquiry with Claude now. Session-gated |
 | `GET /api/insights?days=` | The saved plain-English read for that range today, or null. Session-gated |
 | `POST /api/insights` | `{days, fresh}`: ask Claude for one. Session-gated |
+| `GET /api/reports` | The 20 newest shared reports. Session-gated |
+| `POST /api/reports` | `{period, day}`: make the day, week or month report containing `day`. Session-gated |
+| `DELETE /api/reports?token=` | Stop sharing one. Session-gated |
+| `GET /r/<token>` | The shared report itself. Public to whoever has the link |
 
 No CSRF token: the session cookie is `SameSite=Strict`, so it is never attached
 to a request that began on another site, which is the thing a token would guard

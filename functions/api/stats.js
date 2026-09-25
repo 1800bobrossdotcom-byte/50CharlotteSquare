@@ -6,7 +6,7 @@
    _lib/stats.js, because /api/insights reads exactly the same numbers.
    ============================================================================= */
 import { requireSession, json } from '../_lib/auth.js';
-import { loadStats } from '../_lib/stats.js';
+import { loadStats, rangeForDays } from '../_lib/stats.js';
 import { aiEnabled } from '../_lib/ai.js';
 
 export async function onRequestGet({ request, env }) {
@@ -17,5 +17,5 @@ export async function onRequestGet({ request, env }) {
   const asked = Number.parseInt(new URL(request.url).searchParams.get('days') || '30', 10);
   const days = Math.min(Math.max(Number.isFinite(asked) ? asked : 30, 1), 365);
 
-  return json({ ...(await loadStats(env, days)), ai: aiEnabled(env) });
+  return json({ ...(await loadStats(env, rangeForDays(days))), ai: aiEnabled(env) });
 }

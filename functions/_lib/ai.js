@@ -217,6 +217,8 @@ You get aggregate figures only for one date range: visitors and pageviews by day
 
 Write in plain English with no jargon. When you give a rate, give the counts behind it. Ground every point in the numbers given; never invent a number or a cause the data does not show. Say so when a group is too small to mean much (fewer than about 10 enquiries or 100 visitors). For the /tour/ test, go by its verdict: "early" means too little data to pick a winner, "none" means no clear winner yet, and "winner" means the leader is at least 95% likely to be the best version. Version A leads with booking a tour, B with price, C with the neighbourhood.
 
+Sometimes a "previous" block is included: the same headline counts for the period just before (or the same days of it). When it is, say how this period compares, giving both counts.
+
 If there is almost no data, say that in the headline and keep the points short. The next steps should be things this team can actually do, such as a campaign to try, a page to fix or a test to keep running.`;
 
 export async function explainStats(env, stats) {

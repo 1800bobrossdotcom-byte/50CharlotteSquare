@@ -810,6 +810,163 @@
     }
   });
 
+  /* ---- Reports ---------------------------------------------------------------
+     A report is a page of totals for one day, week or month, frozen when it is
+     made and readable by anyone with its link. The choices below follow the
+     server's calendar (UTC days, weeks from Monday), and the server works the
+     period out again from the day it is sent, so this list only has to be
+     convenient, never authoritative. */
+  const reportForm = $('#report-form');
+  const reportWhen = $('#report-when');
+  const reportMake = $('#report-make');
+  const reportStatus = $('#report-status');
+  const reportList = $('#report-list');
+  let reportPeriod = 'week';
+
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+    'September', 'October', 'November', 'December'];
+  const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const isoDay = (d) => d.toISOString().slice(0, 10);
+  const utcDay = (day) => new Date(`${day}T00:00:00Z`);
+  const plusDays = (day, n) => isoDay(new Date(utcDay(day).getTime() + n * 86400000));
+  const md = (day) => `${MON[utcDay(day).getUTCMonth()]} ${utcDay(day).getUTCDate()}`;
+
+  /** [value, label] pairs, newest first; the value is a day inside the period. */
+  function reportChoices(period) {
+    const today = isoDay(new Date());
+    const out = [];
+    if (period === 'day') {
+      for (let i = 0; i < 14; i++) {
+        const d = plusDays(today, -i);
+        const name = `${DOW[utcDay(d).getUTCDay()]} ${md(d)}`;
+        out.push([d, i === 0 ? `Today so far (${name})` : i === 1 ? `Yesterday (${name})` : name]);
+      }
+    } else if (period === 'week') {
+      const monday = plusDays(today, -((utcDay(today).getUTCDay() + 6) % 7));
+      for (let i = 0; i < 12; i++) {
+        const from = plusDays(monday, -7 * i);
+        const span = `${md(from)} – ${md(i === 0 ? today : plusDays(from, 6))}`;
+        out.push([from, i === 0 ? `This week so far (${span})` : i === 1 ? `Last week (${span})` : span]);
+      }
+    } else {
+      const t = utcDay(today);
+      for (let i = 0; i < 12; i++) {
+        const first = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() - i, 1));
+        const name = `${MONTHS[first.getUTCMonth()]} ${first.getUTCFullYear()}`;
+        out.push([isoDay(first), i === 0 ? `${name} so far` : name]);
+      }
+    }
+    return out;
+  }
+
+  function fillChoices() {
+    reportWhen.replaceChildren(...reportChoices(reportPeriod).map(([value, label], i) => {
+      const o = document.createElement('option');
+      o.value = value;
+      o.textContent = label;
+      // The last finished one is what "the weekly report" usually means.
+      o.selected = i === 1;
+      return o;
+    }));
+  }
+
+  const copyText = async (btn, text) => {
+    try { await navigator.clipboard.writeText(text); btn.textContent = 'Copied'; } catch { btn.textContent = 'Could not copy'; }
+    setTimeout(() => { btn.textContent = 'Copy link'; }, 1800);
+  };
+
+  function renderReports(rows) {
+    reportList.replaceChildren();
+    rows.forEach((r) => {
+      const li = document.createElement('li');
+      const name = document.createElement('span');
+      name.className = 'report-name';
+      const a = document.createElement('a');
+      a.href = r.url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = r.label;
+      const when = document.createElement('small');
+      when.textContent = `made ${ago(r.ts)}`;
+      name.append(a, when);
+
+      const copy = button('Copy link');
+      copy.addEventListener('click', () => copyText(copy, r.url));
+      const stop = button('Stop sharing');
+      stop.addEventListener('click', async () => {
+        if (!window.confirm('Stop sharing this report? Its link will stop working for everyone.')) return;
+        stop.disabled = true;
+        try {
+          const res = await fetch(`/api/reports?token=${encodeURIComponent(r.token)}`, { method: 'DELETE' });
+          if (res.status === 401) { location.reload(); return; }
+          if (!res.ok) throw new Error();
+          loadReports();
+        } catch {
+          stop.disabled = false;
+          stop.textContent = 'Could not stop it — retry';
+        }
+      });
+      li.append(name, copy, stop);
+      reportList.append(li);
+    });
+  }
+
+  async function loadReports() {
+    try {
+      const res = await fetch('/api/reports', { headers: { Accept: 'application/json' } });
+      if (res.status === 401) { location.reload(); return; }
+      const d = await res.json();
+      renderReports(d.reports || []);
+    } catch { /* the list is a convenience; making a report still works */ }
+  }
+
+  reportForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    reportMake.disabled = true;
+    reportStatus.className = 'report-status';
+    reportStatus.textContent = leadAi ? 'Making the report. Claude is writing its summary, which takes a few seconds…' : 'Making the report…';
+    try {
+      const res = await fetch('/api/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ period: reportPeriod, day: reportWhen.value }),
+      });
+      if (res.status === 401) { location.reload(); return; }
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error || `Server returned ${res.status}`);
+      const open = document.createElement('a');
+      open.href = d.url;
+      open.target = '_blank';
+      open.rel = 'noopener';
+      open.textContent = 'Open it';
+      reportStatus.replaceChildren(
+        document.createTextNode(`${d.existing ? 'Already made' : 'Ready'}: ${d.label}. `),
+        open,
+        document.createTextNode(' to save it as a PDF or copy its link.'),
+      );
+      if (d.summaryNote) {
+        reportStatus.append(document.createTextNode(` It has no plain-English summary: ${d.summaryNote}`));
+      }
+      loadReports();
+    } catch (err) {
+      reportStatus.className = 'report-status is-bad';
+      reportStatus.textContent = `Could not make the report: ${err.message}`;
+    } finally {
+      reportMake.disabled = false;
+    }
+  });
+
+  document.querySelectorAll('.seg [data-period]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      reportPeriod = btn.dataset.period;
+      document.querySelectorAll('.seg [data-period]').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b === btn)));
+      fillChoices();
+    });
+  });
+  fillChoices();
+
   /* ---- Tracking link builder -----------------------------------------------
      Tags a link with utm_source / utm_medium / utm_campaign, the three that
      analytics.js reads. Spelled the way /api/collect stores them, so what is
@@ -875,4 +1032,5 @@
 
   load();
   loadLeads();
+  loadReports();
 })();

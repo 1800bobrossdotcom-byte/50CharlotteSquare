@@ -9,7 +9,7 @@
    aggregate numbers from _lib/stats.js are sent: no enquiry and no person.
    ============================================================================= */
 import { requireSession, json } from '../_lib/auth.js';
-import { loadStats } from '../_lib/stats.js';
+import { loadStats, rangeForDays } from '../_lib/stats.js';
 import { aiEnabled, aiError, explainStats } from '../_lib/ai.js';
 
 const daysFrom = (v) => {
@@ -53,7 +53,7 @@ export async function onRequestPost({ request, env }) {
 
   let insight;
   try {
-    insight = await explainStats(env, await loadStats(env, days));
+    insight = await explainStats(env, await loadStats(env, rangeForDays(days)));
   } catch (err) {
     return json({ error: aiError(err) }, 502);
   }

@@ -97,6 +97,21 @@ CREATE TABLE IF NOT EXISTS insights (
   body  TEXT    NOT NULL               -- JSON
 );
 
+-- Reports shared by link: a frozen page of totals for one day, week or month.
+-- The token is the whole permission, so it is long and random, and deleting
+-- the row is how a link is switched off. body never holds a person.
+CREATE TABLE IF NOT EXISTS reports (
+  token    TEXT    PRIMARY KEY,
+  period   TEXT    NOT NULL,           -- day | week | month
+  from_day TEXT    NOT NULL,
+  to_day   TEXT    NOT NULL,
+  partial  INTEGER NOT NULL DEFAULT 0, -- 1 if the period was still running
+  label    TEXT    NOT NULL,
+  ts       INTEGER NOT NULL,
+  body     TEXT    NOT NULL            -- JSON snapshot
+);
+CREATE INDEX IF NOT EXISTS idx_reports_ts ON reports(ts DESC);
+
 -- Upgrading a database created before 25 September 2026? Everything above is
 -- IF NOT EXISTS, but SQLite has no ADD COLUMN IF NOT EXISTS, so the new columns
 -- need adding once. Run these one at a time; "duplicate column name" just means
