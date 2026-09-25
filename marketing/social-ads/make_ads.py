@@ -3,10 +3,15 @@
 ground, a big serif headline with one italic accent, a ruled row of three
 figures, contact and a QR code at the foot. Writes self-contained HTML to
 marketing/social-ads/src/; render.mjs turns each into a PNG."""
-import os, segno
+import os
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src")
 SITE = "https://www.charlottesquareroc.com"
+
+# Until the site is live on Cloudflare, /tour/ does not exist, so for now the
+# ads carry only Vicki's number. Set this to True after launch and re-render to
+# bring back the "Book a tour" address and a QR code on each feed post.
+SITE_LIVE = False
 
 MARK = ('<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#A93B3F"/>'
         '<path d="M9 9 H55 V27 H45 V19 H19 V45 H55 V55 H9 Z" fill="#fff"/></svg>')
@@ -16,6 +21,9 @@ EHO = ('<svg class="eho" viewBox="0 0 24 24" fill="none" stroke="currentColor" s
        '<path d="M3 11l9-7 9 7v9H3z"/><path d="M7 20v-6h10v6"/><path d="M9 17h6"/></svg>')
 
 def qr_svg(campaign):
+    if not SITE_LIVE:
+        return None, None
+    import segno   # only needed once the QR codes are back
     url = f"{SITE}/tour/?utm_source=social&utm_medium=qr&utm_campaign={campaign}"
     q = segno.make(url, error="m")
     n = q.symbol_size(border=0)[0]
@@ -85,13 +93,19 @@ i { font-style: italic; }
 .qr { display: flex; flex-direction: column; align-items: center; gap: 14px; flex: none; }
 .qr__card { width: 196px; height: 196px; background: #fff; border-radius: 18px; padding: 16px; }
 .qr__code { display: block; width: 100%; height: 100%; }
+.bottom--call { align-items: flex-end; }
+.tag--solo { margin-bottom: 4px; max-width: 560px; }
+.call { text-align: right; flex: none; }
+.bottom--call .cval { font-size: 52px; font-weight: 500; letter-spacing: -.01em; margin-top: 8px; line-height: 1; }
+.ad--story .bottom--call .cval { font-size: 56px; }
+.ad--story .bottom--call .call { text-align: left; }
 
 .legal { margin-top: 28px; display: grid; grid-template-columns: auto 1fr; column-gap: 10px; row-gap: 3px; align-items: center; font-size: 12px; letter-spacing: .02em; line-height: 1.4; color: var(--muted); position: relative; z-index: 2; max-width: 600px; }
 .legal span + span { grid-column: 2; }
 .eho { width: 17px; height: 17px; flex: none; }
 
 /* ---- With a photograph: the picture fills the top and fades into the ground. */
-.ad--photo .shot { position: absolute; inset: 0 0 auto 0; height: 560px; }
+.ad--photo .shot { position: absolute; inset: 0 0 auto 0; height: 640px; }
 .ad--story.ad--photo .shot { height: 1180px; }
 /* On a photograph the small caps go cream, with a soft shadow, because sand
    disappears against warm wood and brick. */
@@ -144,12 +158,18 @@ def top(kicker):
 def stats(items):
     return '<div class="stats">' + "".join(f'<div><p class="fig">{f}</p><p class="lab">{l}</p></div>' for f, l in items) + "</div>"
 
+CALL = '<p class="clab">Call Vicki</p><p class="cval">(585) 748-5588</p>'
+
 def contact(tag=None, qr=None, qr_label="Scan to book a tour"):
-    left = (f'<p class="tag">{tag}</p>' if tag else "") + (
-        '<p class="clab">Book a tour</p><p class="cval">charlottesquareroc.com/tour</p>'
-        '<p class="clab">Call</p><p class="cval">(585) 748-5588</p>')
-    right = f'<div class="qr"><div class="qr__card">{qr}</div><p class="clab">{qr_label}</p></div>' if qr else ""
-    return f'<footer class="bottom"><div>{left}</div>{right}</footer>'
+    if SITE_LIVE:
+        left = (f'<p class="tag">{tag}</p>' if tag else "") + (
+            '<p class="clab">Book a tour</p><p class="cval">charlottesquareroc.com/tour</p>' + CALL)
+        right = f'<div class="qr"><div class="qr__card">{qr}</div><p class="clab">{qr_label}</p></div>' if qr else ""
+        return f'<footer class="bottom"><div>{left}</div>{right}</footer>'
+    # Phone only: the line on the left, Vicki's number set large on the right,
+    # where the QR code sits in the full version.
+    left = f'<div><p class="tag tag--solo">{tag}</p></div>' if tag else ""
+    return f'<footer class="bottom bottom--call">{left}<div class="call">{CALL}</div></footer>'
 
 def legal(extra=""):
     more = f'<span>{extra}</span>' if extra else ''
@@ -193,7 +213,7 @@ ad("04-see-it-in-person", (1080, 1080), "ad ad--photo",
    '<div class="shot"><img src="../../../assets/img/hero-exterior.jpg" alt=""></div>' + top("TOURS BY APPOINTMENT")
    + '<h1 class="hl">See your next home<br><i>in person.</i></h1>'
    + stats([("1–3", "Bedrooms"), ("765–1,640", "Square feet"), ("In-unit", "Laundry in every home")])
-   + contact("Tours by appointment, Monday to Friday.", qr4) + legal())
+   + contact("Tours by appointment, weekdays.", qr4) + legal())
 
 # 5. Leasing, story ---------------------------------------------------------
 ad("05-now-leasing-story", (1080, 1920), "ad ad--story ad--photo",

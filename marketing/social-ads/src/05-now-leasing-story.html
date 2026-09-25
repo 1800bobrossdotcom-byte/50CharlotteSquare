@@ -58,13 +58,19 @@ i { font-style: italic; }
 .qr { display: flex; flex-direction: column; align-items: center; gap: 14px; flex: none; }
 .qr__card { width: 196px; height: 196px; background: #fff; border-radius: 18px; padding: 16px; }
 .qr__code { display: block; width: 100%; height: 100%; }
+.bottom--call { align-items: flex-end; }
+.tag--solo { margin-bottom: 4px; max-width: 560px; }
+.call { text-align: right; flex: none; }
+.bottom--call .cval { font-size: 52px; font-weight: 500; letter-spacing: -.01em; margin-top: 8px; line-height: 1; }
+.ad--story .bottom--call .cval { font-size: 56px; }
+.ad--story .bottom--call .call { text-align: left; }
 
 .legal { margin-top: 28px; display: grid; grid-template-columns: auto 1fr; column-gap: 10px; row-gap: 3px; align-items: center; font-size: 12px; letter-spacing: .02em; line-height: 1.4; color: var(--muted); position: relative; z-index: 2; max-width: 600px; }
 .legal span + span { grid-column: 2; }
 .eho { width: 17px; height: 17px; flex: none; }
 
 /* ---- With a photograph: the picture fills the top and fades into the ground. */
-.ad--photo .shot { position: absolute; inset: 0 0 auto 0; height: 560px; }
+.ad--photo .shot { position: absolute; inset: 0 0 auto 0; height: 640px; }
 .ad--story.ad--photo .shot { height: 1180px; }
 /* On a photograph the small caps go cream, with a soft shadow, because sand
    disappears against warm wood and brick. */
@@ -93,6 +99,6 @@ i { font-style: italic; }
 </style>
 </head>
 <body>
-<div class="ad ad--story ad--photo"><div class="shot"><img src="../../../assets/img/terrace.jpg" alt=""></div><header class="top"><div class="brand"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#A93B3F"/><path d="M9 9 H55 V27 H45 V19 H19 V45 H55 V55 H9 Z" fill="#fff"/></svg><div><p class="wm">Charlotte <i>Square</i></p><p class="wm-sub">AT THE EAST END</p></div></div><p class="kicker">NOW LEASING</p></header><h1 class="hl">Luxury living,<br><i>parking included.</i></h1><p class="sub">One-, two- and three-bedroom apartments<br>in Rochester’s East End.</p><div class="stats"><div><p class="fig">$1,750+</p><p class="lab">Per month</p></div><div><p class="fig">1–3</p><p class="lab">Bedrooms</p></div><div><p class="fig">Garage</p><p class="lab">Space included</p></div></div><footer class="bottom"><div><p class="clab">Book a tour</p><p class="cval">charlottesquareroc.com/tour</p><p class="clab">Call</p><p class="cval">(585) 748-5588</p></div></footer><p class="legal"><svg class="eho" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><path d="M7 20v-6h10v6"/><path d="M9 17h6"/></svg><span>Equal Housing Opportunity · Managed by Evolution24 Properties</span><span>Rents from $1,750 a month as of September 2026, subject to availability.</span></p></div>
+<div class="ad ad--story ad--photo"><div class="shot"><img src="../../../assets/img/terrace.jpg" alt=""></div><header class="top"><div class="brand"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#A93B3F"/><path d="M9 9 H55 V27 H45 V19 H19 V45 H55 V55 H9 Z" fill="#fff"/></svg><div><p class="wm">Charlotte <i>Square</i></p><p class="wm-sub">AT THE EAST END</p></div></div><p class="kicker">NOW LEASING</p></header><h1 class="hl">Luxury living,<br><i>parking included.</i></h1><p class="sub">One-, two- and three-bedroom apartments<br>in Rochester’s East End.</p><div class="stats"><div><p class="fig">$1,750+</p><p class="lab">Per month</p></div><div><p class="fig">1–3</p><p class="lab">Bedrooms</p></div><div><p class="fig">Garage</p><p class="lab">Space included</p></div></div><footer class="bottom bottom--call"><div class="call"><p class="clab">Call Vicki</p><p class="cval">(585) 748-5588</p></div></footer><p class="legal"><svg class="eho" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><path d="M7 20v-6h10v6"/><path d="M9 17h6"/></svg><span>Equal Housing Opportunity · Managed by Evolution24 Properties</span><span>Rents from $1,750 a month as of September 2026, subject to availability.</span></p></div>
 </body>
 </html>
