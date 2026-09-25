@@ -63,7 +63,7 @@ npx http-server -p 8000
 3. The workflow in `.github/workflows/pages.yml` publishes the repo root on every push to `main` (and, during the mock-up phase, to `claude/dazzling-hypatia-ap7gcn`).
 4. For a custom domain, add a `CNAME` file containing the domain (for example `www.charlottesquareroc.com`), point DNS at GitHub Pages, then update the domain in `sitemap.xml` and `robots.txt`.
 
-The site also works on Netlify, Vercel, Cloudflare Pages, or any static host: publish the repo root.
+The site also works on Netlify, Vercel, Cloudflare Pages, or any static host: run `sh scripts/stage.sh` and publish the `public/` folder it produces. Never publish the repository root — see *Publish the website, not the repository* below.
 
 ## SEO and the domain migration
 
@@ -1149,9 +1149,28 @@ Pages → Connect to Git**. There is no build step.
 | Setting | Value |
 | --- | --- |
 | Framework preset | None |
-| Build command | *(leave empty)* |
-| Build output directory | `/` |
+| Build command | `sh scripts/stage.sh` |
+| Build output directory | `public` |
 | Production branch | whichever branch you are shipping |
+
+#### Publish the website, not the repository
+
+`pages_build_output_dir` used to be `.`, the repository root. Pages' upload
+skips only a handful of names — `functions`, `_headers`, `_redirects`,
+`.git`, `node_modules`, `.wrangler` — so everything else would have been a
+public URL on charlottesquareroc.com: this README (the whole build log,
+including notes about the client and the neighbours), `schema.sql`,
+`wrangler.toml`, `tools/`, `scripts/`, `archive/`, and `.dev.vars`. That last
+one is the local secrets file. Git ignores it, so a Git-connected build would
+never see it, but a deploy run straight from a laptop would have uploaded it.
+Verified under `wrangler pages dev`: all of those returned 200.
+
+`scripts/stage.sh` copies the website and nothing else into `public/`, and
+that is what Pages now publishes. It is an allowlist: a new file stays private
+until it is added to the script, and a listed file that has gone missing fails
+the build rather than shipping a site with a hole in it. **A new top-level page
+needs adding to that list.** Functions are unaffected; Pages compiles
+`functions/` from the project root, not from the output folder.
 
 ### 2. The database
 

@@ -22,7 +22,9 @@
 
 name = "charlotte-square"
 compatibility_date = "2026-09-16"
-pages_build_output_dir = "."
+# Only the website is published, never the repository root: the Pages build
+# command is `sh scripts/stage.sh`, which copies the public files into public/.
+pages_build_output_dir = "public"
 
 [[d1_databases]]
 binding = "DB"
