@@ -29,4 +29,4 @@ pages_build_output_dir = "public"
 [[d1_databases]]
 binding = "DB"
 database_name = "charlotte-analytics"
-database_id = "REPLACE_WITH_THE_ID_FROM_d1_create"
+database_id = "d52826f4-0a1f-46d9-942d-ff270b568eb8"
