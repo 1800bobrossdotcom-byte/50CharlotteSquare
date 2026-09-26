@@ -1563,7 +1563,7 @@ dashboard markup is in the bytes served to a signed-out visitor.
 
 These came from public listings or the previous site and should be verified with the leasing team:
 
-- [ ] Move the contact form to a server-side endpoint so the address is not exposed in the page source, and ideally onto a branded leasing address rather than a personal one
+- [x] Move the contact form to a server-side endpoint so the address is not exposed in the page source, and onto a work address rather than a personal one. Done: the form posts to `/api/inquiry`, and intake goes to Vicki's Evolution24 address, set as the `LEAD_TO` secret (September 2026)
 - [ ] Office hours and tour availability
 - [ ] Two-bedroom square footage range (shown as approximate) and current pricing
 - [ ] Exact list of included utilities
