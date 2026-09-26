@@ -17,6 +17,8 @@ MARK = ('<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="6
         '<path d="M9 9 H55 V27 H45 V19 H19 V45 H55 V55 H9 Z" fill="#fff"/></svg>')
 GHOST = ('<svg class="ghost" viewBox="9 9 46 46" aria-hidden="true">'
          '<path d="M9 9 H55 V27 H45 V19 H19 V45 H55 V55 H9 Z" fill="currentColor"/></svg>')
+LEAF = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+        '<path d="M4 20c0-8 6-14 16-16-1 10-6 16-14 16"/><path d="M4 20l8-8"/></svg>')
 EHO = ('<svg class="eho" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">'
        '<path d="M3 11l9-7 9 7v9H3z"/><path d="M7 20v-6h10v6"/><path d="M9 17h6"/></svg>')
 
@@ -131,6 +133,38 @@ i { font-style: italic; }
 .ad--story .cval { font-size: 34px; }
 .ad--story .clab { font-size: 15px; }
 .ad--story .legal { font-size: 15px; }
+
+/* ---- The LEED series: gold in place of sand, so it reads as its own set.
+   The seal is set in our own type; it is not the USGBC logo. */
+.ad--leed { --sand: #D9B96A; --gold-line: rgba(217, 185, 106, .72); }
+.seal {
+  display: flex; align-items: center; gap: 14px; flex: none;
+  padding: 9px 28px 9px 9px; border: 1.5px solid var(--gold-line); border-radius: 999px;
+  background: rgba(217, 185, 106, .07);
+}
+.ad--photo .seal { background: rgba(26, 22, 19, .62); }
+.seal__icon { width: 54px; height: 54px; border-radius: 50%; border: 1.5px solid var(--gold-line); display: grid; place-items: center; color: var(--sand); }
+.seal__icon svg { width: 25px; height: 25px; }
+.seal__k { display: block; font-size: 12px; font-weight: 700; letter-spacing: .26em; color: var(--cream); }
+.seal__v { display: block; margin-top: 3px; font-family: 'Instrument Serif', Georgia, serif; font-size: 36px; line-height: 1; color: var(--sand); }
+.ad--story .seal__k { font-size: 14px; }
+.ad--story .seal__v { font-size: 42px; }
+.ad--story .seal__icon { width: 62px; height: 62px; }
+
+/* The certificate: a double gold rule, the leaf, and one big word */
+.lead-row { display: flex; align-items: center; justify-content: space-between; gap: 40px; margin-top: 84px; }
+.lead-row .hl { margin-top: 0; font-size: 106px; }
+.cert {
+  flex: none; width: 250px; padding: 30px 18px 26px; text-align: center;
+  border: 1.5px solid var(--gold-line); outline: 1px solid rgba(217, 185, 106, .4); outline-offset: -10px;
+  background: rgba(217, 185, 106, .06);
+}
+.cert__icon { width: 66px; height: 66px; margin: 0 auto 16px; border-radius: 50%; border: 1.5px solid var(--gold-line); display: grid; place-items: center; color: var(--sand); }
+.cert__icon svg { width: 30px; height: 30px; }
+.cert__k { font-size: 12px; font-weight: 700; letter-spacing: .26em; color: var(--cream); }
+.cert__v { margin-top: 6px; font-family: 'Instrument Serif', Georgia, serif; font-size: 92px; line-height: .95; color: var(--sand); }
+.cert__n { margin-top: 12px; font-size: 11.5px; font-weight: 600; letter-spacing: .2em; color: var(--muted); }
+.fig--gold { color: var(--sand); }
 """
 
 def page(ad, size, body):
@@ -151,12 +185,24 @@ def page(ad, size, body):
 </html>
 """
 
-def top(kicker):
+def top(kicker, right=None):
+    right = right or f'<p class="kicker">{kicker}</p>'
     return (f'<header class="top"><div class="brand">{MARK}<div><p class="wm">Charlotte <i>Square</i></p>'
-            f'<p class="wm-sub">AT THE EAST END</p></div></div><p class="kicker">{kicker}</p></header>')
+            f'<p class="wm-sub">AT THE EAST END</p></div></div>{right}</header>')
+
+# LEED Gold, verified: SWBR lists the building as "LEED Homes Gold Certified";
+# the Rochester Daily Record (21 May 2025) reports the Gold certification and
+# the 2017 NAIOP Upstate New York Award of Excellence, top Urban Multi-Family
+# project. See "LEED Gold, and the spec sheet" in the site README.
+SEAL = (f'<div class="seal"><span class="seal__icon">{LEAF}</span>'
+        '<span><span class="seal__k">LEED® CERTIFIED</span><span class="seal__v">Gold</span></span></div>')
+CERT = (f'<div class="cert"><div class="cert__icon">{LEAF}</div><p class="cert__k">LEED® CERTIFIED</p>'
+        '<p class="cert__v">Gold</p><p class="cert__n">LEED FOR HOMES</p></div>')
+TM = "LEED® is a registered trademark of the U.S. Green Building Council."
 
 def stats(items):
-    return '<div class="stats">' + "".join(f'<div><p class="fig">{f}</p><p class="lab">{l}</p></div>' for f, l in items) + "</div>"
+    fig = lambda f: "fig fig--gold" if f == "Gold" else "fig"
+    return '<div class="stats">' + "".join(f'<div><p class="{fig(f)}">{f}</p><p class="lab">{l}</p></div>' for f, l in items) + "</div>"
 
 CALL = '<p class="clab">Call Vicki</p><p class="cval">(585) 748-5588</p>'
 
@@ -231,10 +277,44 @@ ad("06-east-end-story", (1080, 1920), "ad ad--story ad--photo",
    + stats([("No. 37", "Chick’n Out"), ("No. 50", "Home"), ("No. 89", "Ugly Duck Coffee")])
    + contact() + legal())
 
+# 7. LEED Gold, the certificate ----------------------------------------------
+url7, qr7 = qr_svg("ad-leed")
+ad("07-leed-gold", (1080, 1080), "ad ad--leed",
+   top("CERTIFIED GREEN")
+   + f'<div class="lead-row"><h1 class="hl">Built green.<br><i>Certified Gold.</i></h1>{CERT}</div>'
+   + '<p class="sub">Independent reviewers checked the building’s energy efficiency,<br>water use, indoor air quality and materials before certifying it.</p>'
+   + stats([("Solar", "Rooftop array"), ("EV", "Charging in the garage"), ("Bikes", "Secure storage")])
+   + contact("Luxury, built to a higher standard.", qr7) + legal(TM))
+
+# 8. Solar, over the aerial that shows the array ------------------------------
+url8, qr8 = qr_svg("ad-solar")
+ad("08-leed-solar", (1080, 1080), "ad ad--photo ad--leed",
+   '<div class="shot"><img src="../../../assets/img/hero-aerial.jpg" alt=""></div>' + top("", SEAL)
+   + '<h1 class="hl">Powered, in part,<br><i>by the sun.</i></h1>'
+   + stats([("Gold", "LEED certified"), ("1 block", "To Main Street"), ("EV", "Charging station")])
+   + contact("Green by design,<br>in Rochester’s East End.", qr8) + legal(TM))
+
+# 9. The award ------------------------------------------------------------------
+url9, qr9 = qr_svg("ad-award")
+ad("09-leed-award", (1080, 1080), "ad ad--leed",
+   top("", SEAL)
+   + '<h1 class="hl">Award-winning.<br><i>Certified green.</i></h1>'
+   + '<p class="sub">Named the top urban multifamily project in NAIOP Upstate New York’s<br>2017 Awards of Excellence, and LEED Gold certified.</p>'
+   + stats([("2017", "NAIOP Award of Excellence"), ("Gold", "LEED certified"), ("72", "Homes, 1–3 bedrooms")])
+   + contact("Rochester luxury, certified green.", qr9) + legal(TM))
+
+# 10. LEED Gold, story -------------------------------------------------------
+ad("10-leed-story", (1080, 1920), "ad ad--story ad--photo ad--leed",
+   '<div class="shot"><img src="../../../assets/img/hero-aerial.jpg" alt=""></div>' + top("", SEAL)
+   + '<h1 class="hl">Built green.<br><i>Certified Gold.</i></h1>'
+   + '<p class="sub">LEED Gold certified, with rooftop solar and EV charging,<br>a block from Main Street.</p>'
+   + stats([("Gold", "LEED certified"), ("Solar", "On the roof"), ("EV", "Charging")])
+   + contact() + legal(TM))
+
 os.makedirs(OUT, exist_ok=True)
 for name, size, cls, body in ADS:
     html = page({"name": name}, size, f'<div class="{cls}">{body}</div>')
     with open(os.path.join(OUT, f"{name}.html"), "w", encoding="utf-8") as f:
         f.write(html)
-print("\n".join(f"{u}" for u in (url1, url2, url3, url4)))
+print("\n".join(f"{u}" for u in (url1, url2, url3, url4, url7, url8, url9)))
 print(f"wrote {len(ADS)} ads")

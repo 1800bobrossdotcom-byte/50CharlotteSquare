@@ -96,6 +96,38 @@ i { font-style: italic; }
 .ad--story .cval { font-size: 34px; }
 .ad--story .clab { font-size: 15px; }
 .ad--story .legal { font-size: 15px; }
+
+/* ---- The LEED series: gold in place of sand, so it reads as its own set.
+   The seal is set in our own type; it is not the USGBC logo. */
+.ad--leed { --sand: #D9B96A; --gold-line: rgba(217, 185, 106, .72); }
+.seal {
+  display: flex; align-items: center; gap: 14px; flex: none;
+  padding: 9px 28px 9px 9px; border: 1.5px solid var(--gold-line); border-radius: 999px;
+  background: rgba(217, 185, 106, .07);
+}
+.ad--photo .seal { background: rgba(26, 22, 19, .62); }
+.seal__icon { width: 54px; height: 54px; border-radius: 50%; border: 1.5px solid var(--gold-line); display: grid; place-items: center; color: var(--sand); }
+.seal__icon svg { width: 25px; height: 25px; }
+.seal__k { display: block; font-size: 12px; font-weight: 700; letter-spacing: .26em; color: var(--cream); }
+.seal__v { display: block; margin-top: 3px; font-family: 'Instrument Serif', Georgia, serif; font-size: 36px; line-height: 1; color: var(--sand); }
+.ad--story .seal__k { font-size: 14px; }
+.ad--story .seal__v { font-size: 42px; }
+.ad--story .seal__icon { width: 62px; height: 62px; }
+
+/* The certificate: a double gold rule, the leaf, and one big word */
+.lead-row { display: flex; align-items: center; justify-content: space-between; gap: 40px; margin-top: 84px; }
+.lead-row .hl { margin-top: 0; font-size: 106px; }
+.cert {
+  flex: none; width: 250px; padding: 30px 18px 26px; text-align: center;
+  border: 1.5px solid var(--gold-line); outline: 1px solid rgba(217, 185, 106, .4); outline-offset: -10px;
+  background: rgba(217, 185, 106, .06);
+}
+.cert__icon { width: 66px; height: 66px; margin: 0 auto 16px; border-radius: 50%; border: 1.5px solid var(--gold-line); display: grid; place-items: center; color: var(--sand); }
+.cert__icon svg { width: 30px; height: 30px; }
+.cert__k { font-size: 12px; font-weight: 700; letter-spacing: .26em; color: var(--cream); }
+.cert__v { margin-top: 6px; font-family: 'Instrument Serif', Georgia, serif; font-size: 92px; line-height: .95; color: var(--sand); }
+.cert__n { margin-top: 12px; font-size: 11.5px; font-weight: 600; letter-spacing: .2em; color: var(--muted); }
+.fig--gold { color: var(--sand); }
 </style>
 </head>
 <body>

@@ -1,6 +1,6 @@
 # Social ads
 
-Six ads for Instagram and Facebook, in the language of the Evolution24 hiring
+Ten ads for Instagram and Facebook, in the language of the Evolution24 hiring
 ad: dark ground, a serif headline with one italic accent, three figures between
 two rules, then the line to act on. Charlotte Square's own mark, fonts
 (Instrument Serif and DM Sans, the site's Gallery style) and photographs.
@@ -13,13 +13,25 @@ two rules, then the line to act on. Charlotte Square's own mark, fonts
 | `04-see-it-in-person.png` | Feed, 1440×1440 |
 | `05-now-leasing-story.png` | Story, 1440×2560 |
 | `06-east-end-story.png` | Story, 1440×2560 |
+| `07-leed-gold.png` | Feed, 1440×1440 · LEED series |
+| `08-leed-solar.png` | Feed, 1440×1440 · LEED series |
+| `09-leed-award.png` | Feed, 1440×1440 · LEED series |
+| `10-leed-story.png` | Story, 1440×2560 · LEED series |
+
+**The LEED series (07–10)** swaps the sand accent for gold and carries a LEED
+Gold seal set in the site's own type. It is not the USGBC logo, which has its
+own usage rules. The facts are the ones checked for the website: LEED Gold
+certified (LEED for Homes), and the top Urban Multi-Family project in the 2017
+NAIOP Upstate New York Awards of Excellence. Each one adds the line "LEED® is a
+registered trademark of the U.S. Green Building Council." to the small print.
 
 **For now the only contact is "Call Vicki (585) 748-5588".** The "Book a tour"
 address and the QR codes point at `/tour/`, which exists only once the site is
 live on Cloudflare, so they are switched off. After launch, set
 `SITE_LIVE = True` at the top of `make_ads.py` and re-render: the address comes
 back, and each feed post gets a QR code with its own campaign name
-(`ad-leasing`, `ad-east-end`, `ad-terrace`, `ad-tour`), so every ad shows up as
+(`ad-leasing`, `ad-east-end`, `ad-terrace`, `ad-tour`, `ad-leed`, `ad-solar`,
+`ad-award`), so every ad shows up as
 its own row under Campaigns on the dashboard.
 
 Stories never carry a QR code: people see them on the phone they would scan
@@ -47,6 +59,20 @@ Evolution24 Properties"; the two that state a rent say when it was listed.
    Vicki at (585) 748-5588. *Alt:*
    "The red and grey four-storey Charlotte Square building on Charlotte
    Street, with the words See your next home in person."
+7. **LEED Gold.** Charlotte Square is LEED Gold certified: independent
+   reviewers checked its energy efficiency, water use, indoor air quality and
+   materials. Luxury, built to a higher standard. *Alt:* "Charlotte Square ad:
+   Built green. Certified Gold. A LEED Gold certificate beside the headline,
+   with rooftop solar, EV charging and secure bike storage."
+8. **Solar.** Solar panels on the roof help power the building, a block from
+   Main Street. *Alt:* "Aerial photograph of Charlotte Square with solar panels
+   across the roof, and the words Powered, in part, by the sun."
+9. **Award-winning.** Named the top urban multifamily project in NAIOP Upstate
+   New York's 2017 Awards of Excellence, and LEED Gold certified. *Alt:*
+   "Charlotte Square ad: Award-winning. Certified green. 2017 NAIOP Award of
+   Excellence, LEED Gold, 72 homes."
+10. **Story.** *Alt:* "Aerial photograph of Charlotte Square's solar roof, with
+    the words Built green. Certified Gold."
 
 ## Changing them
 
@@ -57,7 +83,8 @@ The copy lives in `make_ads.py`; it writes the HTML in `src/`, and
 pip install segno                  # QR codes, once SITE_LIVE is True
 python3 marketing/social-ads/make_ads.py
 npx playwright install chromium    # once
-node marketing/social-ads/render.cjs
+node marketing/social-ads/render.cjs          # every ad
+node marketing/social-ads/render.cjs 07 08    # only the ads named so
 ```
 
 This folder is not part of the website: `scripts/stage.sh` never copies it.
