@@ -431,10 +431,10 @@ Cloudflare. That is the part a client-side gate can never do.
 wrangler d1 create charlotte-analytics                              # id → wrangler.toml
 wrangler d1 execute charlotte-analytics --file=./schema.sql --remote
 node tools/hash-password.mjs                                        # makes the password, prints all three values
-# Pages secrets take --project; --name is the Workers flag and will not work here
-wrangler pages secret put ADMIN_PASSWORD_HASH --project=charlotte-square
-wrangler pages secret put SESSION_SECRET      --project=charlotte-square
-wrangler pages secret put VISITOR_SALT        --project=charlotte-square
+# Or in the dashboard: the Worker → Settings → Variables and Secrets → Add, type Secret
+wrangler secret put ADMIN_PASSWORD_HASH
+wrangler secret put SESSION_SECRET
+wrangler secret put VISITOR_SALT
 ```
 
 Then `/admin/` asks for the password. Sessions last 12 hours; six wrong
@@ -1305,19 +1305,35 @@ contact form, the dashboard and the analytics are all dead.
   absolute URL on this site say `www.charlottesquareroc.com`. The apex must
   redirect to `www`, not the other way round.
 
-### 1. The Pages project
+### 1. The Worker
+
+The site runs as a **Cloudflare Worker with static assets** (September 2026).
+It was built for Cloudflare Pages, but the dashboard now leads with Workers, so
+it moved: `wrangler.toml` declares the website in `public/` as assets, and
+`src/worker.js` is a small router that runs the same handlers in `functions/`
+with the same `{ request, env, params, waitUntil, next }` they had as Pages
+Functions. Only the paths in `run_worker_first` (`/api/*`, `/admin/*`,
+`/tour/`, `/r/*`) run any code; every other file is served straight from the
+asset layer with `_headers` and `_redirects` applied.
 
 Connect the repo in the Cloudflare dashboard: **Workers & Pages → Create →
-Pages → Connect to Git**. The build only copies the website into `public/`.
-Because `package.json` is there, Cloudflare also installs its one dependency,
-the Anthropic SDK, on its own; there is nothing to configure for that.
+Import a repository**. Because `package.json` is there, Cloudflare installs its
+one dependency, the Anthropic SDK, on its own.
 
 | Setting | Value |
 | --- | --- |
-| Framework preset | None |
+| Project name | `50charlottesquare` — must match `name` in `wrangler.toml` |
 | Build command | `sh scripts/stage.sh` |
-| Build output directory | `public` |
-| Production branch | whichever branch you are shipping |
+| Deploy command | `npx wrangler deploy` |
+| Root directory | blank |
+
+`_headers` does not apply to responses a Worker makes, including files it
+fetches through the `ASSETS` binding. So `src/worker.js` adds the same
+site-wide headers to the sign-in page, the dashboard and `/tour/`, gives the
+dashboard its own strict policy, and leaves the public pages to the policy in
+their own `<meta>` tag. Verified locally under `wrangler dev`: every page, the
+redirects, the 404 page, sign-in, the dashboard, an enquiry, the tour test and
+a shared report.
 
 #### Publish the website, not the repository
 
@@ -1332,16 +1348,17 @@ never see it, but a deploy run straight from a laptop would have uploaded it.
 Verified under `wrangler pages dev`: all of those returned 200.
 
 `scripts/stage.sh` copies the website and nothing else into `public/`, and
-that is what Pages now publishes. It is an allowlist: a new file stays private
+that is what the Worker now serves. It is an allowlist: a new file stays private
 until it is added to the script, and a listed file that has gone missing fails
 the build rather than shipping a site with a hole in it. **A new top-level page
-needs adding to that list.** Functions are unaffected; Pages compiles
-`functions/` from the project root, not from the output folder.
+needs adding to that list.** The route handlers are unaffected; Wrangler
+bundles `src/worker.js` and what it imports from the project root, not from
+the output folder.
 
 ### 2. The database
 
 ```bash
-wrangler d1 create charlotte-analytics          # paste the id into wrangler.toml
+wrangler d1 create charlotte-analytics          # done: its id is in wrangler.toml
 wrangler d1 execute charlotte-analytics --file=./schema.sql --remote
 ```
 
@@ -1356,13 +1373,13 @@ listed; the campaign, test and Claude panels just stay empty.
 
 ```bash
 node tools/hash-password.mjs                         # makes the password, prints the first three values
-wrangler pages secret put ADMIN_PASSWORD_HASH --project=charlotte-square
-wrangler pages secret put SESSION_SECRET      --project=charlotte-square
-wrangler pages secret put VISITOR_SALT        --project=charlotte-square
-wrangler pages secret put LEAD_TO             --project=charlotte-square
-wrangler pages secret put LEAD_FROM           --project=charlotte-square
-wrangler pages secret put RESEND_API_KEY      --project=charlotte-square
-wrangler pages secret put ANTHROPIC_API_KEY   --project=charlotte-square   # optional: Claude
+wrangler secret put ADMIN_PASSWORD_HASH
+wrangler secret put SESSION_SECRET
+wrangler secret put VISITOR_SALT
+wrangler secret put LEAD_TO
+wrangler secret put LEAD_FROM
+wrangler secret put RESEND_API_KEY
+wrangler secret put ANTHROPIC_API_KEY   # optional: Claude
 ```
 
 `LEAD_TO` is where inquiry notifications land. It is a secret and not a
@@ -1372,10 +1389,10 @@ no longer anywhere in this repository either.
 
 ### 4. Email
 
-`send_email`, Cloudflare's own Email Routing binding, is a Workers binding and
-is **not available to Pages Functions** — Functions take their bindings from the
-dashboard, which has no entry for it. So the notification goes out over a REST
-API instead. `functions/api/inquiry.js` calls Resend; its free tier is 3,000
+`send_email`, Cloudflare's own Email Routing binding, can only deliver to
+addresses verified in Email Routing, from a domain whose DNS is already on
+Cloudflare, so it cannot work before the move. The notification goes out over a
+REST API instead. `functions/api/inquiry.js` calls Resend; its free tier is 3,000
 emails a month, which is far more than a 72-home building will ever send.
 
 **The form already works without any of this.** The row goes into D1 first and

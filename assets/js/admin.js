@@ -688,7 +688,7 @@
           why.textContent = d.lastError;      // provider text, so textContent
           warn.append(why);
         } else {
-          warn.append(document.createTextNode('Check RESEND_API_KEY and LEAD_TO on the Pages project.'));
+          warn.append(document.createTextNode('Check RESEND_API_KEY and LEAD_TO in the Worker’s settings in Cloudflare.'));
         }
       } else {
         warn.hidden = true;
@@ -768,7 +768,7 @@
       if (!d.ai) {
         insightAsk.hidden = true;
         insightNote.textContent = '';
-        insightEmpty('Add an ANTHROPIC_API_KEY to the Pages project and Claude will explain these numbers here in a few sentences, and summarise each enquiry.');
+        insightEmpty('Add an ANTHROPIC_API_KEY in the Worker’s settings in Cloudflare and Claude will explain these numbers here in a few sentences, and summarise each enquiry.');
         return;
       }
       insightAsk.hidden = false;

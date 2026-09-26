@@ -39,7 +39,7 @@ export async function onRequestPost({ request, env }) {
   const denied = await requireSession(request, env);
   if (denied) return denied;
   if (!env.DB) return json({ error: 'No database bound.' }, 503);
-  if (!aiEnabled(env)) return json({ error: 'Add ANTHROPIC_API_KEY to the Pages project to turn this on.' }, 503);
+  if (!aiEnabled(env)) return json({ error: 'Add ANTHROPIC_API_KEY in the Worker’s settings in Cloudflare to turn this on.' }, 503);
 
   let body = {};
   try { body = await request.json(); } catch { /* defaults */ }

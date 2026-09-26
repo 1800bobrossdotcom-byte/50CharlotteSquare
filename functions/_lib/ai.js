@@ -29,7 +29,7 @@ export const aiEnabled = (env) => Boolean(env.ANTHROPIC_API_KEY);
 /** One plain sentence for the dashboard, from whichever way the call failed.
  *  Most specific first: in this SDK the connection error is itself an APIError. */
 export function aiError(err) {
-  if (err instanceof Anthropic.AuthenticationError) return 'The Anthropic API key was not accepted. Check ANTHROPIC_API_KEY on the Pages project.';
+  if (err instanceof Anthropic.AuthenticationError) return 'The Anthropic API key was not accepted. Check ANTHROPIC_API_KEY in the Worker’s settings in Cloudflare.';
   if (err instanceof Anthropic.PermissionDeniedError) return 'This Anthropic key is not allowed to use that model.';
   if (err instanceof Anthropic.NotFoundError) return 'That Claude model is not available to this Anthropic account.';
   if (err instanceof Anthropic.RateLimitError) return 'Claude is busy for this account right now. Try again in a minute.';

@@ -1,30 +1,39 @@
-# Cloudflare Pages configuration for the analytics backend.
+# Cloudflare Worker configuration: the website as static assets, plus the few
+# dynamic routes (API, /admin/ gate, /tour/ test, shared reports) in a Worker.
 #
-# The site itself is plain static files; only /api/* and the /admin/ gate run as
-# Functions, so every content page is still served from cache.
+# The site itself is plain files; only the paths under run_worker_first below
+# reach any code, so every content page is still served straight from cache.
 #
-# Setup, once:
-#   wrangler d1 create charlotte-analytics          # paste the id below
+# Deployed by Cloudflare's Git integration (Workers Builds):
+#   Build command    sh scripts/stage.sh      copies only the website into public/
+#   Deploy command   npx wrangler deploy
+# The Worker's name in the dashboard must match `name` here.
+#
+# Setup, once (dashboard or terminal):
+#   wrangler d1 create charlotte-analytics          # its id is below
 #   wrangler d1 execute charlotte-analytics --file=./schema.sql --remote
-#   node tools/hash-password.mjs 'a long passphrase'
-#
-# Pages secrets take --project, not --name (that is the Workers flag):
-#   wrangler pages secret put ADMIN_PASSWORD_HASH --project=charlotte-square
-#   wrangler pages secret put SESSION_SECRET      --project=charlotte-square
-#   wrangler pages secret put VISITOR_SALT        --project=charlotte-square
-#
-# Needs Wrangler 3.45.0 or newer, and the Pages project on build system V2, for
-# this file to configure the binding at all.
+#   node tools/hash-password.mjs                    # or the Dashboard Password Maker page
+#   wrangler secret put ADMIN_PASSWORD_HASH
+#   wrangler secret put SESSION_SECRET
+#   wrangler secret put VISITOR_SALT
 #
 # Rotating VISITOR_SALT re-randomises visitor grouping from that moment on. It
 # does not corrupt history — past rows keep their old hashes — but a visitor
 # will not be matched across the change. Rotate on a day boundary.
 
-name = "charlotte-square"
+name = "50charlottesquare"
+main = "src/worker.js"
 compatibility_date = "2026-09-16"
-# Only the website is published, never the repository root: the Pages build
-# command is `sh scripts/stage.sh`, which copies the public files into public/.
-pages_build_output_dir = "public"
+
+[assets]
+# Only the website is published, never the repository root: the build command
+# `sh scripts/stage.sh` copies the public files into public/.
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "404-page"
+html_handling = "auto-trailing-slash"
+# Everything else is served as a file without running any code.
+run_worker_first = ["/api/*", "/admin", "/admin/*", "/tour", "/tour/*", "/r/*"]
 
 [[d1_databases]]
 binding = "DB"
