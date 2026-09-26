@@ -1359,8 +1359,14 @@ the output folder.
 
 ```bash
 wrangler d1 create charlotte-analytics          # done: its id is in wrangler.toml
-wrangler d1 execute charlotte-analytics --file=./schema.sql --remote
 ```
+
+**The tables make themselves.** The Worker bundles `schema.sql`, and the first
+time it runs against a database that is missing any of its tables it runs every
+statement in it. After that it costs one lookup per Worker instance. Pasting
+the file into the D1 console, or running
+`wrangler d1 execute charlotte-analytics --file=./schema.sql --remote`, still
+works and is harmless.
 
 `schema.sql` is idempotent — every statement is `IF NOT EXISTS`, so running it
 again on an existing database adds the new tables and leaves the old data alone.

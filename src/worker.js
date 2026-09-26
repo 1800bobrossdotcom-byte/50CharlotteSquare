@@ -23,6 +23,42 @@ import * as stats from '../functions/api/stats.js';
 import * as triage from '../functions/api/triage.js';
 import * as tour from '../functions/tour/index.js';
 import * as report from '../functions/r/[token].js';
+import SCHEMA from '../schema.sql';
+
+// The tables, from schema.sql, one statement each. Every statement there is
+// CREATE … IF NOT EXISTS, so running them again changes nothing.
+const SCHEMA_STATEMENTS = SCHEMA.split('\n')
+  .map((line) => line.split('--')[0])
+  .join('\n')
+  .split(';')
+  .map((sql) => sql.trim())
+  .filter(Boolean);
+
+// A new database starts empty. Rather than depend on someone pasting
+// schema.sql into the D1 console, the Worker makes any missing tables the
+// first time it runs: one cheap lookup per Worker instance, and the full set
+// of CREATE statements only when a table is actually missing.
+let schemaReady = null;
+function ensureSchema(env) {
+  if (!env.DB) return Promise.resolve();
+  if (!schemaReady) {
+    schemaReady = (async () => {
+      const { results } = await env.DB.prepare(
+        "SELECT name FROM sqlite_master WHERE type = 'table'",
+      ).all();
+      const have = new Set(results.map((r) => r.name));
+      const want = SCHEMA_STATEMENTS
+        .map((sql) => /CREATE TABLE IF NOT EXISTS (\w+)/i.exec(sql))
+        .filter(Boolean).map((m) => m[1]);
+      if (want.every((t) => have.has(t))) return;
+      await env.DB.batch(SCHEMA_STATEMENTS.map((sql) => env.DB.prepare(sql)));
+    })().catch((err) => {
+      schemaReady = null;   // try again on the next request
+      console.error('schema setup failed:', err && err.message);
+    });
+  }
+  return schemaReady;
+}
 
 const API = {
   '/api/collect': collect,
@@ -95,6 +131,7 @@ export default {
     // Anything else that reached here is a file: hand it to the asset layer.
     if (!hit) return env.ASSETS.fetch(request);
 
+    await ensureSchema(env);
     const handler = handlerFor(hit.mod, request.method);
     if (!handler) {
       return new Response('Method not allowed', {
