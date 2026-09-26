@@ -24,6 +24,10 @@
 name = "50charlottesquare"
 main = "src/worker.js"
 compatibility_date = "2026-09-16"
+# Settings are managed in the dashboard (Settings → Variables and Secrets).
+# Without this, every deploy from Git removes any plain-text variable that is
+# not also listed here. Secrets are never removed either way.
+keep_vars = true
 
 [assets]
 # Only the website is published, never the repository root: the build command
