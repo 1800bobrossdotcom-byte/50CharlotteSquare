@@ -126,9 +126,12 @@ async function overLimit(env, ip, now) {
  *  somebody hunting; the sentence tells them what to change. */
 async function notify(env, row, origin) {
   const key = env.RESEND_API_KEY;
-  const to = env.LEAD_TO;
+  // One address, or several separated by commas: everyone listed gets every
+  // enquiry. Any address other than the Resend account's own needs a domain
+  // verified in that account first.
+  const to = String(env.LEAD_TO || '').split(',').map((s) => s.trim()).filter(Boolean);
   if (!key) return { ok: false, error: 'RESEND_API_KEY is not set on this deployment.' };
-  if (!to) return { ok: false, error: 'LEAD_TO is not set on this deployment.' };
+  if (!to.length) return { ok: false, error: 'LEAD_TO is not set on this deployment.' };
 
   const who = `${row.first_name} ${row.last_name}`.trim();
   const line = (k, v) => `<tr><td style="padding:4px 14px 4px 0;color:#6b6b6b">${k}</td><td style="padding:4px 0"><strong>${esc(v)}</strong></td></tr>`;
@@ -156,7 +159,7 @@ ${row.message ? `<p style="margin:16px 0 4px;color:#6b6b6b">Message</p><p style=
       headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: env.LEAD_FROM || 'Charlotte Square <onboarding@resend.dev>',
-        to: [to],
+        to,
         // So hitting reply in Gmail answers the prospect, not the robot.
         reply_to: row.email,
         subject: `Charlotte Square inquiry — ${who}`,

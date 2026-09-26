@@ -1388,7 +1388,8 @@ wrangler secret put RESEND_API_KEY
 wrangler secret put ANTHROPIC_API_KEY   # optional: Claude
 ```
 
-`LEAD_TO` is where inquiry notifications land. It is a secret and not a
+`LEAD_TO` is where inquiry notifications land: one address, or several
+separated by commas, each of which gets every enquiry. It is a secret and not a
 `data-email` attribute because in the attribute it sat in the page source of
 every contact page, which is the first place an address harvester looks. It is
 no longer anywhere in this repository either.
@@ -1416,7 +1417,8 @@ that owns the Resend account**. Anything else comes back
   `LEAD_TO`.** Do that and email works in about five minutes, before DNS has
   moved anywhere.
 - To send to *any* other address — a second agent, a shared leasing inbox — you
-  must verify a domain first.
+  must verify a domain first. Any domain verified in that Resend account will
+  do, not only this site's: set `LEAD_FROM` to an address on it.
 
 #### Fast path, works before DNS moves
 
