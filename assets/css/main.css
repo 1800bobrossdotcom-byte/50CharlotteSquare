@@ -39,6 +39,13 @@
   --sky:        #5C7F9E;   /* the steel cladding and the sky above it */
   --sky-100:    #E4ECF3;
   --sky-900:    #2A4358;
+  /* LEED Gold, kept to the certification badges and the one stat. The text
+     gold reads 5.8:1 on white and the light gold 9.5:1 on the ink sections;
+     the line gold is for frames and rules, never for text. */
+  --gold:         #7D6220;
+  --gold-line:    #C4A55A;
+  --gold-tint:    #F8F2E2;
+  --gold-on-dark: #D9B96A;
 
   /* Semantic */
   --bg:           var(--stone);
@@ -1165,3 +1172,104 @@ p, .lead, .hero__lead, .prose p, .feature p, .card p, .step p, .tile__sub,
 .footer--lp { padding-top: 0; }
 .footer--lp .footer__bottom { margin-top: 0; }
 .lp__note { font-size: .82rem; color: var(--fg-subtle); }
+
+/* =============================================================================
+   CREDENTIALS — LEED Gold and the 2017 NAIOP award.
+   Set in the site's own type: these are not the USGBC or NAIOP logos, which
+   have their own usage rules (see CREDS in the page generator). Gold appears
+   only here and on the one stat, so it keeps meaning "certified".
+   ============================================================================= */
+
+/* The hero seal: two copies of one link. .seal--photo sits on the framed
+   photograph of the Gallery hero from 900px; .seal--flow sits above the
+   headline everywhere else. Exactly one is displayed at any width. */
+.seal {
+  display: flex; align-items: center; gap: .7rem; width: fit-content;
+  padding: .45rem 1.15rem .45rem .45rem; border-radius: 999px;
+  text-decoration: none; line-height: 1.1;
+}
+.seal__icon { flex: none; width: 2.3rem; height: 2.3rem; border-radius: 50%; display: grid; place-items: center; border: 1px solid; }
+.seal__icon svg { width: 1.1rem; height: 1.1rem; }
+.seal__text { display: grid; gap: .15rem; }
+.seal__k { font-size: .64rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.seal__v { font-family: var(--font-display); font-size: 1.5rem; line-height: .95; }
+a.seal:hover .seal__v { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+/* Over a full-bleed photograph: dark glass, light gold */
+.seal--flow {
+  margin: 0 0 1.25rem; color: #fff;
+  background: rgba(18, 19, 22, .52); border: 1px solid rgba(217, 185, 106, .55);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.seal--flow .seal__icon { border-color: rgba(217, 185, 106, .7); color: var(--gold-on-dark); }
+.seal--flow .seal__k { color: rgba(255, 255, 255, .88); }
+.seal--flow .seal__v { color: var(--gold-on-dark); }
+.seal--photo { display: none; }
+@media (min-width: 900px) {
+  [data-style="gallery"] .seal--flow { display: none; }
+  [data-style="gallery"] .seal--photo {
+    display: flex; position: absolute; z-index: 2; left: 1.25rem; bottom: 1.25rem;
+    background: #fff; color: var(--fg); border: 1px solid var(--gold-line);
+    box-shadow: 0 12px 32px -14px rgba(18, 19, 22, .5);
+  }
+  [data-style="gallery"] .seal--photo .seal__icon { border-color: var(--gold-line); background: var(--gold-tint); color: var(--gold); }
+  [data-style="gallery"] .seal--photo .seal__k { color: var(--fg-muted); }
+  [data-style="gallery"] .seal--photo .seal__v { color: var(--gold); font-size: 1.85rem; }
+  [data-style="gallery"] .seal--photo { gap: .85rem; padding: .55rem 1.5rem .55rem .55rem; left: 1.5rem; bottom: 1.5rem; }
+  [data-style="gallery"] .seal--photo .seal__icon { width: 2.9rem; height: 2.9rem; }
+  [data-style="gallery"] .seal--photo .seal__icon svg { width: 1.35rem; height: 1.35rem; }
+  [data-style="gallery"] .seal--photo .seal__k { font-size: .68rem; }
+}
+
+.stat__value--gold { color: var(--gold); }
+#cert-title .accent { color: var(--gold-on-dark); font-style: italic; }
+
+/* Badges: a 2 x 2 block beside text, or a row of four under a heading */
+.creds { display: grid; gap: clamp(.75rem, 1.6vw, 1.25rem); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 900px) { .creds--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 359.98px) { .creds { grid-template-columns: minmax(0, 1fr); } }
+.cred {
+  display: grid; justify-items: center; align-content: start; gap: .3rem; min-width: 0; text-align: center;
+  padding: 1.5rem 1rem 1.35rem; border: 1px solid var(--line-strong); border-radius: var(--radius);
+  background: var(--bg-elev);
+}
+.cred__icon { width: 2.75rem; height: 2.75rem; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--line-strong); color: var(--fg); margin-bottom: .5rem; }
+.cred__icon svg { width: 1.25rem; height: 1.25rem; }
+.cred__k { margin: 0; font-size: .66rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--fg-muted); }
+.cred__v { margin: 0; font-family: var(--font-display); font-size: clamp(1.9rem, 2.3vw, 2.4rem); line-height: 1.05; letter-spacing: -.01em; color: var(--fg); overflow-wrap: anywhere; }
+.cred__note { margin: .25rem 0 0; font-size: .84rem; line-height: 1.4; color: var(--fg-muted); max-width: 24ch; }
+/* The certificate: a second gold rule just inside the first */
+.cred--gold { border-color: var(--gold-line); outline: 1px solid var(--gold-line); outline-offset: -6px; background: var(--gold-tint); }
+.cred--gold .cred__icon { border-color: var(--gold-line); color: var(--gold); }
+.cred--gold .cred__k, .cred--gold .cred__v { color: var(--gold); }
+.section--ink .cred { background: rgba(255, 255, 255, .03); border-color: rgba(244, 241, 235, .2); }
+.section--ink .cred__icon { border-color: rgba(244, 241, 235, .35); color: #F2EFE9; }
+.section--ink .cred__k { color: rgba(244, 241, 235, .66); }
+.section--ink .cred__v { color: #fff; }
+.section--ink .cred__note { color: rgba(244, 241, 235, .7); }
+.section--ink .cred--gold { background: rgba(217, 185, 106, .08); border-color: rgba(217, 185, 106, .6); outline-color: rgba(217, 185, 106, .38); }
+.section--ink .cred--gold .cred__icon { border-color: rgba(217, 185, 106, .7); color: var(--gold-on-dark); }
+.section--ink .cred--gold .cred__k, .section--ink .cred--gold .cred__v { color: var(--gold-on-dark); }
+
+/* The spec sheet on the story page. Two class selectors on the group heading:
+   Gallery's :is(h1, h2, h3, .hero__title…) rule weighs (0,2,0). */
+.specs { display: grid; gap: clamp(2rem, 4vw, 3rem) clamp(2rem, 5vw, 4.5rem); margin-top: clamp(2.5rem, 5vw, 4rem); }
+@media (min-width: 900px) {
+  .specs { display: block; columns: 2; column-gap: clamp(2rem, 5vw, 4.5rem); }
+  .specs__group { break-inside: avoid; margin-bottom: clamp(2rem, 4vw, 3rem); }
+}
+.specs .specs__group h3 {
+  font-family: var(--font-body); font-size: .72rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent); margin: 0 0 .75rem;
+}
+.specs dl { margin: 0; border-top: 1px solid var(--fg); }
+.specs dl > div { display: grid; grid-template-columns: minmax(0, 10.5rem) minmax(0, 1fr); gap: .2rem 1.25rem; padding: .85rem 0; border-bottom: 1px solid var(--line); }
+.specs dt { color: var(--fg-muted); font-size: .92rem; padding-top: .1rem; }
+.specs dd { margin: 0; }
+@media (max-width: 520px) { .specs dl > div { grid-template-columns: minmax(0, 1fr); } }
+.specs__foot { margin-top: 2rem; }
+
+/* The LEED mark beside Equal Housing Opportunity in every footer */
+.marks { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .4rem 1.5rem; }
+.footer__bottom .eho { display: inline-flex; }
+.eho--leed svg { color: var(--gold-on-dark); }
+[data-style="gallery"] .eho--leed svg { color: var(--gold); }

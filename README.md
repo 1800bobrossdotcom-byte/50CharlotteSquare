@@ -19,11 +19,11 @@ three archived* below.
 
 | URL | File | What it does |
 |---|---|---|
-| `/` | `index.html` | Animated hero gallery, at-a-glance stats, intro, residences preview, amenity bento grid, East End ticker, management intro, tour CTA |
+| `/` | `index.html` | Hero with the LEED Gold seal, at-a-glance stats, intro, certified-green badges, residences preview, amenity bento grid, East End ticker, management intro, tour CTA |
 | `/residences/` | `residences/index.html` | Filterable 1/2/3-bedroom floor plans, what's included, in-home features, FAQ |
 | `/amenities/` | `amenities/index.html` | Bento overview, detail rows (terrace, fitness, community room, pocket park), sustainability, gallery with lightbox |
 | `/neighborhood/` | `neighborhood/index.html` | Walk/bike/transit, the Charlotte Street index, what's-near cards, Google map |
-| `/story/` | `story/index.html` | The Charlotte story, podium cross-section diagram, LEED features, about Evolution24 |
+| `/story/` | `story/index.html` | The Charlotte story, podium cross-section diagram, the LEED Gold spec sheet (`#specs`), about Evolution24 |
 | `/contact/` | `contact/index.html` | Working inquiry form, contact cards, resident portal, map |
 | `/privacy/` | `privacy/index.html` | Privacy policy, accessibility statement, fair housing |
 | `/tour/` | `tour-a/`, `tour-b/`, `tour-c/` | Booking page for ads, in three versions under test; see *The tour page test*. Not in the sitemap, `noindex` |
@@ -136,7 +136,8 @@ intro `<h2>`, the lead paragraph, the footer on every page and the JSON-LD
 description, plus the residences and amenities titles — at 0.14–0.33% of visible
 words per page, which is natural usage rather than the 2%+ that reads as
 stuffing. Nothing false was claimed: the building is 2016-built and
-LEED-designed, with granite, stainless and private outdoor space on every home.
+LEED Gold certified, with stone countertops, stainless appliances and private
+outdoor space in every home.
 
 **What that does and does not buy.** On-page work decides whether a page is
 *eligible* for a query and how well it answers it. It does not decide the
@@ -1208,6 +1209,53 @@ The shared outdoor space with the pergola, fire pit and grills is on the **podiu
 
 `terrace.jpg` is a current frame of that deck — the pergola, the shared grills and the bar. It is the smallest file in the library at 572px, because it arrived as a screenshot; the full-size original is on the Apartments.com listing and is worth pulling.
 
+## LEED Gold, and the spec sheet
+
+Charlotte Square is **LEED Gold certified**. Two written sources, both checked
+on 26 September 2026:
+
+- SWBR, the architect: the project page lists it as "LEED Homes Gold
+  Certified", completed 2016, with architecture, structural engineering and
+  landscape architecture by SWBR.
+- Rochester Daily Record, 21 May 2025: "received LEED Gold certification", and
+  "recognized in the 2017 NAIOP Upstate New York Chapter Awards of Excellence
+  as the top Urban Multi-Family project". Also four storeys, 72 units, nine-foot
+  ceilings, stainless steel appliances, in-unit laundry, private terraces or
+  balconies.
+
+**Where it shows.** The home hero carries a seal (on the photograph from 900px
+wide, above the headline on a phone; one link, drawn twice, only one ever
+displayed). The stat strip reads *Gold* where it used to read 2016. A dark
+*Certified green* section on the home page and a spec sheet on the story page
+(`/story/#specs`) share the same four badges: LEED Gold, the 2017 award, rooftop
+solar, EV charging. The footer carries a LEED mark beside Equal Housing
+Opportunity on every page. The residences page gained nine-foot ceilings,
+countertops and in-unit laundry, and a FAQ entry with a matching JSON-LD
+answer. The three tour pages carry the same seal, identically, so the A/B/C test
+still compares only what it was built to compare. The JSON-LD, `llms.txt` and
+the facts Claude may use in draft replies all say the same thing.
+
+**The badges are set in the site's own type**, not the USGBC or NAIOP logos.
+Those marks have their own rules. USGBC does let a certified building show its
+official LEED Gold mark, so if the owner has the artwork, it can replace the
+typeset seal. `LEED®` carries the registered mark where it is most prominent,
+and the spec sheet carries the trademark line.
+
+**Deliberately not claimed.**
+
+- ENERGY STAR: seen only in listing snippets.
+- "One of two LEED Gold market-rate buildings in Rochester": true in 2016, not
+  checkable now.
+- Energy savings or lower bills: LEED rates the design; nobody has published
+  this building's numbers.
+- Gross floor area: the sources disagree, 75,200 sq ft against 132,000.
+- **Countertops say "stone"**: the Daily Record says quartz, the photographs
+  read as granite, and earlier alt text said granite. "Stone" is true either
+  way until the owner confirms.
+
+The badge text lives in `CREDS`, and the spec rows in `SPECS`, in the page
+generator. Change a fact there and every page that shows it follows.
+
 ## The Charlotte Street block
 
 The neighborhood page carries a street index listing the block in house-number order, which is the most local thing the site can say. The entries are in `neighborhood/index.html` as an `<ol class="street">`; add or remove a row and the layout follows.
@@ -1533,3 +1581,8 @@ These came from public listings or the previous site and should be verified with
       as screenshots. `terrace.jpg` at 572px is the one that shows
 - [ ] Claim the Apartments.com listing — it still names Home Leasing, gives the old phone
       number, and describes a rooftop terrace
+- [ ] **Countertops: quartz or granite?** The site says "stone" until someone who has
+      been in the kitchens says which
+- [ ] ENERGY STAR — add it to the badges only with a written source
+- [ ] Optional: USGBC's official LEED Gold artwork from the owner, to replace the
+      typeset seal

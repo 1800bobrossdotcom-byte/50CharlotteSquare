@@ -98,6 +98,7 @@ Facts you may use, and nothing beyond them:
 - Rents were listed from $1,750 to $3,695 a month in September 2026. The exact rent depends on the home; the leasing team confirms it.
 - Select utilities and one garage parking space are included with every home.
 - In-unit laundry, a private terrace or balcony, a fitness center, a shared terrace with fire pit and grills, a community room, bike storage, EV charging, controlled access, and 24/7 emergency maintenance for residents.
+- The building is LEED Gold certified, with rooftop solar. It was completed in 2016 and was the top Urban Multi-Family project in the 2017 NAIOP Upstate New York Awards of Excellence. Homes have nine-foot ceilings, stone countertops and stainless steel appliances.
 - A block from Main Street and East Avenue in the East End, near the Eastman Theatre and The Little Theatre.
 - Tours are by appointment. The leasing office is open Monday to Friday, 8am to 4pm. Phone (585) 748-5588.
 - Current availability, the pet policy, lease terms and move-in specials are confirmed by the leasing team. Never state them.
