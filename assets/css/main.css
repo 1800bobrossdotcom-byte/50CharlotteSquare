@@ -1375,9 +1375,10 @@ html:root[data-style="gallery"] { color-scheme: light; }
    The home page, on arrival and on a reload: a white intro with the C drawn
    large and the name under it; then the C flies into the header's place
    (main.js measures where) as the page shows through. The intro is off unless
-   the head script turns it on, so without JavaScript, for crawlers, or for
-   anyone who asks for reduced motion, there is none, and the header's C
-   simply stands.
+   the head script turns it on, so without JavaScript, or for crawlers, there
+   is none. Where the device asks for reduced motion, nothing moves: the intro
+   is the finished mark and name fading in and out, and the header's C simply
+   stands.
    ============================================================================= */
 @keyframes c-pop  { from { transform: scale(.35) rotate(-10deg); opacity: 0; } }
 @keyframes c-draw { from { stroke-dasharray: 100; stroke-dashoffset: 100; } to { stroke-dasharray: 100; stroke-dashoffset: 0; } }
@@ -1415,4 +1416,13 @@ html.with-intro .intro {
 @keyframes intro-clear { to { background-color: transparent; } }
 @keyframes intro-done  { to { visibility: hidden; } }
 @keyframes intro-fly   { to { transform: translate(var(--fly-x, 0px), var(--fly-y, 0px)) scale(var(--fly-s, 1)); } }
-@media (prefers-reduced-motion: reduce) { html.with-intro .intro { display: none; } }
+/* Animations turned off on the device (Windows "Animation effects", a Mac's
+   "Reduce motion"): no drawing, no flight, nothing moves. The finished mark and
+   the name fade in, hold a moment, and the white fades away. Opacity only. */
+@keyframes intro-in  { from { opacity: 0; } }
+@keyframes intro-out { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  html.with-intro .intro { animation: intro-out .45s ease 1.1s forwards, intro-done 0s linear 1.55s forwards; }
+  .intro__mark, .intro__name { animation: intro-in .4s ease both; }
+  .intro__mark rect, .intro__mark .brand__c { animation: none; }
+}

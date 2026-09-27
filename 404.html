@@ -5,28 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Page not found · Charlotte Square</title>
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
 <style>
-  :root { color-scheme: light dark; --brick:#D2452D; --ink:#121316; --stone:#F4F1EB; }
-  body { margin:0; min-height:100svh; display:grid; place-items:center; text-align:center; padding:2rem;
-         background: var(--ink); color: var(--stone); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  .mark { width:64px; height:64px; margin:0 auto 1rem; }
-  .wordmark { font-weight:800; letter-spacing:-.02em; font-size:1.2rem; margin:0 0 .3rem; }
-  .wordmark b { font-weight:400; }
-  .tagline { font-size:.62rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
-             color: rgba(244,241,235,.55); margin:0 0 2rem; }
-  h1 { font-size: clamp(2.5rem, 8vw, 5rem); letter-spacing:-.035em; line-height:1; margin:0 0 1rem; }
-  p { color: rgba(244,241,235,.7); max-width: 32rem; margin: 0 auto 2rem; font-size: 1.1rem; }
-  a.btn { display:inline-block; padding:1rem 1.75rem; border-radius:999px; background: var(--brick); color:#fff; font-weight:700; text-decoration:none; }
+  :root { color-scheme: light; }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 3rem 1.25rem;
+         background: #FFFFFF; color: #1A1A1A; text-align: center;
+         font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { width: 100%; max-width: 34rem; }
+  a { color: inherit; }
+  a:focus-visible { outline: 2px solid #2F6FED; outline-offset: 3px; border-radius: 2px; }
+  .brand { display: inline-flex; align-items: center; gap: .7rem; margin-bottom: 2.75rem; text-align: left; text-decoration: none; }
+  .brand__mark { display: block; flex: none; width: 2.6rem; height: 2.6rem; }
+  .brand__name { display: block; font-family: "Instrument Serif", Georgia, "Times New Roman", serif; font-size: 1.6rem; line-height: 1; }
+  .brand__name b { font-weight: 400; font-style: italic; }
+  .brand__tag { display: block; margin-top: .3rem; font-size: .6rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #4F4B47; }
+  .rule { width: 2.5rem; height: 3px; margin: 0 auto 1.5rem; background: #7A1F12; }
+  h1 { margin: 0 0 1rem; font-family: "Instrument Serif", Georgia, "Times New Roman", serif; font-weight: 400;
+       font-size: clamp(3.2rem, 12vw, 5.5rem); line-height: 1; letter-spacing: -.01em; }
+  p { margin: 0 auto 2rem; max-width: 30rem; font-size: 1.1rem; line-height: 1.55; color: #4F4B47; text-wrap: pretty; }
+  .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding: .8rem 1.5rem;
+         border: 1.5px solid transparent; border-radius: .25rem; font-size: 1rem; font-weight: 700; text-decoration: none; }
+  .btn--primary { background: #7A1F12; color: #FFFFFF; }
+  .btn--primary:hover { background: #5E160C; }
+  .btn--ghost { border-color: rgba(26, 26, 26, .4); }
+  .btn--ghost:hover { border-color: #1A1A1A; }
+  @media (max-width: 480px) { .actions { flex-direction: column; max-width: 18rem; margin: 0 auto; } }
+  .call { margin: 2rem auto 0; font-size: .95rem; color: #6F6A65; }
+  .call a { color: #7A1F12; font-weight: 600; white-space: nowrap; }
+  @keyframes c-pop  { from { transform: scale(.35) rotate(-10deg); opacity: 0; } }
+  @keyframes c-draw { from { stroke-dasharray: 100; stroke-dashoffset: 100; } to { stroke-dasharray: 100; stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: no-preference) {
+    .brand__mark rect { transform-box: fill-box; transform-origin: center; animation: c-pop .45s cubic-bezier(.2, .7, .2, 1) both; }
+    .brand__c { animation: c-draw .65s cubic-bezier(.65, 0, .35, 1) .15s both; }
+  }
 </style>
 </head>
 <body>
-  <div>
-    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#A93B3F"/><path d="M9 9 H55 V27 H45 V19 H19 V45 H55 V55 H9 Z" fill="#fff"/></svg>
-    <p class="wordmark">Charlotte <b>Square</b></p>
-    <p class="tagline">at the East End</p>
-    <h1>Wrong door.</h1>
-    <p>That page isn't here. The building is at 50 Charlotte Street; the homepage is one tap away.</p>
-    <a class="btn" href="/">Back to Charlotte Square</a>
+<main>
+  <a class="brand" href="/" aria-label="Charlotte Square at the East End — home"><svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" fill="#A93B3F"/><path class="brand__c" d="M50 27 V14 H14 V50 H55" fill="none" stroke="#fff" stroke-width="10" stroke-linejoin="miter" pathLength="100"/></svg><span><span class="brand__name">Charlotte <b>Square</b></span><span class="brand__tag">at the East End</span></span></a>
+  <div class="rule" aria-hidden="true"></div>
+  <h1>Wrong door.</h1>
+  <p>That page isn’t here. The building is at 50&nbsp;Charlotte Street, and the home page is one tap away.</p>
+  <div class="actions">
+    <a class="btn btn--primary" href="/">Back to the home page</a>
+    <a class="btn btn--ghost" href="/residences/">See the floor plans</a>
   </div>
+  <p class="call">Want a tour? Call <a href="tel:+15857485588">(585) 748-5588</a>.</p>
+</main>
 </body>
 </html>

@@ -28,7 +28,7 @@ three archived* below.
 | `/privacy/` | `privacy/index.html` | Privacy policy, accessibility statement, fair housing |
 | `/tour/` | `tour-a/`, `tour-b/`, `tour-c/` | Booking page for ads, in three versions under test; see *The tour page test*. Not in the sitemap, `noindex` |
 | `/admin/` | `admin/index.html` | The dashboard, behind a password |
-| `404.html` | | Self-contained not-found page (works at any depth) |
+| `404.html` | | Self-contained not-found page in the site's own look (inline CSS, absolute links, so it works at any depth) |
 
 ## Structure
 
@@ -1118,17 +1118,20 @@ pixels differ), and a line can be animated as if drawn by hand.
   sized to the screen: 104px on a phone, growing to 184px on a large monitor.
   `main.js` measures where the header's C is so the landing is exact on any
   screen; without it the C simply fades where it is.
-- **No animation at all** for anyone who asks their device for reduced motion,
-  for search engines and page-speed tools, or without JavaScript. The intro is
-  off unless the head script turns it on, so it can never be left covering the
-  page.
+- **Nothing moves** for anyone whose device asks for reduced motion (Windows
+  "Animation effects" off, a Mac's "Reduce motion" on). They still get the
+  intro, as a still logo and name that fade in and out in about a second and a
+  half: opacity only, no drawing, no flight. The header's C simply stands.
+- **No intro at all** for search engines and page-speed tools, or without
+  JavaScript. The intro is off unless the head script turns it on, so it can
+  never be left covering the page.
 
 The timings are in the "THE C, DRAWN" block at the end of `main.css`. To see the
-intro again, reload the home page. It is skipped on purpose when the device asks
-for reduced motion: on Windows that is Settings, Accessibility, Visual effects,
-"Animation effects" off; on a Mac, System Settings, Accessibility, Display,
-"Reduce motion" on. The once-a-visit memory for arrivals is `sessionStorage` key
-`cs-intro`.
+intro again, reload the home page. To see the full drawn version rather than the
+still one, the device has to allow animation: on Windows, Settings,
+Accessibility, Visual effects, "Animation effects" on; on a Mac, System
+Settings, Accessibility, Display, "Reduce motion" off. The once-a-visit memory
+for arrivals is `sessionStorage` key `cs-intro`.
 
 ## Editing content
 
@@ -1193,7 +1196,7 @@ Everything is a token in `assets/css/main.css`:
 
 Red on near-black alone reads stark, so the three supporting hues carry real work rather than sitting in a swatch: they color the amenity tiles, cycle through the feature icons, and warm the dark sections and the closing call-to-action band. The charcoals are warm (`#1A1613`, not a blue-black), so dark sections read like dusk on brick.
 
-Type: **Bricolage Grotesque**, **Manrope**, **Instrument Serif** and **DM Sans**, all self-hosted in `assets/fonts/` under the SIL Open Font License, so the site makes no third-party requests. Each style pairs two of them. Fluid sizes via `clamp()`. Dark mode follows the visitor's system setting automatically. Motion respects `prefers-reduced-motion`.
+Type: **Bricolage Grotesque**, **Manrope**, **Instrument Serif** and **DM Sans**, all self-hosted in `assets/fonts/` under the SIL Open Font License, so the site makes no third-party requests. Each style pairs two of them. The live Gallery style uses Instrument Serif and DM Sans, and those three files (DM Sans, Instrument Serif and its italic) are the ones every page preloads; the other two belong to the archived styles and are only downloaded if one of those is switched back on. Fluid sizes via `clamp()`. Dark mode follows the visitor's system setting automatically. Motion respects `prefers-reduced-motion`.
 
 The same tokens, mark treatment (`Evolution<b>24</b>`) and type pairing can carry straight over to the new Evolution24 site so the portfolio reads as one family.
 
