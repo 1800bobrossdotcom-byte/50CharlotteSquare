@@ -20,6 +20,8 @@ import { moveInLabel } from './movein.js';
 const PHONE = '(585) 748-5588';
 const PHONE_TEL = '+15857485588';
 const HOURS = 'Monday to Friday, 8am to 4pm';
+// Who answers. Named in the email so the reply comes from someone they met.
+const TEAM = 'Vicki, Tesa, or Tatum';
 const STREET = '50 Charlotte Street, Rochester, NY 14607';
 const QUIET = 12 * 3600;   // seconds between two confirmations to one address
 
@@ -54,10 +56,12 @@ export function confirmationEmail(row, links) {
   const tour = row.form === 'tour';
   const hello = name ? `Thanks, ${name}.` : 'Thank you.';
   const got = tour
-    ? 'We’ve got your tour request. Our leasing team will be in touch within one business day to set a time that suits you.'
-    : 'We’ve got your message. A real person on our leasing team will reply within one business day, usually sooner.';
+    ? `We’ve got your tour request. ${TEAM} will be in touch within one business day to set a time that suits you.`
+    : `We’ve got your message. ${TEAM} will reply within one business day, usually sooner.`;
   const subject = tour ? 'We’ve got your tour request · Charlotte Square' : 'We’ve got your message · Charlotte Square';
-  const preheader = tour ? 'We’ll be in touch within one business day to set a time.' : 'A real person will reply within one business day.';
+  const preheader = tour
+    ? `${TEAM} will be in touch within one business day to set a time.`
+    : `${TEAM} will reply within one business day.`;
   const told = [
     ['Interested in', INTEREST[row.interest]],
     ['Home', PLAN[row.plan]],
