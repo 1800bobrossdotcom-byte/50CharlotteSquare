@@ -1273,3 +1273,54 @@ a.seal:hover .seal__v { text-decoration: underline; text-decoration-thickness: 1
 .footer__bottom .eho { display: inline-flex; }
 .eho--leed svg { color: var(--gold-on-dark); }
 [data-style="gallery"] .eho--leed svg { color: var(--gold); }
+
+/* =============================================================================
+   TARGET MOVE-IN — month buttons in place of <input type="month">.
+   A radio group: arrow keys move between months, the chosen one fills in ink.
+   On a phone the two worded answers take the full width, with the months in
+   threes between them; from 640px it is two rows of five.
+   ============================================================================= */
+.movein { border: 0; margin: 0; padding: 0; min-width: 0; }
+.movein legend { padding: 0; margin-bottom: .4rem; font-size: .85rem; font-weight: 700; letter-spacing: .01em; }
+.movein__opts { display: grid; gap: .5rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.movein__opt--wide { grid-column: 1 / -1; }
+@media (min-width: 640px) {
+  .movein__opts { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .movein__opt--wide { grid-column: span 2; }
+}
+.movein__opt { position: relative; display: block; cursor: pointer; }
+/* The radio stays in the page for keyboards and screen readers; the face is
+   what shows. Two classes, to outrank `.field input`. */
+.movein .movein__opt input {
+  position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0;
+  opacity: 0; cursor: pointer; appearance: none; -webkit-appearance: none; border: 0; box-shadow: none;
+}
+.movein__opt > span {
+  display: grid; place-content: center; justify-items: center; gap: .1rem; min-height: 3.6rem;
+  padding: .55rem .5rem; text-align: center; line-height: 1.15;
+  border: 1.5px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--bg-elev); color: var(--fg);
+  transition: border-color .15s, background-color .15s, color .15s;
+}
+.movein__m { font-family: var(--font-display); font-size: 1.15rem; letter-spacing: -.005em; }
+.movein__y { font-size: .68rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--fg-muted); }
+.movein__opt:hover > span { border-color: var(--fg); }
+.movein .movein__opt input:checked + span { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+.movein .movein__opt input:checked + span .movein__y { color: inherit; opacity: .72; }
+.movein .movein__opt input:focus-visible + span { box-shadow: var(--focus); }
+@media (prefers-reduced-motion: reduce) { .movein__opt > span { transition: none; } }
+
+/* The Gallery style is a light design whatever the device is set to, so its
+   native controls (select menus, the date pickers, scrollbars) are drawn light
+   too, rather than dark widgets on a white card. */
+html:root[data-style="gallery"] { color-scheme: light; }
+
+/* Browser autofill paints fields its own blue. Keep them in the site's colours. */
+.field input:-webkit-autofill, .field input:-webkit-autofill:hover,
+.field textarea:-webkit-autofill, .field select:-webkit-autofill {
+  -webkit-text-fill-color: var(--fg); caret-color: var(--fg);
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-elev) inset; box-shadow: 0 0 0 1000px var(--bg-elev) inset;
+}
+.field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--fg);
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-elev) inset, var(--focus); box-shadow: 0 0 0 1000px var(--bg-elev) inset, var(--focus);
+}

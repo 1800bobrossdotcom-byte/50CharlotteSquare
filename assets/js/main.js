@@ -147,6 +147,37 @@
     });
   }
 
+  /* ---- Target move-in: the next six months, from today ------------------------
+     The page ships with the two answers that need no date. The months go in
+     between them here, so they always start next month, whenever the page was
+     built. Values match what the old month input sent: "2026-10". */
+  $$('[data-movein]').forEach((set) => {
+    const later = $('input[value="later"]', set);
+    const slot = later && later.closest('.movein__opt');
+    if (!slot) return;
+    const month = new Intl.DateTimeFormat('en-US', { month: 'long' });
+    const now = new Date();
+    for (let i = 1; i <= 6; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const opt = document.createElement('label');
+      opt.className = 'movein__opt';
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'move_in';
+      input.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const face = document.createElement('span');
+      const m = document.createElement('span');
+      m.className = 'movein__m';
+      m.textContent = month.format(d);
+      const y = document.createElement('span');
+      y.className = 'movein__y';
+      y.textContent = String(d.getFullYear());
+      face.append(m, y);
+      opt.append(input, face);
+      slot.before(opt);
+    }
+  });
+
   /* ---- Contact form ------------------------------------------------------- */
   const form = $('form[data-contact]');
   if (form) {

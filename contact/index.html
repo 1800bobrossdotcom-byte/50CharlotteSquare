@@ -354,8 +354,8 @@
           <div class="field"><label for="f-interest">I’m interested in</label><select id="f-interest" name="interest"><option value="tour">Scheduling a tour</option><option value="availability">Current availability</option><option value="pricing">Pricing and lease terms</option><option value="question">A general question</option></select></div>
           <div class="field"><label for="f-plan">Preferred home</label><select id="f-plan" name="plan"><option value="">No preference</option><option value="1">One bedroom</option><option value="2">Two bedroom</option><option value="3">Three bedroom</option></select></div>
         </div>
-        <div class="form__row form__row--2">
-          <div class="field"><label for="f-movein">Target move-in</label><input id="f-movein" name="move_in" type="month"></div>
+        <fieldset class="field movein" data-movein><legend>Target move-in</legend><div class="movein__opts"><label class="movein__opt movein__opt--wide"><input type="radio" name="move_in" value="asap"><span><span class="movein__m">As soon as possible</span></span></label><label class="movein__opt movein__opt--wide"><input type="radio" name="move_in" value="later"><span><span class="movein__m">Later</span><span class="movein__y">or not sure yet</span></span></label></div></fieldset>
+        <div class="form__row">
           <div class="field"><label for="f-how">How did you hear about us?</label><select id="f-how" name="source"><option value="">Select one</option><option value="search">Search</option><option value="listing">Apartment listing site</option><option value="social">Social media</option><option value="walkby">Walked by</option><option value="referral">Friend or resident</option></select></div>
         </div>
         <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" name="message" placeholder="Tell us what you’re looking for…"></textarea></div>

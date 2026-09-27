@@ -21,6 +21,7 @@
    ============================================================================= */
 import { json, today, visitorHash } from '../_lib/auth.js';
 import { aiEnabled, triageInquiry } from '../_lib/ai.js';
+import { moveInValue, moveInLabel } from '../_lib/movein.js';
 
 /* Submissions per IP per window. High enough that a couple sent in earnest, or
    a shared office NAT, never trips it; low enough to be useless to a script. */
@@ -145,7 +146,7 @@ ${line('Email', row.email)}
 ${line('Phone', row.phone || '—')}
 ${line('Interested in', label(row.interest))}
 ${line('Preferred home', label(row.plan))}
-${line('Target move-in', row.move_in || '—')}
+${line('Target move-in', moveInLabel(row.move_in) || '—')}
 ${line('Heard about us', label(row.source))}
 ${cameVia(row) ? line('Came via', cameVia(row)) : ''}
 </table>
@@ -208,7 +209,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     phone: clean(form.get('phone'), LIMITS.phone),
     interest: INTERESTS.has(form.get('interest')) ? form.get('interest') : null,
     plan: PLANS.has(form.get('plan')) ? form.get('plan') : null,
-    move_in: clean(form.get('move_in'), LIMITS.move_in),
+    move_in: moveInValue(clean(form.get('move_in'), LIMITS.move_in)),
     source: SOURCES.has(form.get('source')) ? form.get('source') : null,
     message: clean(form.get('message'), LIMITS.message),
     form: FORMS.has(form.get('form')) ? form.get('form') : 'contact',

@@ -399,6 +399,13 @@
     pricing: 'Asking pricing', question: 'General question',
   };
   const PLAN = { 1: 'One bedroom', 2: 'Two bedroom', 3: 'Three bedroom' };
+  // "2026-10" -> "October 2026"; "asap" and "later" as words.
+  const moveInText = (v) => {
+    if (v === 'asap') return 'as soon as possible';
+    if (v === 'later') return 'later, or not sure yet';
+    const m = /^(\d{4})-(\d{2})$/.exec(v);
+    return m ? new Date(Number(m[1]), Number(m[2]) - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : v;
+  };
   const SOURCE = {
     search: 'Search', listing: 'Listing site', social: 'Social',
     walkby: 'Walked by', referral: 'Referral',
@@ -552,7 +559,7 @@
 
     const facts = [
       r.plan && `Wants ${PLAN[r.plan] || r.plan}`,
-      r.move_in && `Moving ${r.move_in}`,
+      r.move_in && `Moving ${moveInText(r.move_in)}`,
       r.source && `Found us: ${SOURCE[r.source] || r.source}`,
     ].filter(Boolean);
     if (facts.length) {

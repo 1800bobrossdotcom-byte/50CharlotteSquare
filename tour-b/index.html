@@ -65,10 +65,8 @@
           <div class="field"><label for="f-email">Email <i aria-hidden="true">*</i></label><input id="f-email" name="email" type="email" autocomplete="email" required><span class="field__error">Please enter a valid email address.</span></div>
           <div class="field"><label for="f-phone">Phone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
         </div>
-        <div class="form__row form__row--2">
-          <div class="field"><label for="f-plan">Home you’d like to see</label><select id="f-plan" name="plan"><option value="">No preference</option><option value="1">One bedroom</option><option value="2">Two bedroom</option><option value="3">Three bedroom</option></select></div>
-          <div class="field"><label for="f-movein">Target move-in</label><input id="f-movein" name="move_in" type="month"></div>
-        </div>
+        <div class="field"><label for="f-plan">Home you’d like to see</label><select id="f-plan" name="plan"><option value="">No preference</option><option value="1">One bedroom</option><option value="2">Two bedroom</option><option value="3">Three bedroom</option></select></div>
+        <fieldset class="field movein" data-movein><legend>Target move-in</legend><div class="movein__opts"><label class="movein__opt movein__opt--wide"><input type="radio" name="move_in" value="asap"><span><span class="movein__m">As soon as possible</span></span></label><label class="movein__opt movein__opt--wide"><input type="radio" name="move_in" value="later"><span><span class="movein__m">Later</span><span class="movein__y">or not sure yet</span></span></label></div></fieldset>
         <div class="field"><label for="f-msg">Anything we should know?</label><textarea id="f-msg" name="message" rows="3" placeholder="A day that suits you, or a question about parking or pets…"></textarea></div>
         <div class="hp" aria-hidden="true"><label for="f-web">Website</label><input id="f-web" name="website" type="text" tabindex="-1" autocomplete="off"></div>
         <div class="form__status" role="status" aria-live="polite"></div>
