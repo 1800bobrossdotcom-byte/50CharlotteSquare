@@ -10,9 +10,12 @@
    and keep that shape: each exports onRequestGet, onRequestPost and so on,
    and receives { request, env, params, waitUntil, next }. This file is the
    small router that calls them the same way, so they run unchanged.
+
+   Also here: /unsubscribe/<token>, the link at the foot of every email.
    ============================================================================= */
 import * as admin from '../functions/admin/_middleware.js';
 import * as collect from '../functions/api/collect.js';
+import * as emailEvents from '../functions/api/email-events.js';
 import * as inquiries from '../functions/api/inquiries.js';
 import * as inquiry from '../functions/api/inquiry.js';
 import * as insights from '../functions/api/insights.js';
@@ -23,6 +26,7 @@ import * as stats from '../functions/api/stats.js';
 import * as triage from '../functions/api/triage.js';
 import * as tour from '../functions/tour/index.js';
 import * as report from '../functions/r/[token].js';
+import * as unsubscribe from '../functions/unsubscribe/[token].js';
 import SCHEMA from '../schema.sql';
 
 // The tables, from schema.sql, one statement each. Every statement there is
@@ -62,6 +66,7 @@ function ensureSchema(env) {
 
 const API = {
   '/api/collect': collect,
+  '/api/email-events': emailEvents,
   '/api/inquiries': inquiries,
   '/api/inquiry': inquiry,
   '/api/insights': insights,
@@ -97,6 +102,9 @@ function route(pathname) {
   if (path === '/tour') return { mod: tour, params: {} };
   const m = /^\/r\/([^/]+)$/.exec(path);
   if (m) return { mod: report, params: { token: decodeURIComponent(m[1]) } };
+  // Tokens are plain letters, digits, - and _, so nothing needs decoding.
+  const u = /^\/unsubscribe\/([A-Za-z0-9_-]+)$/.exec(path);
+  if (u) return { mod: unsubscribe, params: { token: u[1] } };
   if (path === '/admin' || pathname.startsWith('/admin/')) return { mod: admin, params: {}, admin: true };
   return null;
 }

@@ -7,10 +7,13 @@
    rate-limited, or is having a bad night costs a notification — never a lead.
    Everything is still in the table and still in /admin/.
 
-   Secrets, all set with `wrangler pages secret put ... --project=charlotte-square`:
+   Secrets, on the Worker (see _lib/email.js for the full list):
      LEAD_TO          where notifications go, e.g. a leasing inbox
      LEAD_FROM        the From: address, on a domain verified with the provider
      RESEND_API_KEY   optional. With no key the endpoint still stores the lead.
+
+   The visitor also gets a branded confirmation (_lib/confirm.js), after the
+   response, with Privacy, Terms and a one-click unsubscribe.
 
    LEAD_TO is a secret rather than a data-email="" attribute on purpose. In the
    attribute it sat in the page source of every contact page, which is the first
@@ -22,6 +25,8 @@
 import { json, today, visitorHash } from '../_lib/auth.js';
 import { aiEnabled, triageInquiry } from '../_lib/ai.js';
 import { moveInValue, moveInLabel } from '../_lib/movein.js';
+import { sendEmail, leadTo, logEmail } from '../_lib/email.js';
+import { confirmAndRecord } from '../_lib/confirm.js';
 
 /* Submissions per IP per window. High enough that a couple sent in earnest, or
    a shared office NAT, never trips it; low enough to be useless to a script. */
@@ -126,12 +131,11 @@ async function overLimit(env, ip, now) {
  *  is refused until a domain is verified. "No email sent" alone would send
  *  somebody hunting; the sentence tells them what to change. */
 export async function notify(env, row, origin) {
-  const key = env.RESEND_API_KEY;
   // One address, or several separated by commas: everyone listed gets every
   // enquiry. Any address other than the Resend account's own needs a domain
   // verified in that account first.
-  const to = String(env.LEAD_TO || '').split(',').map((s) => s.trim()).filter(Boolean);
-  if (!key) return { ok: false, error: 'RESEND_API_KEY is not set on this deployment.' };
+  const to = leadTo(env);
+  if (!env.RESEND_API_KEY) return { ok: false, error: 'RESEND_API_KEY is not set on this deployment.' };
   if (!to.length) return { ok: false, error: 'LEAD_TO is not set on this deployment.' };
 
   const who = `${row.first_name} ${row.last_name}`.trim();
@@ -154,33 +158,13 @@ ${row.message ? `<p style="margin:16px 0 4px;color:#6b6b6b">Message</p><p style=
 <p style="margin:20px 0 0;font-size:13px;color:#8a8a8a">Inquiry #${row.id} · also saved at ${esc(origin)}/admin/</p>
 </div>`;
 
-  try {
-    // RESEND_API_URL is only ever set for local tests, which point it at a stub.
-    const res = await fetch(env.RESEND_API_URL || 'https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: env.LEAD_FROM || 'Charlotte Square <onboarding@resend.dev>',
-        to,
-        // So hitting reply in Gmail answers the prospect, not the robot.
-        reply_to: row.email,
-        subject: `Charlotte Square inquiry — ${who}`,
-        html,
-      }),
-    });
-    if (res.ok) return { ok: true };
-
-    // Resend answers with JSON carrying a human-readable message. Read it if we
-    // can, fall back to the status, and cap it — this ends up in a page.
-    let detail = '';
-    try {
-      const body = await res.json();
-      detail = (body && (body.message || body.error || body.name)) || '';
-    } catch { /* not JSON; the status line will have to do */ }
-    return { ok: false, error: `${res.status}: ${String(detail || res.statusText).slice(0, 300)}` };
-  } catch (err) {
-    return { ok: false, error: `Could not reach the email provider: ${String(err).slice(0, 200)}` };
-  }
+  return sendEmail(env, {
+    to,
+    // So hitting reply in Gmail answers the prospect, not the robot.
+    replyTo: row.email,
+    subject: `Charlotte Square inquiry — ${who}`,
+    html,
+  });
 }
 
 export async function onRequestPost({ request, env, waitUntil }) {
@@ -257,14 +241,18 @@ export async function onRequestPost({ request, env, waitUntil }) {
       row.utm_campaign, row.referrer, row.landing, id).run();
   } catch { /* stored either way */ }
 
-  const sent = await notify(env, { ...row, id }, new URL(request.url).origin);
+  const origin = new URL(request.url).origin;
+  const sent = await notify(env, { ...row, id }, origin);
+  await logEmail(env, 'notification', id, sent);
   try {
     await env.DB.prepare('UPDATE inquiries SET notified = ?, notify_err = ? WHERE id = ?')
       .bind(sent.ok ? 1 : 0, sent.ok ? null : (sent.error || 'Unknown error'), id).run();
   } catch { /* stored either way; these two columns are bookkeeping */ }
 
-  // After the response, so the visitor never waits on it; the dashboard shows
-  // the result, or why there is none, whenever someone next opens it.
+  // After the response, so the visitor never waits on either; the dashboard
+  // shows how each went, or why it did not, whenever someone next opens it.
+  // The visitor's own branded confirmation, with its unsubscribe link:
+  if (waitUntil) waitUntil(confirmAndRecord(env, { ...row, id }, origin));
   if (aiEnabled(env) && waitUntil) waitUntil(triageInquiry(env, id));
 
   // 202 regardless: the lead is safe. notified and notify_err are what the

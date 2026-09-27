@@ -112,6 +112,43 @@ CREATE TABLE IF NOT EXISTS reports (
 );
 CREATE INDEX IF NOT EXISTS idx_reports_ts ON reports(ts DESC);
 
+-- Every address the site has emailed, and whether it may again. The token is
+-- the key in that address's unsubscribe link, so the link never carries the
+-- address itself. An unsubscribed row is kept, not deleted: it is what stops
+-- the next email.
+CREATE TABLE IF NOT EXISTS email_prefs (
+  email           TEXT    PRIMARY KEY, -- lower-cased
+  token           TEXT    NOT NULL UNIQUE,
+  created_at      INTEGER NOT NULL,
+  last_sent_at    INTEGER,             -- the last confirmation, for the 12-hour gap
+  unsubscribed_at INTEGER
+);
+
+-- Every email the site tried to send: the visitor's confirmation and the
+-- leasing team's notification, and what Resend later reported for each. The
+-- dashboard and the reports count from here; the enquiry card reads its own.
+-- A table of its own, so an existing database needs no new columns for it.
+CREATE TABLE IF NOT EXISTS emails (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts            INTEGER NOT NULL,
+  day           TEXT    NOT NULL,      -- UTC day, like events
+  kind          TEXT    NOT NULL,      -- confirmation | notification
+  inquiry_id    INTEGER,
+  sent          INTEGER NOT NULL,      -- 1 handed to Resend, 0 not
+  reason        TEXT,                  -- when not: unsubscribed | recent | off | error
+  note          TEXT,                  -- the words behind the reason
+  resend_id     TEXT,                  -- Resend's id, to match its delivery reports
+  delivered_at  INTEGER,
+  delayed_at    INTEGER,
+  bounced_at    INTEGER,
+  complained_at INTEGER,               -- the recipient marked it as spam
+  opened_at     INTEGER,               -- only with open tracking on in Resend
+  clicked_at    INTEGER                -- only with click tracking on in Resend
+);
+CREATE INDEX IF NOT EXISTS idx_emails_day     ON emails(day, kind);
+CREATE INDEX IF NOT EXISTS idx_emails_resend  ON emails(resend_id);
+CREATE INDEX IF NOT EXISTS idx_emails_inquiry ON emails(inquiry_id, kind);
+
 -- Upgrading a database created before 25 September 2026? Everything above is
 -- IF NOT EXISTS, but SQLite has no ADD COLUMN IF NOT EXISTS, so the new columns
 -- need adding once. Run these one at a time; "duplicate column name" just means

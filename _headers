@@ -17,6 +17,12 @@
 /assets/img/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
+# Loaded by mail apps, which are another origin: the site-wide
+# same-origin resource policy would blank them in some inboxes.
+/assets/img/email/*
+  ! Cross-Origin-Resource-Policy
+  Cross-Origin-Resource-Policy: cross-origin
+
 # Not fingerprinted and changed with each release: always re-checked.
 /assets/css/*
   Cache-Control: public, max-age=0, must-revalidate

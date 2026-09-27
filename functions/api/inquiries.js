@@ -15,6 +15,7 @@
 import { requireSession, json } from '../_lib/auth.js';
 import { aiEnabled } from '../_lib/ai.js';
 import { notify } from './inquiry.js';
+import { logEmail } from '../_lib/email.js';
 
 const MAX_LIMIT = 200;
 const DEFAULT_LIMIT = 50;
@@ -39,15 +40,27 @@ export async function onRequestGet({ request, env }) {
   ).bind(limit);
 
   // A database from before campaign tracking and Claude has none of the newer
-  // columns. Ask for them, and on failure fall back to the list without them
-  // rather than showing no leads at all.
+  // columns, and one from before confirmation emails none of their tables. Ask
+  // for everything, and on failure step back to less rather than showing no
+  // leads at all.
+  const NEWER = `, form, variant, utm_source, utm_medium, utm_campaign,
+            referrer, landing, ai, ai_err`;
+  const MAIL = `,
+            (SELECT unsubscribed_at FROM email_prefs p WHERE p.email = lower(inquiries.email)) AS unsubscribed_at,
+            (SELECT sent FROM emails m WHERE m.inquiry_id = inquiries.id AND m.kind = 'confirmation'
+              ORDER BY m.id DESC LIMIT 1) AS confirm_ok,
+            (SELECT COALESCE(note, reason) FROM emails m WHERE m.inquiry_id = inquiries.id AND m.kind = 'confirmation'
+              ORDER BY m.id DESC LIMIT 1) AS confirm_note,
+            (SELECT CASE WHEN complained_at IS NOT NULL THEN 'marked as spam'
+                         WHEN bounced_at IS NOT NULL THEN 'bounced'
+                         WHEN delivered_at IS NOT NULL THEN 'delivered' END
+               FROM emails m WHERE m.inquiry_id = inquiries.id AND m.kind = 'confirmation'
+              ORDER BY m.id DESC LIMIT 1) AS confirm_status`;
   let rows;
-  try {
-    rows = await list(`, form, variant, utm_source, utm_medium, utm_campaign,
-            referrer, landing, ai, ai_err`).all();
-  } catch {
-    try { rows = await list('').all(); } catch { return json({ error: 'Could not read the enquiries.' }, 500); }
+  for (const extra of [NEWER + MAIL, NEWER, '']) {
+    try { rows = await list(extra).all(); break; } catch { /* try with less */ }
   }
+  if (!rows) return json({ error: 'Could not read the enquiries.' }, 500);
 
   try {
     const c = (await env.DB.prepare(
@@ -108,6 +121,7 @@ export async function onRequestPost({ request, env }) {
     if (!row) return json({ error: 'No such enquiry.' }, 404);
     if (row.notified) return json({ ok: true, id, already: true });
     const sent = await notify(env, row, new URL(request.url).origin);
+    await logEmail(env, 'notification', id, sent);
     try {
       await env.DB.prepare('UPDATE inquiries SET notified = ?, notify_err = ? WHERE id = ?')
         .bind(sent.ok ? 1 : 0, sent.ok ? null : (sent.error || 'Unknown error'), id).run();

@@ -302,6 +302,8 @@ export async function loadStats(env, { from, to }) {
     }
   } catch { /* database from before campaign tracking */ }
 
+  const emails = await loadEmails(env, { from, to });
+
   return {
     range: { from, to, days },
     totals: {
@@ -329,5 +331,59 @@ export async function loadStats(env, { from, to }) {
     styles: styles.results,
     events: events.results,
     plans: plansOut,
+    emails,
   };
+}
+
+/* ---- Emails ----------------------------------------------------------------
+   What the site sent in the range and what Resend reported back: totals only,
+   never a person, so they can go in a shared report and to Claude. null on a
+   database from before the emails log.
+
+   Confirmations are counted per email sent. The leasing team's notifications
+   are counted per enquiry, from the enquiry itself, so a retry from the
+   dashboard does not show up as one failure and one success. `tracking` says
+   whether Resend's delivery reports are connected; until they are, delivered
+   and bounced read zero because nobody has told us, not because none were. */
+export async function loadEmails(env, { from, to }) {
+  const q = (sql, ...bind) => env.DB.prepare(sql).bind(...bind);
+  const fromTs = Date.parse(`${from}T00:00:00Z`) / 1000;
+  const toTs = Date.parse(`${to}T00:00:00Z`) / 1000 + 86400;
+  try {
+    const [c, n, u] = await env.DB.batch([
+      q(`SELECT SUM(sent = 1)                                   AS sent,
+                SUM(sent = 1 AND delivered_at IS NOT NULL)      AS delivered,
+                SUM(sent = 1 AND bounced_at IS NOT NULL)        AS bounced,
+                SUM(sent = 1 AND complained_at IS NOT NULL)     AS complained,
+                SUM(sent = 1 AND opened_at IS NOT NULL)         AS opened,
+                SUM(sent = 1 AND clicked_at IS NOT NULL)        AS clicked,
+                SUM(sent = 0 AND reason = 'unsubscribed')       AS held_unsubscribed,
+                SUM(sent = 0 AND reason = 'recent')             AS held_recent,
+                SUM(sent = 0 AND reason = 'error')              AS failed
+           FROM emails WHERE kind = 'confirmation' AND day BETWEEN ? AND ?`, from, to),
+      q(`SELECT COUNT(*)                                          AS leads,
+                SUM(notified = 1)                                 AS reached,
+                (SELECT COUNT(*) FROM emails
+                  WHERE kind = 'notification' AND sent = 1 AND bounced_at IS NOT NULL
+                    AND day BETWEEN ? AND ?)                      AS bounced
+           FROM inquiries WHERE day BETWEEN ? AND ?`, from, to, from, to),
+      q(`SELECT COUNT(*) AS n FROM email_prefs
+          WHERE unsubscribed_at >= ? AND unsubscribed_at < ?`, fromTs, toTs),
+    ]);
+    const r = c.results[0] || {};
+    const l = n.results[0] || {};
+    return {
+      confirmations: {
+        sent: r.sent || 0, delivered: r.delivered || 0, bounced: r.bounced || 0,
+        complained: r.complained || 0, opened: r.opened || 0, clicked: r.clicked || 0,
+        held_unsubscribed: r.held_unsubscribed || 0, held_recent: r.held_recent || 0,
+        failed: r.failed || 0,
+      },
+      notifications: { enquiries: l.leads || 0, reached: l.reached || 0, bounced: l.bounced || 0 },
+      unsubscribes: (u.results[0] && u.results[0].n) || 0,
+      tracking: Boolean(env.RESEND_WEBHOOK_SECRET),
+    };
+  } catch {
+    return null;   // no emails log yet
+  }
 }

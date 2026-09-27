@@ -112,6 +112,7 @@ export async function buildReport(env, period, day) {
     plans: stats.plans,
     pages: stats.pages.slice(0, 8).map(({ path, views }) => ({ path, views })),
     devices: stats.devices,
+    emails: stats.emails,
     summary: null,
     summaryNote: null,
     created: Math.floor(Date.now() / 1000),
@@ -245,6 +246,33 @@ function table(cols, rows, empty) {
 <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
 
+/** The emails section: confirmations to visitors, then the leasing team's
+ *  notifications. Delivery rows only once Resend's reports are connected, and
+ *  opens and clicks only if tracking is on, so a zero never means "unknown". */
+export function emailRows(e) {
+  const c = e.confirmations;
+  const rows = [['Confirmations sent to visitors', c.sent, '']];
+  if (e.tracking) {
+    rows.push(['Delivered', c.delivered, pct(c.delivered, c.sent)]);
+    rows.push(['Bounced', c.bounced, pct(c.bounced, c.sent)]);
+    rows.push(['Marked as spam', c.complained, pct(c.complained, c.sent)]);
+    if (c.opened) rows.push(['Opened', c.opened, pct(c.opened, c.sent)]);
+    if (c.clicked) rows.push(['Clicked a link', c.clicked, pct(c.clicked, c.sent)]);
+  }
+  rows.push(['Unsubscribed', e.unsubscribes, '']);
+  if (c.held_unsubscribed) rows.push(['Not sent: had unsubscribed', c.held_unsubscribed, '']);
+  if (c.held_recent) rows.push(['Not sent: had one in the last 12 hours', c.held_recent, '']);
+  if (c.failed) rows.push(['Not sent: the email provider refused', c.failed, '']);
+  rows.push(['Enquiries emailed to the leasing team', e.notifications.reached, pct(e.notifications.reached, e.notifications.enquiries)]);
+  if (e.tracking && e.notifications.bounced) rows.push(['Leasing emails that bounced', e.notifications.bounced, '']);
+  return rows;
+}
+
+function emailTable(e) {
+  return `${table(['Email', 'Count', 'Share'], emailRows(e).map(([k, v, s]) => [k, num(v), s]), '')}${e.tracking ? ''
+    : '<p class="verdict">Delivery, bounce and spam counts start once Resend’s delivery reports are connected.</p>'}`;
+}
+
 const VERSION = { a: 'A · Book a tour', b: 'B · Price first', c: 'C · Neighborhood' };
 const TOPIC = {
   tour: 'Tours', availability: 'Availability', pricing: 'Pricing', parking: 'Parking',
@@ -314,6 +342,8 @@ export function renderReport(r) {
     ['What people asked about', table(['Topic', 'Enquiries'], topics, 'No enquiries in this period.')],
     ['Floor plan interest', table(['Plan', 'Times'], r.plans.map((x) => [x.plan, num(x.count)]), 'None in this period.')],
     ['Most viewed pages', table(['Page', 'Views'], r.pages.map((x) => [x.path, num(x.views)]), 'None in this period.')],
+    // Reports made before the emails log have no emails key: no section then.
+    ...(r.emails ? [['Emails', emailTable(r.emails)]] : []),
   ].map(([h, body], i) => `<section class="card" aria-labelledby="s-${i}"><h2 id="s-${i}">${esc(h)}</h2>${body}</section>`).join('');
 
   return `<!doctype html>

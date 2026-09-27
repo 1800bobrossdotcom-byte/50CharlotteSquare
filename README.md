@@ -1395,6 +1395,8 @@ wrangler secret put LEAD_FROM
 wrangler secret put RESEND_API_KEY
 wrangler secret put ANTHROPIC_API_KEY   # optional: Claude
 wrangler secret put ANTHROPIC_WORKSPACE_ID   # only for a key that covers several workspaces
+wrangler secret put RESEND_WEBHOOK_SECRET    # optional: delivery reports, see 4
+wrangler secret put REPLY_TO                 # optional: where replies to confirmations go
 ```
 
 `LEAD_TO` is where inquiry notifications land: one address, or several
@@ -1488,6 +1490,62 @@ Add secrets on the Worker under **Settings → Variables and Secrets**, type
 **Secret**. Saving one there, or with `wrangler secret put`, deploys a new
 version that has it, so there is nothing else to redeploy. Build variables are
 a different list: the build sees them, the running site never does.
+
+#### The visitor's confirmation email
+
+Everyone who sends the contact or tour form also gets a branded email back
+(`functions/_lib/confirm.js`): the building photo, *"Thanks, Pat. We've got your
+message."*, when to expect a reply, what they picked on the form, a link to the
+floor plans, and a footer with the address, LEED Gold, Equal Housing
+Opportunity, Evolution24, and **Privacy · Terms · Unsubscribe**. It goes from
+`LEAD_FROM`. Replies go to `REPLY_TO`, or without it to the first address in
+`LEAD_TO`. It is sent after the visitor has their answer, so it never slows the
+form down, and each enquiry's card says whether it went (and, with delivery
+reports on, whether it arrived).
+
+The form is public, so whatever this email carries can be aimed at a stranger's
+inbox. So it carries nothing the visitor typed except a first name that looks
+like one ("www.example.com" gets *"Thank you."*), and only the choices from the
+form's own lists, never the message. It goes at most once per address every 12
+hours, and never to an address that has unsubscribed. The images live in
+`assets/img/email/` and are the only ones served with a cross-origin resource
+policy, because mail apps load them from somewhere else.
+
+**Unsubscribing.** The link is `/unsubscribe/<token>`, a random token for that
+address, so the address is never in the link. Opening it shows one button;
+only pressing it, or the mail app's own one-click Unsubscribe (the
+`List-Unsubscribe` headers, RFC 8058), records it, because mail scanners open
+every link in an email and must not be able to unsubscribe anyone. The address
+stays in `email_prefs` with the date, and that is what stops the next email.
+Its enquiry cards say *Unsubscribed*. A personal reply to what they asked is
+still fine; adding them to anything automated or bulk is not.
+
+#### Email numbers: the dashboard, the reports and Claude
+
+Every email the site tries to send is a row in `emails`: the visitor's
+confirmation and the leasing team's notification, sent or not, and why not. The
+**Emails** panel on the dashboard, the **Emails** section of every shared
+report, and Claude's plain-English read all count from it. Totals only, never a
+person. The rows: confirmations sent, delivered, bounced, marked as spam,
+unsubscribes, ones held back (unsubscribed, or one already sent in the last 12
+hours), ones Resend refused, and how many enquiries reached the leasing inbox.
+
+Delivered, bounced and spam counts need Resend to report back:
+
+1. In Resend, **Webhooks → Add endpoint**, URL
+   `https://<the site>/api/email-events`, events **email.delivered**,
+   **email.delivery_delayed**, **email.bounced** and **email.complained**.
+2. Copy the endpoint's **signing secret** (`whsec_…`) into the Worker as the
+   secret `RESEND_WEBHOOK_SECRET`.
+
+Every report is checked against that secret (Resend signs with the Svix
+scheme); anything unsigned, wrongly signed or more than five minutes old is
+refused. Until the secret is set, the delivery rows stay off the dashboard and
+the reports rather than read zero. A spam complaint also unsubscribes the
+address. Opens and clicks are counted too if tracking is switched on for the
+domain in Resend, but that means a tracking pixel and rewritten links, which
+this site's privacy policy does not describe: it is off, and turning it on
+means updating the policy first.
 
 ### 5. DNS, from GoDaddy to Cloudflare
 

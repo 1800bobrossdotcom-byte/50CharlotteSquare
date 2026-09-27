@@ -364,6 +364,36 @@
       steps.map(([k, v], i) => ({ k, w: v / max, cells: [num(v), i ? pct(v, f.visitors) : ''] })));
   }
 
+  /* Same rows as the shared report's Emails section. Delivery counts only
+     once Resend's reports are connected; before that they would read zero for
+     "not told", which looks like "none arrived". */
+  function renderEmails(e) {
+    if (!e) { tableN('#t-emails', [], [], 'Nothing yet.'); return; }
+    const c = e.confirmations;
+    const rows = [['Confirmations sent', c.sent, '']];
+    if (e.tracking) {
+      rows.push(['Delivered', c.delivered, pct(c.delivered, c.sent)]);
+      rows.push(['Bounced', c.bounced, pct(c.bounced, c.sent)]);
+      rows.push(['Marked as spam', c.complained, pct(c.complained, c.sent)]);
+      if (c.opened) rows.push(['Opened', c.opened, pct(c.opened, c.sent)]);
+      if (c.clicked) rows.push(['Clicked a link', c.clicked, pct(c.clicked, c.sent)]);
+    }
+    rows.push(['Unsubscribed', e.unsubscribes, '']);
+    if (c.held_unsubscribed) rows.push(['Held: unsubscribed', c.held_unsubscribed, '']);
+    if (c.held_recent) rows.push(['Held: had one recently', c.held_recent, '']);
+    if (c.failed) rows.push(['Refused by Resend', c.failed, '']);
+    rows.push(['Enquiries to the team', e.notifications.reached, pct(e.notifications.reached, e.notifications.enquiries)]);
+    if (e.tracking && e.notifications.bounced) rows.push(['Team emails bounced', e.notifications.bounced, '']);
+    const max = Math.max(1, ...rows.map((r) => r[1]));
+    tableN('#t-emails', ['Email', 'Count', 'Share'], rows.map(([k, v, s]) => ({ k, w: v / max, cells: [num(v), s] })));
+    if (!e.tracking) {
+      const p = document.createElement('p');
+      p.className = 'verdict';
+      p.textContent = 'Delivery, bounce and spam counts start once Resend’s delivery reports are connected (RESEND_WEBHOOK_SECRET).';
+      $('#t-emails').append(p);
+    }
+  }
+
   const EVENT_NAMES = {
     tour_request: 'Enquiry sent', phone_click: 'Phone tapped', portal_click: 'Resident portal',
     plan_view: 'Floor plan filtered', gallery_open: 'Photo opened', map_click: 'Map opened',
@@ -381,6 +411,7 @@
     renderCampaigns(d.campaigns || []);
     renderTest(d.test);
     renderFunnel(d.funnel || { visitors: 0, starts: 0, leads: 0 });
+    renderEmails(d.emails);
     table('#t-plans', d.plans.map((r) => ({ k: r.plan, v: r.count })), ['Plan', 'Times']);
     table('#t-events', d.events.map((r) => ({ k: EVENT_NAMES[r.kind] || r.kind, v: r.count })), ['Action', 'Count']);
     table('#t-devices', d.devices.map((r) => ({ k: r.device, v: r.views })), ['Device', 'Views']);
@@ -532,6 +563,15 @@
       tag.textContent = INTEREST[r.interest] || r.interest;
       head.append(tag);
     }
+    // They used the link in the site's email. A personal reply is still fine;
+    // anything automated or bulk is not.
+    if (r.unsubscribed_at) {
+      const off = document.createElement('span');
+      off.className = 'lead__tag lead__tag--off';
+      off.textContent = 'Unsubscribed';
+      off.title = `Asked for no more emails from the website on ${new Date(r.unsubscribed_at * 1000).toLocaleDateString()}.`;
+      head.append(off);
+    }
 
     const when = document.createElement('time');
     when.className = 'lead__when';
@@ -567,6 +607,16 @@
       meta.className = 'lead__meta';
       meta.textContent = facts.join(' \u00b7 ');
       card.append(meta);
+    }
+
+    // The branded "we've got it" the visitor was sent, or why not.
+    if (r.confirm_ok === 1 || r.confirm_ok === 0) {
+      const c = document.createElement('p');
+      c.className = 'lead__via';
+      c.textContent = r.confirm_ok === 1
+        ? `Confirmation email sent to them${r.confirm_status ? `, ${r.confirm_status}` : ''}.`
+        : `No confirmation email: ${r.confirm_note || 'not sent'}`;
+      card.append(c);
     }
 
     const via = cameVia(r);
