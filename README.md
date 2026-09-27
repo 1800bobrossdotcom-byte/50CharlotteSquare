@@ -1557,8 +1557,14 @@ Toured, Applied, Leased, Not a fit, No reply, each with its own colour), an
 **Owner** dropdown (Vicki, Gianni, Unassigned), a **Next step** date with a
 calendar, a **Replied** checkbox and a **Notes** column, plus everything from
 the form in words rather than codes. A new lead nobody has replied to after a
-day turns pale red. Sheets has no radio buttons; a dropdown is the same one
-choice from a list. The choices live on the sheet's **Lists** tab, so the team
+day turns pale red, and a Next step date that has come round turns red. It is
+dressed like the site: the site's type and colours, rows banded in white and
+its paper tone, and an **Overview** tab first, under the Charlotte Square and
+Evolution24 logos, with four numbers (new in the last 7 days, waiting for a
+reply, follow-ups due, tours booked) and bars by status and by how people heard
+about the building. The logos are inside the script, so the sheet loads nothing
+from outside. Sheets has no radio buttons; a dropdown is the same one choice
+from a list. The choices live on the sheet's **Lists** tab, so the team
 can change them without code.
 
 It is a Google Apps Script in the sheet itself, `tools/lead-sheet/Code.gs`: no
