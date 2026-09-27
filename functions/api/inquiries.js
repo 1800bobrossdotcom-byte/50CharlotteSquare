@@ -14,6 +14,7 @@
    ============================================================================= */
 import { requireSession, json } from '../_lib/auth.js';
 import { aiEnabled } from '../_lib/ai.js';
+import { notify } from './inquiry.js';
 
 const MAX_LIMIT = 200;
 const DEFAULT_LIMIT = 50;
@@ -52,9 +53,9 @@ export async function onRequestGet({ request, env }) {
     const c = (await env.DB.prepare(
       `SELECT COUNT(*)                         AS total,
               SUM(handled = 0)                 AS open,
-              SUM(notified = 0)                AS unnotified,
+              SUM(notified = 0 AND handled = 0) AS unnotified,
               (SELECT notify_err FROM inquiries
-                WHERE notified = 0 AND notify_err IS NOT NULL
+                WHERE notified = 0 AND handled = 0 AND notify_err IS NOT NULL
                 ORDER BY ts DESC LIMIT 1)      AS last_error
          FROM inquiries`,
     ).first()) || {};
@@ -66,8 +67,9 @@ export async function onRequestGet({ request, env }) {
       }),
       total: c.total || 0,
       open: c.open || 0,
-      // How many leads arrived without the notification email going out. The
-      // dashboard turns this into a banner: it is the only place anyone finds
+      // How many open leads arrived without the notification email going out
+      // (one someone has marked handled no longer needs it). The dashboard
+      // turns this into a banner: it is the only place anyone finds
       // out that email delivery is misconfigured, because the visitor's side
       // looks identical either way.
       unnotified: c.unnotified || 0,
@@ -92,6 +94,27 @@ export async function onRequestPost({ request, env }) {
 
   const id = Number.parseInt(body.id, 10);
   if (!Number.isInteger(id) || id < 1) return json({ error: 'Which enquiry?' }, 400);
+
+  // {id, notify: true}: send the notification email for an enquiry that went
+  // without one, e.g. once RESEND_API_KEY is in place. Doubles as the test
+  // that email works. Never sends twice for the same enquiry.
+  if (body.notify) {
+    let row;
+    try {
+      row = await env.DB.prepare('SELECT * FROM inquiries WHERE id = ?').bind(id).first();
+    } catch {
+      return json({ error: 'Could not read it.' }, 500);
+    }
+    if (!row) return json({ error: 'No such enquiry.' }, 404);
+    if (row.notified) return json({ ok: true, id, already: true });
+    const sent = await notify(env, row, new URL(request.url).origin);
+    try {
+      await env.DB.prepare('UPDATE inquiries SET notified = ?, notify_err = ? WHERE id = ?')
+        .bind(sent.ok ? 1 : 0, sent.ok ? null : (sent.error || 'Unknown error'), id).run();
+    } catch { /* the answer below still says what happened */ }
+    return sent.ok ? json({ ok: true, id }) : json({ ok: false, id, error: sent.error || 'Unknown error' }, 502);
+  }
+
   const handled = body.handled ? 1 : 0;
 
   try {

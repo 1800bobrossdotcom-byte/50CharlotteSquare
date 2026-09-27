@@ -1466,7 +1466,15 @@ A failed send stores the provider's own sentence in `inquiries.notify_err`, and
 the banner on `/admin/` prints it. Verified locally with a deliberately invalid
 key: the lead stored, the endpoint returned `notified:false`, and the banner
 read *"1 enquiry was saved without a notification email going out. The leads are
-safe here. The email provider said: `401: API key is invalid`."*
+safe here. The email provider said: `401: API key is invalid`."* It then adds, in
+plain words, what to change for the common failures below.
+
+Each enquiry that went without its email has a **Send email** button. Once the
+secrets are right, press it: the email goes out now, the card loses its *No email
+sent* flag, and the banner counts one fewer. It is also the quickest test that
+email works, with no need to fill in the form again. It never sends the same
+enquiry twice. The banner only counts open enquiries: marking one handled means
+someone has seen it, so its missing email no longer matters.
 
 | What it says | What to change |
 | --- | --- |
@@ -1582,8 +1590,10 @@ to a request that began on another site, which is the thing a token would guard
 against. Every field is rendered with `textContent` — an enquiry is a stranger's
 text typed into a public form, and none of it goes near `innerHTML`.
 
-**The banner that matters.** If any enquiry was stored without its notification
-email going out, the panel says so and names the two secrets to check. This is
+**The banner that matters.** If any open enquiry was stored without its
+notification email going out, the panel says so, gives the provider's reason and
+what to change, and each such card gets a **Send email** button for once it is
+fixed. This is
 the only place that failure is ever visible: from the visitor's side a lead that
 was saved but not emailed looks exactly like one that was.
 

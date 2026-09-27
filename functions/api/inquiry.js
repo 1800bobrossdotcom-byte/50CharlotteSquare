@@ -125,7 +125,7 @@ async function overLimit(env, ip, now) {
  *  address that owns the Resend account, so a LEAD_TO that is any other address
  *  is refused until a domain is verified. "No email sent" alone would send
  *  somebody hunting; the sentence tells them what to change. */
-async function notify(env, row, origin) {
+export async function notify(env, row, origin) {
   const key = env.RESEND_API_KEY;
   // One address, or several separated by commas: everyone listed gets every
   // enquiry. Any address other than the Resend account's own needs a domain
@@ -155,7 +155,8 @@ ${row.message ? `<p style="margin:16px 0 4px;color:#6b6b6b">Message</p><p style=
 </div>`;
 
   try {
-    const res = await fetch('https://api.resend.com/emails', {
+    // RESEND_API_URL is only ever set for local tests, which point it at a stub.
+    const res = await fetch(env.RESEND_API_URL || 'https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({

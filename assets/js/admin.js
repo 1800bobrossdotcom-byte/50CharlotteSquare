@@ -635,14 +635,46 @@
       foot.append(ask);
     }
 
+    // Why the email did not go out, when a retry says so.
+    const sendWhy = document.createElement('p');
+    sendWhy.className = 'lead__aierr';
+    sendWhy.hidden = true;
+
     if (!r.notified) {
       const flag = document.createElement('span');
       flag.className = 'lead__flag';
       flag.textContent = 'No email sent';
       flag.title = 'Saved here, but the notification email did not go out.';
       foot.append(flag);
+
+      // Once email is set up, this sends the one that was missed. It is also
+      // the quickest test that email works at all.
+      const send = button('Send email');
+      send.addEventListener('click', async () => {
+        send.disabled = true;
+        send.textContent = 'Sending…';
+        try {
+          const res = await fetch('/api/inquiries', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: r.id, notify: true }),
+          });
+          if (res.status === 401) { location.reload(); return; }
+          const d = await res.json().catch(() => ({}));
+          if (!res.ok || !d.ok) throw new Error(d.error || `Server returned ${res.status}`);
+          loadLeads();
+        } catch (err) {
+          send.disabled = false;
+          send.textContent = 'Send again';
+          const hint = emailHint(err.message);
+          sendWhy.textContent = `Not sent. ${err.message}${hint ? ' ' + hint : ''}`;
+          sendWhy.hidden = false;
+        }
+      });
+      foot.append(send);
     }
     card.append(foot);
+    card.append(sendWhy);
 
     // Why there is no summary, in Claude's or the SDK's words.
     if (leadAi && !r.ai && r.ai_err) {
@@ -652,6 +684,22 @@
       card.append(why);
     }
     return card;
+  }
+
+  /* What to change, in plain words, for the email failures that actually
+     happen. The provider's own sentence is shown as well; this is the fix. */
+  function emailHint(error) {
+    const e = String(error || '');
+    if (/(RESEND_API_KEY|LEAD_TO) is not set/.test(e)) {
+      return 'In Cloudflare, open the Worker, then Settings → Variables and Secrets, and add it as type Secret. A build variable will not work.';
+    }
+    if (/own email address|verify a domain/i.test(e)) {
+      return 'Resend only sends to other people from a verified domain. Set LEAD_FROM to an address on that domain, e.g. Charlotte Square <leasing@your-domain>.';
+    }
+    if (/domain is not verified/i.test(e)) return 'LEAD_FROM has to use the domain that is verified in Resend.';
+    if (/^401\b/.test(e)) return 'Resend did not accept the key. Make a new one in Resend → API Keys and replace RESEND_API_KEY.';
+    if (/^422\b/.test(e)) return 'Check LEAD_FROM: it should look like Charlotte Square <leasing@your-domain>, with no quotes.';
+    return '';
   }
 
   async function loadLeads() {
@@ -694,9 +742,12 @@
           const why = document.createElement('code');
           why.textContent = d.lastError;      // provider text, so textContent
           warn.append(why);
+          const hint = emailHint(d.lastError);
+          if (hint) warn.append(document.createTextNode(' ' + hint));
         } else {
           warn.append(document.createTextNode('Check RESEND_API_KEY and LEAD_TO in the Worker’s settings in Cloudflare.'));
         }
+        warn.append(document.createTextNode(' Once it is fixed, press Send email on each one.'));
       } else {
         warn.hidden = true;
       }
