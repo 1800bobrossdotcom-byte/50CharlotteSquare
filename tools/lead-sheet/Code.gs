@@ -16,9 +16,11 @@
  *      Whoever makes it owns it; the script runs as them.
  *   2. Extensions → Apps Script. Delete the sample code, paste this whole file
  *      in, and press Save.
- *   3. In the toolbar, pick "setup" and press Run. Allow access when Google
- *      asks. The sheet gets its tabs, dropdowns and colours. The connection
- *      token appears in the Execution log at the bottom.
+ *   3. Press Save first. Then, in the toolbar, check the function menu says
+ *      "setup" and press Run. Allow access when Google asks (if it says the
+ *      app isn't verified: Advanced → Go to the project). The sheet gets its
+ *      tabs, dropdowns and colours. The connection token appears in the
+ *      Execution log at the bottom.
  *   4. Deploy → New deployment → gear icon → Web app.
  *      Execute as: Me. Who has access: Anyone. Press Deploy and copy the
  *      Web app URL.
@@ -50,15 +52,8 @@ const STATUS = [
 ];
 const OWNERS = ['Vicki', 'Gianni', 'Unassigned'];
 
-/** Menu in the sheet itself. */
-function onOpen() {
-  SpreadsheetApp.getUi().createMenu('Charlotte Square')
-    .addItem('Show the connection token', 'showToken')
-    .addItem('Set up the sheet again', 'setup')
-    .addToUi();
-}
-
-/** Builds the Leads and Lists tabs. Safe to run again: it never deletes a lead. */
+/** Run this one. (It is first so the editor's Run menu picks it.)
+ *  Builds the Leads and Lists tabs. Safe to run again: it never deletes a lead. */
 function setup() {
   const ss = SpreadsheetApp.getActive();
   let leads = ss.getSheetByName(LEADS);
@@ -118,6 +113,14 @@ function setup() {
   const token = tokenFor_();
   console.log('LEADS_SHEET_TOKEN (paste into Cloudflare as a secret): ' + token);
   ss.toast('Done. The connection token is in the Apps Script execution log, or use Charlotte Square → Show the connection token.', 'Lead sheet ready', 15);
+}
+
+/** Menu in the sheet itself. */
+function onOpen() {
+  SpreadsheetApp.getUi().createMenu('Charlotte Square')
+    .addItem('Show the connection token', 'showToken')
+    .addItem('Set up the sheet again', 'setup')
+    .addToUi();
 }
 
 /** The shared secret, made once and kept in this script's properties. */
