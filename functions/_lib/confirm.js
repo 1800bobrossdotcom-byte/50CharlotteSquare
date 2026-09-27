@@ -1,7 +1,9 @@
 /* =============================================================================
    The email a visitor gets after sending the contact or tour form: a branded
-   "we've got it", from the leasing address, with Privacy, Terms and a
-   one-click unsubscribe.
+   "we've got it", from the leasing address, with Privacy, Terms and an
+   unsubscribe link. It is written as a letter, not a newsletter: the logo, a
+   serif greeting, a few lines and a signature, with no hero photo, button or
+   bulk-mail header, so Gmail files it with personal mail, not Promotions.
 
    The form is public, so anything this email carries can be aimed at a
    stranger's inbox by whoever fills it in. So it carries nothing the visitor
@@ -19,7 +21,6 @@ const PHONE = '(585) 748-5588';
 const PHONE_TEL = '+15857485588';
 const HOURS = 'Monday to Friday, 8am to 4pm';
 const STREET = '50 Charlotte Street, Rochester, NY 14607';
-const EVO_URL = 'https://evolution24.net/';
 const QUIET = 12 * 3600;   // seconds between two confirmations to one address
 
 const INTEREST = {
@@ -67,12 +68,7 @@ export function confirmationEmail(row, links) {
   const sans = "'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif";
   const T = 'role="presentation" cellpadding="0" cellspacing="0" border="0"';
 
-  const toldRows = told.map(([k, v]) => `
-              <tr>
-                <td width="120" style="width:120px;padding:6px 16px 6px 0;font-family:${sans};font-size:14px;line-height:1.4;color:#8A8580;white-space:nowrap;vertical-align:top;">${esc(k)}</td>
-                <td style="padding:6px 0;font-family:${sans};font-size:15px;line-height:1.4;color:#1A1613;font-weight:600;">${esc(v)}</td>
-              </tr>`).join('');
-
+  const cell = (css) => `font-family:${sans};${css}`;
   const html = `<!doctype html>
 <html lang="en">
 <head>
@@ -86,76 +82,47 @@ export function confirmationEmail(row, links) {
   body { margin: 0; padding: 0; }
   a { color: #7A1F12; }
   @media (max-width: 620px) {
-    .px { padding-left: 24px !important; padding-right: 24px !important; }
-    .h1 { font-size: 34px !important; }
+    .px { padding-left: 22px !important; padding-right: 22px !important; }
+    .h1 { font-size: 30px !important; }
   }
 </style>
 </head>
-<body style="margin:0;padding:0;background:#F3F0EB;">
+<body style="margin:0;padding:0;background:#FFFFFF;">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">${esc(preheader)}&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;</div>
-<table ${T} width="100%" style="background:#F3F0EB;">
+<table ${T} width="100%" style="background:#FFFFFF;">
   <tr>
-    <td align="center" style="padding:28px 12px 36px;">
-      <table ${T} width="600" style="width:100%;max-width:600px;background:#FFFFFF;border-radius:4px;overflow:hidden;">
+    <td class="px" style="padding:36px 32px 40px;">
+      <table ${T} width="560" style="width:100%;max-width:560px;">
         <tr>
-          <td class="px" style="padding:26px 40px 22px;">
-            <a href="${esc(links.home)}" style="text-decoration:none;">
-              <table ${T}>
-                <tr>
-                  <td style="padding-right:12px;vertical-align:middle;"><img src="${esc(links.img)}/mark.png" width="40" height="40" alt="" style="display:block;border:0;width:40px;height:40px;"></td>
-                  <td style="vertical-align:middle;">
-                    <div style="font-family:${serif};font-size:24px;line-height:1;color:#1A1613;">Charlotte <i>Square</i></div>
-                    <div style="padding-top:5px;font-family:${sans};font-size:10px;line-height:1;letter-spacing:2.4px;color:#8A8580;">AT THE EAST END</div>
-                  </td>
-                </tr>
-              </table>
-            </a>
+          <td style="padding:0 0 30px;"><img src="${esc(links.img)}/logo.png" width="206" height="55" alt="Charlotte Square at the East End" style="display:block;border:0;width:206px;height:55px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:0 0 22px;">
+            <table ${T}><tr><td width="40" height="3" style="width:40px;height:3px;background:#7A1F12;font-size:0;line-height:0;">&nbsp;</td></tr></table>
           </td>
         </tr>
         <tr>
-          <td><img src="${esc(links.img)}/header.jpg" width="600" alt="Charlotte Square at 50 Charlotte Street, Rochester" style="display:block;width:100%;max-width:600px;height:auto;border:0;"></td>
+          <td>
+            <h1 class="h1" style="margin:0 0 14px;font-family:${serif};font-weight:400;font-size:36px;line-height:1.12;color:#1A1613;">${esc(hello)}</h1>
+            <p style="margin:0 0 14px;${cell('font-size:16px;line-height:1.6;color:#3A3632;')}">${esc(got)}</p>
+            <p style="margin:0 0 18px;${cell('font-size:16px;line-height:1.6;color:#3A3632;')}">If it can’t wait, call us at <a href="tel:${PHONE_TEL}" style="color:#7A1F12;font-weight:600;text-decoration:underline;white-space:nowrap;">${PHONE}</a>, ${HOURS}.</p>${told.length ? `
+            <p style="margin:0 0 18px;${cell('font-size:14px;line-height:1.75;color:#6B6660;')}">${told.map(([k, v]) => `${esc(k)}: <strong style="color:#1A1613;font-weight:600;">${esc(v)}</strong>`).join('<br>')}</p>` : ''}
+            <p style="margin:0 0 28px;${cell('font-size:16px;line-height:1.6;')}"><a href="${esc(links.plans)}" style="color:#7A1F12;font-weight:600;text-decoration:underline;">See the floor plans</a></p>
+            <p style="margin:0;${cell('font-size:16px;line-height:1.5;color:#1A1613;')}">The Charlotte Square leasing team</p>
+            <p style="margin:2px 0 0;${cell('font-size:14px;line-height:1.5;color:#6B6660;')}">${STREET}</p>
+          </td>
         </tr>
         <tr>
-          <td class="px" style="padding:36px 40px 4px;">
-            <h1 class="h1" style="margin:0 0 16px;font-family:${serif};font-weight:400;font-size:40px;line-height:1.1;color:#1A1613;">${esc(hello)}</h1>
-            <p style="margin:0 0 14px;font-family:${sans};font-size:16px;line-height:1.6;color:#3A3632;">${esc(got)}</p>
-            <p style="margin:0;font-family:${sans};font-size:16px;line-height:1.6;color:#3A3632;">If it can’t wait, call us at <a href="tel:${PHONE_TEL}" style="color:#7A1F12;font-weight:600;text-decoration:underline;white-space:nowrap;">${PHONE}</a>, ${HOURS}.</p>
-          </td>
-        </tr>${told.length ? `
-        <tr>
-          <td class="px" style="padding:26px 40px 0;">
-            <table ${T} width="100%" style="border-top:1px solid #E7E2DA;border-bottom:1px solid #E7E2DA;">
-              <tr><td colspan="2" style="padding:16px 0 6px;font-family:${sans};font-size:11px;line-height:1;letter-spacing:2px;font-weight:600;color:#8A8580;">WHAT YOU TOLD US</td></tr>${toldRows}
-              <tr><td colspan="2" style="padding:0 0 10px;font-size:0;line-height:0;">&nbsp;</td></tr>
-            </table>
-          </td>
-        </tr>` : ''}
-        <tr>
-          <td class="px" style="padding:28px 40px 38px;">
-            <table ${T}>
+          <td style="padding:34px 0 0;">
+            <table ${T} width="100%" style="border-top:1px solid #E7E2DA;">
               <tr>
-                <td style="border-radius:3px;background:#7A1F12;">
-                  <a href="${esc(links.plans)}" style="display:inline-block;padding:14px 26px;font-family:${sans};font-size:15px;line-height:1;font-weight:600;color:#FFFFFF;text-decoration:none;border-radius:3px;">See the floor plans&nbsp;&rarr;</a>
+                <td style="padding-top:16px;${cell('font-size:12px;line-height:1.75;color:#8A8580;')}">
+                  LEED Gold certified · Equal Housing Opportunity · Managed by Evolution24 Properties<br>
+                  <a href="${esc(links.privacy)}" style="color:#6B6660;text-decoration:underline;">Privacy</a> &nbsp;·&nbsp; <a href="${esc(links.terms)}" style="color:#6B6660;text-decoration:underline;">Terms</a> &nbsp;·&nbsp; <a href="${esc(links.unsubscribe)}" style="color:#6B6660;text-decoration:underline;">Unsubscribe</a><br>
+                  You’re getting this email because you sent us a message through our website. It isn’t a mailing list, and we never sell your information.
                 </td>
               </tr>
             </table>
-            <p style="margin:26px 0 0;font-family:${sans};font-size:15px;line-height:1.6;color:#3A3632;">The Charlotte Square leasing team</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="px" style="padding:30px 40px 28px;background:#1A1613;">
-            <div style="font-family:${serif};font-size:21px;line-height:1.2;color:#F5F1E9;">Charlotte <i>Square</i></div>
-            <p style="margin:8px 0 0;font-family:${sans};font-size:13px;line-height:1.7;color:#C9C2B6;">${STREET}<br><a href="tel:${PHONE_TEL}" style="color:#C9C2B6;text-decoration:none;">${PHONE}</a> · ${HOURS}<br>LEED Gold certified · Equal Housing Opportunity</p>
-            <table ${T} style="margin-top:20px;">
-              <tr>
-                <td style="padding-right:10px;vertical-align:middle;font-family:${sans};font-size:11px;line-height:1;letter-spacing:1.6px;color:#948A7E;">MANAGED BY</td>
-                <td style="vertical-align:middle;"><a href="${EVO_URL}"><img src="${esc(links.img)}/evolution24.png" width="120" height="49" alt="Evolution24 Properties" style="display:block;border:0;width:120px;height:49px;"></a></td>
-              </tr>
-            </table>
-            <p style="margin:22px 0 0;font-family:${sans};font-size:13px;line-height:1.6;color:#948A7E;">
-              <a href="${esc(links.privacy)}" style="color:#F5F1E9;text-decoration:underline;">Privacy</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="${esc(links.terms)}" style="color:#F5F1E9;text-decoration:underline;">Terms</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="${esc(links.unsubscribe)}" style="color:#F5F1E9;text-decoration:underline;">Unsubscribe</a>
-            </p>
-            <p style="margin:10px 0 0;font-family:${sans};font-size:12px;line-height:1.6;color:#948A7E;">You’re getting this email because you sent us a message through our website. It isn’t a mailing list, and we never sell your information.</p>
           </td>
         </tr>
       </table>
@@ -171,18 +138,15 @@ export function confirmationEmail(row, links) {
     got,
     '',
     `If it can’t wait, call us at ${PHONE}, ${HOURS}.`,
-    ...(told.length ? ['', 'What you told us', ...told.map(([k, v]) => `- ${k}: ${v}`)] : []),
+    ...(told.length ? ['', ...told.map(([k, v]) => `${k}: ${v}`)] : []),
     '',
     `See the floor plans: ${links.plans}`,
     '',
     'The Charlotte Square leasing team',
+    STREET,
     '',
     '--',
-    'Charlotte Square',
-    STREET,
-    `${PHONE} · ${HOURS}`,
     'LEED Gold certified · Equal Housing Opportunity · Managed by Evolution24 Properties',
-    '',
     `Privacy: ${links.privacy}`,
     `Terms: ${links.terms}`,
     `Unsubscribe: ${links.unsubscribe}`,
@@ -237,12 +201,9 @@ export async function sendConfirmation(env, row, origin, { force = false } = {})
     html: mail.html,
     text: mail.text,
     replyTo: replyTo(env),
-    // One-click unsubscribe (RFC 8058): the mail app's own Unsubscribe button
-    // posts to the same link, with no page to click through.
-    headers: {
-      'List-Unsubscribe': `<${links.unsubscribe}>`,
-      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-    },
+    // No List-Unsubscribe header. Gmail reads it as the mark of bulk mail and
+    // files what carries it under Promotions, and this is a one-off reply to
+    // a message they sent. The unsubscribe link in the footer does the job.
   });
   if (!sent.ok) return { ok: false, reason: 'error', note: sent.error };
   try {

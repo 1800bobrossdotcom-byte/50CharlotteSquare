@@ -1496,10 +1496,18 @@ a different list: the build sees them, the running site never does.
 #### The visitor's confirmation email
 
 Everyone who sends the contact or tour form also gets a branded email back
-(`functions/_lib/confirm.js`): the building photo, *"Thanks, Pat. We've got your
-message."*, when to expect a reply, what they picked on the form, a link to the
-floor plans, and a footer with the address, LEED Gold, Equal Housing
-Opportunity, Evolution24, and **Privacy · Terms · Unsubscribe**. It goes from
+(`functions/_lib/confirm.js`): the Charlotte Square logo in the site's own
+type, *"Thanks, Pat. We've got your message."*, when to expect a reply, what
+they picked on the form, a link to the floor plans, a signature, and a footer
+with LEED Gold, Equal Housing Opportunity, Evolution24, and **Privacy · Terms ·
+Unsubscribe**.
+
+It is written as a letter on purpose. The first version had the building
+photo, a big button, a dark footer and a `List-Unsubscribe` header, and Gmail
+filed it under Promotions: those are the marks of a newsletter, and that
+header in particular is how bulk mail announces itself. A one-off reply to a
+message someone sent needs none of them, so the letter has one image (the
+logo), text links and a light footer, and the unsubscribe is a link in it. It goes from
 `LEAD_FROM`. Replies go to `REPLY_TO`, or without it to the first address in
 `LEAD_TO`. It is sent after the visitor has their answer, so it never slows the
 form down, and each enquiry's card says whether it went (and, with delivery
@@ -1515,9 +1523,9 @@ policy, because mail apps load them from somewhere else.
 
 **Unsubscribing.** The link is `/unsubscribe/<token>`, a random token for that
 address, so the address is never in the link. Opening it shows one button;
-only pressing it, or the mail app's own one-click Unsubscribe (the
-`List-Unsubscribe` headers, RFC 8058), records it, because mail scanners open
-every link in an email and must not be able to unsubscribe anyone. The address
+only pressing it records it, because mail scanners open every link in an email
+and must not be able to unsubscribe anyone. (The page also accepts a mail app's
+one-click POST, RFC 8058, should a future bulk email carry the header.) The address
 stays in `email_prefs` with the date, and that is what stops the next email.
 Its enquiry cards say *Unsubscribed*. A personal reply to what they asked is
 still fine; adding them to anything automated or bulk is not.
