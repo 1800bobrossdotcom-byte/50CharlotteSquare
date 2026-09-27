@@ -19,6 +19,20 @@ import { moveInLabel } from './movein.js';
 
 export const sheetEnabled = (env) => Boolean(env.LEADS_SHEET_URL && env.LEADS_SHEET_TOKEN);
 
+/* What was pasted into the two secrets, forgivingly. The script's token is 64
+   hex characters, so copying its whole log line, quotes or a trailing space
+   along with it still works; likewise any text around the web-app URL. */
+export const sheetToken = (env) => {
+  const s = String(env.LEADS_SHEET_TOKEN || '');
+  const m = /[0-9a-f]{64}/i.exec(s);
+  return m ? m[0] : s.trim();
+};
+export const sheetUrl = (env) => {
+  const s = String(env.LEADS_SHEET_URL || '');
+  const m = /https:\/\/[^\s"'<>]+/.exec(s);
+  return m ? m[0] : s.trim();
+};
+
 /** The row as the sheet wants it: words, not codes. */
 export function sheetLead(row) {
   return {
@@ -45,10 +59,10 @@ export async function sendToSheet(env, row) {
   const timer = setTimeout(() => ctrl.abort(), 25000);
   try {
     // Apps Script answers a POST with a redirect to the result; fetch follows it.
-    const res = await fetch(env.LEADS_SHEET_URL, {
+    const res = await fetch(sheetUrl(env), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: env.LEADS_SHEET_TOKEN, lead: sheetLead(row) }),
+      body: JSON.stringify({ token: sheetToken(env), lead: sheetLead(row) }),
       redirect: 'follow',
       signal: ctrl.signal,
     });
@@ -56,6 +70,9 @@ export async function sendToSheet(env, row) {
     let answer = null;
     try { answer = JSON.parse(text); } catch { /* an HTML page: see below */ }
     if (answer && answer.ok) return { ok: true };
+    if (answer && answer.error === 'Wrong token.') {
+      return { ok: false, note: 'The sheet said: Wrong token. Copy the token again from the sheet’s Charlotte Square menu → Show the connection token, into LEADS_SHEET_TOKEN.' };
+    }
     if (answer && answer.error) return { ok: false, note: `The sheet said: ${String(answer.error).slice(0, 200)}` };
     // A Google sign-in page instead of an answer: the web app is not open to
     // the website. The usual cause, and the one fix.

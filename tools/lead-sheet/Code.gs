@@ -111,7 +111,8 @@ function setup() {
   ss.setActiveSheet(leads);
 
   const token = tokenFor_();
-  console.log('LEADS_SHEET_TOKEN (paste into Cloudflare as a secret): ' + token);
+  console.log('Connection token. Paste the next line, and only that, into Cloudflare as the secret LEADS_SHEET_TOKEN:');
+  console.log(token);
   ss.toast('Done. The connection token is in the Apps Script execution log, or use Charlotte Square → Show the connection token.', 'Lead sheet ready', 15);
 }
 
