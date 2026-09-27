@@ -165,6 +165,26 @@ Realistic target: page one for the East End and brand-qualified variants within 
 few months of the cutover, and a map-pack slot once the profile is live. The
 unqualified head term is a longer campaign.
 
+### The name: 50 Charlotte Square
+
+The building is called "50 Charlotte Square" wherever search engines and readers
+look for a name, the way a building takes its number: every page title (home:
+"50 Charlotte Square | Luxury Apartments in Rochester, NY"), every meta
+description, `og:site_name`, the JSON-LD `WebSite` and `ApartmentComplex` names
+(with "Charlotte Square", "Charlotte Square at the East End" and "Charlotte
+Square Apartments" as `alternateName`s), the breadcrumb, the web app manifest,
+`llms.txt`, the photo descriptions and the sitemap's image captions. In the copy
+it opens the key paragraphs (the home hero line, "Welcome to 50 Charlotte
+Square", the leads on each page, the FAQ, the footer), three to six times a
+page: enough to rank on, not so much that it reads as keyword stuffing. A new
+first FAQ, "Where is 50 Charlotte Square?", ties the name to the address.
+
+Two things never change: the wordmark stays "Charlotte Square at the East End"
+(so the logo's accessible name matches what it shows), and the postal address
+is always 50 Charlotte Street. "Charlotte Square" is never written as a street,
+so no one types it into a map. If the Google Business Profile is claimed, using
+the same name there keeps the listing and the site agreeing.
+
 ### The SEO pass, 21 September 2026
 
 A second pass, against the live SERP rather than against theory. What actually
