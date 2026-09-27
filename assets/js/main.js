@@ -197,9 +197,31 @@
     prefill(new URLSearchParams(location.search));
     document.addEventListener('cs:prefill', (e) => prefill(e.detail));
 
-    const showStatus = (ok, msg) => {
+    // The number as a link, so "call" is one tap on a phone.
+    const phoneLink = () => {
+      const a = document.createElement('a');
+      a.href = 'tel:+1' + phone.replace(/\D/g, '').replace(/^1(?=\d{10}$)/, '');
+      a.textContent = phone;
+      return a;
+    };
+    const ICON = {
+      ok: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+      err: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 6.5v7"/><path d="M12 17.5h.01"/></svg>',
+    };
+    // A heading and a line under it; `text` is strings and the phone link.
+    const showStatus = (ok, title, ...text) => {
       if (!status) return;
-      status.textContent = msg;
+      const icon = document.createElement('span');
+      icon.className = 'form__status-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.innerHTML = ok ? ICON.ok : ICON.err;
+      const head = document.createElement('p');
+      head.className = 'form__status-title';
+      head.textContent = title;
+      const body = document.createElement('p');
+      body.className = 'form__status-text';
+      body.append(...text);
+      status.replaceChildren(icon, head, body);
       status.className = 'form__status ' + (ok ? 'is-ok' : 'is-err');
       status.setAttribute('tabindex', '-1');
       status.focus();
@@ -236,6 +258,10 @@
       const data = new FormData(form);
       data.delete('website');
       const endpoint = (form.dataset.endpoint || '').trim();
+      // For the thank-you line, before the form is cleared.
+      const first = String(data.get('first_name') || '').trim().split(/\s+/)[0].slice(0, 40);
+      const thanks = first ? `Thanks, ${first}.` : 'Thank you.';
+      const tour = data.get('form') === 'tour';
 
       // The old open-your-email-app fallback is gone on purpose: it needed the
       // leasing address in the page source, and /api/inquiry now stores every
@@ -243,15 +269,22 @@
       try {
         if (endpoint) {
           const res = await fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+          if (res.status === 429) {
+            showStatus(false, 'We’ve had a few messages from you already.', 'To add anything, call ', phoneLink(), ' and we’ll take it from there.');
+            return;
+          }
           if (!res.ok) throw new Error('Request failed: ' + res.status);
           form.reset();
-          showStatus(true, 'Thanks — your message is on its way. We typically reply within one business day.');
+          showStatus(true,
+            tour ? `${thanks} We’ve got your tour request.` : `${thanks} We’ve got your message.`,
+            tour ? 'We’ll be in touch within one business day to set a time. If it can’t wait, call ' : 'We’ll reply within one business day. If it can’t wait, call ',
+            phoneLink(), '.');
         } else {
           // Nowhere to deliver to: say so plainly and hand over the phone number.
-          showStatus(false, `We can't send messages from the site just yet. Please call ${phone} and we'll take your details.`);
+          showStatus(false, 'We can’t take messages on the site just yet.', 'Please call ', phoneLink(), ' and we’ll take your details.');
         }
       } catch (err) {
-        showStatus(false, `Something went wrong sending your message. Please call ${phone} and we'll take your details.`);
+        showStatus(false, 'Your message didn’t go through.', 'Please try again, or call ', phoneLink(), ' and we’ll take your details.');
       } finally {
         btn.disabled = false;
         btn.innerHTML = label;

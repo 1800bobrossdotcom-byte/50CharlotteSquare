@@ -577,6 +577,9 @@ html.js .ticker.is-running .ticker__view:hover .ticker__track { animation-play-s
 .info-card p { color: var(--fg-muted); margin: 0; }
 .info-card a { text-decoration: none; font-weight: 600; color: var(--fg); }
 .info-card a:hover { text-decoration: underline; }
+/* .info-card p comes after .card--ink p and would paint dark grey on the dark card. */
+.info-card.card--ink p { color: rgba(244, 241, 235, .75); }
+.info-card.card--ink a:not(.btn) { color: var(--stone); }
 .map { border-radius: var(--radius); overflow: hidden; aspect-ratio: 16 / 9; border: 1px solid var(--line); background: var(--bg-sunken); }
 .map iframe { width: 100%; height: 100%; border: 0; filter: saturate(.85); }
 .map--tall { aspect-ratio: 4 / 3; }
@@ -639,9 +642,22 @@ html.js .ticker.is-running .ticker__view:hover .ticker__track { animation-play-s
 .field.is-invalid input, .field.is-invalid select, .field.is-invalid textarea { border-color: var(--brick); }
 .field__error { font-size: .8rem; color: var(--brick); display: none; }
 .field.is-invalid .field__error { display: block; }
-.form__status { padding: 1rem 1.1rem; border-radius: var(--radius-sm); font-size: .95rem; display: none; }
-.form__status.is-ok { display: block; background: var(--ok-bg); color: var(--ok-fg); }
-.form__status.is-err { display: block; background: var(--accent-tint); color: var(--brick-700); }
+/* After sending: an icon, a heading and one line, in place, where the eye
+   already is. Focused so screen readers announce it; not a control, so no ring. */
+.form__status { display: none; }
+.form__status.is-ok, .form__status.is-err {
+  display: grid; grid-template-columns: auto 1fr; column-gap: .9rem; row-gap: .15rem; align-items: start;
+  padding: 1.1rem 1.25rem; border: 1px solid; border-radius: var(--radius-sm);
+}
+.form__status.is-ok { background: var(--ok-bg); color: var(--ok-fg); border-color: color-mix(in srgb, var(--ok-fg) 20%, transparent); }
+.form__status.is-err { background: var(--accent-tint); color: var(--brick-700); border-color: color-mix(in srgb, var(--brick-700) 20%, transparent); }
+.form__status:focus { outline: none; }
+.form__status-icon { grid-row: 1 / span 2; display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; }
+.is-ok .form__status-icon { background: var(--ok-fg); color: var(--ok-bg); }
+.is-err .form__status-icon { background: var(--brick-700); color: #fff; }
+.form__status-title { margin: 0; font-family: var(--font-display); font-size: 1.4rem; line-height: 1.2; }
+.form__status-text { margin: 0; font-size: .95rem; line-height: 1.5; }
+.form__status a { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: .15em; white-space: nowrap; }
 .form__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
 .form__note { font-size: .82rem; color: var(--fg-subtle); max-width: 30rem; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
@@ -761,6 +777,7 @@ html:root[data-style="gallery"] {
   --fg: #1A1A1A; --fg-muted: #4F4B47; --fg-subtle: #8A8580;
   --line: rgba(26, 26, 26, .14); --line-strong: rgba(26, 26, 26, .4);
   --accent: #7A1F12; --accent-hover: #5E160C; --accent-fg: #FFFFFF; --accent-tint: #F3E6E2; --accent-on-dark: #E8A48F;
+  --ok-bg: var(--sage-100); --ok-fg: var(--sage-900);
   --focus-ring: #2F6FED;
   --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
   --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
