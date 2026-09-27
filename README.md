@@ -1098,6 +1098,31 @@ Evolution24's own logo ships in `assets/img/` in two pieces of art: `evolution24
 
 The footer carries both files and lets CSS pick: the knockout art on the dark footers, the color art on the Gallery style's light footer. If the logo is ever redrawn, replace the two files and nothing else changes.
 
+### The C, drawn
+
+The white C in the Charlotte Square mark is drawn as one 10-wide line down the
+middle of its arms (`C_STROKE` in the generator), not a filled outline. It
+covers exactly the same pixels as the old outline (checked at 256px: zero
+pixels differ), and a line can be animated as if drawn by hand.
+
+- **Every page load:** the header's red square pops in and the C draws itself
+  from the tab, along the top, down the back and out along the bottom, in
+  about 0.8 seconds.
+- **The home page, once a visit:** a white intro. The C is drawn large, "Charlotte
+  Square, at the East End" fades in under it, then the C flies up and lands
+  exactly on the header's C as the page shows through. It takes about two
+  seconds, and a click, key or scroll skips it. `main.js` measures where the
+  header's C is so the landing is exact on any screen; without it the C
+  simply fades where it is.
+- **No animation at all** for anyone who asks their device for reduced motion,
+  for search engines and page-speed tools, or without JavaScript. The intro is
+  off unless the head script turns it on, so it can never be left covering the
+  page.
+
+The timings are in the "THE C, DRAWN" block at the end of `main.css`. The
+intro's once-a-visit memory is `sessionStorage` key `cs-intro`; clear it (or open
+a private window) to see it again.
+
 ## Editing content
 
 - **Copy** lives directly in each page's HTML. Search for the text you want to change.

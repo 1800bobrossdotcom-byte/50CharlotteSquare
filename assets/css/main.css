@@ -1341,3 +1341,50 @@ html:root[data-style="gallery"] { color-scheme: light; }
   -webkit-text-fill-color: var(--fg);
   -webkit-box-shadow: 0 0 0 1000px var(--bg-elev) inset, var(--focus); box-shadow: 0 0 0 1000px var(--bg-elev) inset, var(--focus);
 }
+
+/* =============================================================================
+   THE C, DRAWN — the white C in the mark is one line (see C_STROKE), so it can
+   be drawn from the tab round to the bottom arm, as if by hand.
+
+   Every page: the header's C pops its square and draws itself on arrival.
+   The home page, once a visit: a white intro with the C drawn large and the
+   name under it; then the C flies into the header's place (main.js measures
+   where) as the page shows through. The intro is off unless the head script
+   turns it on, so without JavaScript, for crawlers, or for anyone who asks for
+   reduced motion, there is none, and the header's C simply stands.
+   ============================================================================= */
+@keyframes c-pop  { from { transform: scale(.35) rotate(-10deg); opacity: 0; } }
+@keyframes c-draw { from { stroke-dasharray: 100; stroke-dashoffset: 100; } to { stroke-dasharray: 100; stroke-dashoffset: 0; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.with-intro) .topbar .brand__mark rect { transform-box: fill-box; transform-origin: center; animation: c-pop .45s var(--ease) both; }
+  html:not(.with-intro) .topbar .brand__mark .brand__c { animation: c-draw .65s cubic-bezier(.65, 0, .35, 1) .15s both; }
+}
+
+.intro { display: none; }
+html.with-intro .intro {
+  position: fixed; inset: 0; z-index: 1000;
+  display: grid; place-content: center; justify-items: center; gap: 1.4rem;
+  background: var(--bg); color: var(--fg);
+  animation: intro-clear .5s var(--ease) 1.45s forwards, intro-done 0s linear 2s forwards;
+}
+.intro__mark { width: 104px; height: 104px; will-change: transform; animation: intro-fly .6s cubic-bezier(.7, 0, .25, 1) 1.4s forwards; }
+.intro__mark svg { display: block; width: 100%; height: 100%; }
+.intro__mark rect { transform-box: fill-box; transform-origin: center; animation: c-pop .55s var(--ease) both; }
+.intro__mark .brand__c { animation: c-draw .85s cubic-bezier(.65, 0, .35, 1) .3s both; }
+.intro__name {
+  margin: 0; text-align: center; font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(1.9rem, 4vw, 2.6rem); line-height: 1; letter-spacing: -.01em;
+  animation: intro-name .55s var(--ease) .85s both, intro-fade .3s ease 1.35s forwards;
+}
+.intro__name b { font-weight: 400; font-style: italic; }
+.intro__name span {
+  display: block; margin-top: .55rem; font-family: var(--font-body); font-size: .7rem; font-weight: 700;
+  letter-spacing: .24em; text-transform: uppercase; color: var(--fg-muted);
+}
+@keyframes intro-name  { from { opacity: 0; transform: translateY(10px); } }
+@keyframes intro-fade  { to { opacity: 0; } }
+@keyframes intro-clear { to { background-color: transparent; } }
+@keyframes intro-done  { to { visibility: hidden; } }
+@keyframes intro-fly   { to { transform: translate(var(--fly-x, 0px), var(--fly-y, 0px)) scale(var(--fly-s, 1)); } }
+@media (prefers-reduced-motion: reduce) { html.with-intro .intro { display: none; } }

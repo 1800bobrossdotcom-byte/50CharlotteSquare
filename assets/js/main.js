@@ -9,6 +9,34 @@
   const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ---- The intro: the C lands in the header -------------------------------
+     The head script turns the intro on (home page, once a visit); the CSS
+     draws it and fades it on its own. This only works out how far, and how
+     much smaller, the big C has to travel to sit exactly on the header's C,
+     and lets a click, a key or a scroll skip straight to the page. If this
+     file were slow or missing, the C would simply fade where it is. */
+  const intro = document.documentElement.classList.contains('with-intro') && $('.intro');
+  if (intro) {
+    const mark = $('.intro__mark', intro);
+    const target = $('.topbar .brand__mark');
+    if (mark && target) {
+      const a = mark.getBoundingClientRect();
+      const b = target.getBoundingClientRect();
+      if (a.width && b.width) {
+        mark.style.setProperty('--fly-x', `${(b.left + b.width / 2) - (a.left + a.width / 2)}px`);
+        mark.style.setProperty('--fly-y', `${(b.top + b.height / 2) - (a.top + a.height / 2)}px`);
+        mark.style.setProperty('--fly-s', String(b.width / a.width));
+      }
+    }
+    const SKIP = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
+    const done = () => {
+      intro.remove();
+      SKIP.forEach((t) => removeEventListener(t, done, true));
+    };
+    intro.addEventListener('animationend', (e) => { if (e.animationName === 'intro-done') done(); });
+    SKIP.forEach((t) => addEventListener(t, done, { capture: true, passive: true }));
+  }
+
   /* ---- Missing photo -> show the labelled placeholder --------------------
      This used to be an onerror="" attribute on every <img>. Inline event
      handlers are blocked by the Content Security Policy even when the inline
