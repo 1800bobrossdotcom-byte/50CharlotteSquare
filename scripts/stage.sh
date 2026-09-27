@@ -19,7 +19,7 @@ cd "$(dirname "$0")/.."
 rm -rf public
 mkdir public
 for p in \
-  index.html 404.html robots.txt sitemap.xml llms.txt site.webmanifest \
+  index.html 404.html robots.txt sitemap.xml llms.txt site.webmanifest googlec8931dc626c500a1.html \
   _headers _redirects .well-known assets admin \
   residences amenities neighborhood story contact privacy terms \
   the-charlotte-story roc-the-east-end life-at-the-square contact-us \

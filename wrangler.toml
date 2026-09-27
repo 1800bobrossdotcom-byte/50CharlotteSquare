@@ -37,7 +37,7 @@ binding = "ASSETS"
 not_found_handling = "404-page"
 html_handling = "auto-trailing-slash"
 # Everything else is served as a file without running any code.
-run_worker_first = ["/api/*", "/admin", "/admin/*", "/tour", "/tour/*", "/r/*", "/unsubscribe/*"]
+run_worker_first = ["/api/*", "/admin", "/admin/*", "/tour", "/tour/*", "/r/*", "/unsubscribe/*", "/google*"]
 
 [[d1_databases]]
 binding = "DB"

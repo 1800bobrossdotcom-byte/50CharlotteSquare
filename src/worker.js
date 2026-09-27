@@ -132,9 +132,25 @@ function secure(res, isAdmin) {
   return out;
 }
 
+/* Google Search Console proves ownership by fetching /google<code>.html and
+   reading it at that exact address. The asset layer would answer with a
+   redirect to the same address without .html, which the check does not
+   accept, so the file is read from there and returned here, as it is. */
+async function searchConsoleFile(request, env, url) {
+  const m = /^\/(google[0-9a-f]+)\.html$/.exec(url.pathname);
+  if (!m) return null;
+  const res = await env.ASSETS.fetch(new Request(new URL(`/${m[1]}`, url), { method: 'GET' }));
+  if (!res.ok) return null;
+  return new Response(request.method === 'HEAD' ? null : await res.text(), {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' },
+  });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    const verify = await searchConsoleFile(request, env, url);
+    if (verify) return secure(verify, false);
     const hit = route(url.pathname);
     // Anything else that reached here is a file: hand it to the asset layer.
     if (!hit) return env.ASSETS.fetch(request);
