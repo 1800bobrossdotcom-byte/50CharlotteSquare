@@ -1096,7 +1096,7 @@ On phones, hero and tile text carries a soft shadow and the hero gradient deepen
 
 Evolution24's own logo ships in `assets/img/` in two pieces of art: `evolution24-logo-white.png` (knockout, for dark grounds) and `evolution24-logo.png` (full color, for light ones). Both came from evolution24.net. It appears in the footer badge, the management section on the home page, the company block on the story page, and the management office card on the contact page. Every one of those, and every mention of the company name in body copy, links to https://evolution24.net/ in a new tab.
 
-The footer carries both files and lets CSS pick: the knockout art on the dark footers, the color art on the Gallery style's light footer. If the logo is ever redrawn, replace the two files and nothing else changes.
+The footer carries both files and lets CSS pick: the knockout art on the dark footers, the color art in the Gallery style. The color art's tan and cream are made for a dark ground (on the light footer the cream "24" all but disappeared), so in the Gallery footer and on the contact page's management office card the logo sits on its own dark chip. If the logo is ever redrawn, replace the two files and nothing else changes.
 
 ### The C, drawn
 
@@ -1108,20 +1108,27 @@ pixels differ), and a line can be animated as if drawn by hand.
 - **Every page load:** the header's red square pops in and the C draws itself
   from the tab, along the top, down the back and out along the bottom, in
   about 0.8 seconds.
-- **The home page, once a visit:** a white intro. The C is drawn large, "Charlotte
-  Square, at the East End" fades in under it, then the C flies up and lands
-  exactly on the header's C as the page shows through. It takes about two
-  seconds, and a click, key or scroll skips it. `main.js` measures where the
-  header's C is so the landing is exact on any screen; without it the C
-  simply fades where it is.
+- **The home page, on arrival and on a reload:** a white intro. The C is drawn
+  large, "Charlotte Square, at the East End" fades in under it, then the C
+  flies up and lands exactly on the header's C as the page shows through. It
+  takes about two seconds, and a click, key or scroll skips it (a key still
+  held from Ctrl+R does not). It plays when someone arrives from outside the
+  site, once a visit, and again on every reload; never on the way back to the
+  home page from another page of the site, or with the back button. The C is
+  sized to the screen: 104px on a phone, growing to 184px on a large monitor.
+  `main.js` measures where the header's C is so the landing is exact on any
+  screen; without it the C simply fades where it is.
 - **No animation at all** for anyone who asks their device for reduced motion,
   for search engines and page-speed tools, or without JavaScript. The intro is
   off unless the head script turns it on, so it can never be left covering the
   page.
 
-The timings are in the "THE C, DRAWN" block at the end of `main.css`. The
-intro's once-a-visit memory is `sessionStorage` key `cs-intro`; clear it (or open
-a private window) to see it again.
+The timings are in the "THE C, DRAWN" block at the end of `main.css`. To see the
+intro again, reload the home page. It is skipped on purpose when the device asks
+for reduced motion: on Windows that is Settings, Accessibility, Visual effects,
+"Animation effects" off; on a Mac, System Settings, Accessibility, Display,
+"Reduce motion" on. The once-a-visit memory for arrivals is `sessionStorage` key
+`cs-intro`.
 
 ## Editing content
 

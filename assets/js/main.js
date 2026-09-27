@@ -10,11 +10,12 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---- The intro: the C lands in the header -------------------------------
-     The head script turns the intro on (home page, once a visit); the CSS
-     draws it and fades it on its own. This only works out how far, and how
-     much smaller, the big C has to travel to sit exactly on the header's C,
-     and lets a click, a key or a scroll skip straight to the page. If this
-     file were slow or missing, the C would simply fade where it is. */
+     The head script turns the intro on (the home page, on arriving from
+     outside the site and on a reload); the CSS draws it and fades it on its
+     own. This only works out how far, and how much smaller, the big C has to
+     travel to sit exactly on the header's C, and lets a click, a key or a
+     scroll skip straight to the page. If this file were slow or missing, the
+     C would simply fade where it is. */
   const intro = document.documentElement.classList.contains('with-intro') && $('.intro');
   if (intro) {
     const mark = $('.intro__mark', intro);
@@ -31,10 +32,16 @@
     const SKIP = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
     const done = () => {
       intro.remove();
-      SKIP.forEach((t) => removeEventListener(t, done, true));
+      SKIP.forEach((t) => removeEventListener(t, skip, true));
+    };
+    // A key still held from the reload (Ctrl after Ctrl+R repeats on Windows)
+    // is not a request to skip; a real key press is.
+    const skip = (e) => {
+      if (e.type === 'keydown' && (e.repeat || /^(Control|Shift|Alt|Meta|OS|CapsLock|Fn)$/.test(e.key))) return;
+      done();
     };
     intro.addEventListener('animationend', (e) => { if (e.animationName === 'intro-done') done(); });
-    SKIP.forEach((t) => addEventListener(t, done, { capture: true, passive: true }));
+    SKIP.forEach((t) => addEventListener(t, skip, { capture: true, passive: true }));
   }
 
   /* ---- Missing photo -> show the labelled placeholder --------------------

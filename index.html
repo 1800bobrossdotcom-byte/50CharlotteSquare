@@ -13,7 +13,7 @@
 <meta property="og:image" content="https://www.charlottesquareroc.com/assets/img/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#121316">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; form-action 'self'; script-src 'self' 'sha256-cLOhBHmr8AglRMSPzErF3OTKcO60NHel9rMuZ/hFa/c='; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src https://www.google.com https://maps.google.com; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; form-action 'self'; script-src 'self' 'sha256-KXc3v8urrrMEcMRsDJcbF3f3lK04xipLHyph6LYzUB4='; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src https://www.google.com https://maps.google.com; manifest-src 'self'; upgrade-insecure-requests">
 <link rel="canonical" href="https://www.charlottesquareroc.com/">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <meta name="geo.region" content="US-NY"><meta name="geo.placename" content="Rochester">
@@ -24,7 +24,7 @@
 <link rel="preload" href="assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="assets/css/main.css">
-<script>(function(d){d.classList.add('js');try{if(d.hasAttribute('data-home')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent)&&!sessionStorage.getItem('cs-intro')){sessionStorage.setItem('cs-intro','1');d.classList.add('with-intro')}}catch(e){}})(document.documentElement)</script>
+<script>(function(d){d.classList.add('js');try{var n=performance.getEntriesByType('navigation')[0],t=n?n.type:'navigate',r=document.referrer.indexOf(location.origin+'/')===0;if(d.hasAttribute('data-home')&&t!=='back_forward'&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!/bot|crawl|spider|lighthouse/i.test(navigator.userAgent)&&(t==='reload'||!r&&!sessionStorage.getItem('cs-intro'))){sessionStorage.setItem('cs-intro','1');d.classList.add('with-intro')}}catch(e){}})(document.documentElement)</script>
 
 <script type="application/ld+json">
 {
@@ -311,7 +311,7 @@
       <a class="btn btn--primary" href="contact/?interest=tour">Schedule a tour</a>
       <a class="btn btn--ghost" href="https://evolution.twa.rentmanager.com/" target="_blank" rel="noopener">Resident login</a>
     </div>
-    <address>50 Charlotte Street, Rochester, NY 14607 · <a href="tel:+15857485588">(585) 748-5588</a></address>
+    <address>50 Charlotte Street, Rochester, NY&nbsp;14607 · <a href="tel:+15857485588">(585) 748-5588</a></address>
   </div>
 </div>
 <main id="main">
@@ -319,7 +319,7 @@
   <div class="hero__media"><div class="hero__slides"><div class="hero__slide is-active" data-caption="Charlotte Street at golden hour"><figure class="ph ph--dusk"><img src="assets/img/hero-exterior.jpg" alt="Charlotte Square from Charlotte Street" loading="eager" fetchpriority="high" ><figcaption class="ph__label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Hero slide · Charlotte Street at golden hour · <code>hero-exterior.jpg</code></span></figcaption></figure></div></div><a class="seal seal--photo reveal" href="story/#specs"><span class="seal__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20c0-8 6-14 16-16-1 10-6 16-14 16"/><path d="M4 20l8-8"/></svg></span><span class="seal__text"><span class="seal__k">LEED® certified</span><span class="seal__v">Gold</span></span></a></div>
   <div class="container hero__inner">
     <a class="seal seal--flow reveal" href="story/#specs"><span class="seal__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20c0-8 6-14 16-16-1 10-6 16-14 16"/><path d="M4 20l8-8"/></svg></span><span class="seal__text"><span class="seal__k">LEED® certified</span><span class="seal__v">Gold</span></span></a>
-    <p class="eyebrow reveal">50 Charlotte Street · Rochester’s East End</p>
+    <p class="eyebrow reveal"><span><span class="nowrap">50 Charlotte Street</span> · <span class="nowrap">Rochester’s East End</span></span></p>
     <h1 class="hero__title" id="hero-title"><span class="hero__line"><span>Live above it all.</span></span><span class="hero__line"><span class="accent">Steps from everything.</span></span></h1>
     <div class="hero__grid">
       <div>
@@ -330,9 +330,10 @@
         </div>
       </div>
       <div class="hero__aside reveal" data-delay="3">
-        <span><strong>Now leasing</strong> · Managed by <a href="https://evolution24.net/" target="_blank" rel="noopener">Evolution24 Properties</a></span>
-        <a href="tel:+15857485588"><strong>Vicki Barone · (585) 748-5588</strong></a>
-        <span>Leasing agent · Monday to Friday, 8am to 4pm</span>
+        <span class="hero__status"><span class="hero__dot" aria-hidden="true"></span>Now leasing</span>
+        <a class="hero__call" href="tel:+15857485588"><strong>Vicki Barone · <span class="nowrap">(585) 748-5588</span></strong></a>
+        <span>Leasing agent · Monday to Friday, <span class="nowrap">8am to 4pm</span></span>
+        <span class="hero__mgmt">Managed by <a href="https://evolution24.net/" target="_blank" rel="noopener">Evolution24&nbsp;Properties</a></span>
       </div>
     </div>
     
@@ -441,7 +442,7 @@
     <div class="reveal">
       <p class="eyebrow">A new chapter</p>
       <h2 id="mgmt-title">Hands-on. Responsive. Local.</h2>
-      <p class="lead">Charlotte Square is now managed by <a href="https://evolution24.net/" target="_blank" rel="noopener">Evolution24 Properties</a>, a Rochester-based team that answers the phone, shows up, and treats your home like it matters. Because it does.</p>
+      <p class="lead">Charlotte Square is now managed by <a href="https://evolution24.net/" target="_blank" rel="noopener">Evolution24&nbsp;Properties</a>, a Rochester-based team that answers the phone, shows up, and treats your home like it matters. Because it does.</p>
       <p class="mt-2"><a class="evo-logo evo-logo--sm" href="https://evolution24.net/" target="_blank" rel="noopener" aria-label="Evolution24 Properties (opens in a new tab)"><img src="assets/img/evolution24-logo-white.png" alt="Evolution24 Properties" width="707" height="290" loading="lazy"></a></p>
       <div class="btn-row mt-2">
         <a class="btn btn--light" href="https://evolution.twa.rentmanager.com/" target="_blank" rel="noopener">Resident portal</a>
@@ -500,7 +501,7 @@
       </div>
       <div>
         <h4>Visit</h4>
-        <address>50 Charlotte Street<br>Rochester, NY 14607</address>
+        <address>50 Charlotte Street<br>Rochester, NY&nbsp;14607</address>
         <ul>
           <li>Vicki Barone, leasing</li>
           <li><a href="tel:+15857485588">(585) 748-5588</a></li>
@@ -510,7 +511,7 @@
       </div>
     </div>
     <div class="footer__bottom">
-      <span>© <span data-year>2026</span> Charlotte Square · <a href="https://evolution24.net/" target="_blank" rel="noopener">Evolution24 Properties</a>. All rights reserved.</span>
+      <span>© <span data-year>2026</span> Charlotte Square · <a href="https://evolution24.net/" target="_blank" rel="noopener">Evolution24&nbsp;Properties</a>. All rights reserved.</span>
       <span class="marks"><span class="eho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><path d="M7 20v-6h10v6"/><path d="M9 17h6"/></svg> Equal Housing Opportunity</span><a class="eho eho--leed" href="story/#specs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20c0-8 6-14 16-16-1 10-6 16-14 16"/><path d="M4 20l8-8"/></svg> LEED® Gold certified</a></span>
       <span><a href="privacy/">Privacy</a> · <a href="terms/">Terms</a> · <a href="privacy/#accessibility">Accessibility</a> · <a href="admin/" rel="nofollow">Staff login</a></span>
     </div>
