@@ -17,6 +17,7 @@
    or rank people, and to treat what the visitor typed as data, not orders.
    ============================================================================= */
 import Anthropic from '@anthropic-ai/sdk';
+import { moveInLabel } from './movein.js';
 
 const MODEL = 'claude-opus-5';
 
@@ -26,6 +27,9 @@ const FALLBACK = { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'defau
 
 export const aiEnabled = (env) => Boolean(env.ANTHROPIC_API_KEY);
 
+/** What the API itself said, without the SDK's "400 {json}" wrapper. */
+const said = (err) => (err && err.error && err.error.error && err.error.error.message) || (err && err.message) || String(err);
+
 /** One plain sentence for the dashboard, from whichever way the call failed.
  *  Most specific first: in this SDK the connection error is itself an APIError. */
 export function aiError(err) {
@@ -33,13 +37,17 @@ export function aiError(err) {
   if (err instanceof Anthropic.PermissionDeniedError) return 'This Anthropic key is not allowed to use that model.';
   if (err instanceof Anthropic.NotFoundError) return 'That Claude model is not available to this Anthropic account.';
   if (err instanceof Anthropic.RateLimitError) return 'Claude is busy for this account right now. Try again in a minute.';
-  if (err instanceof Anthropic.BadRequestError) return `Claude could not take the request: ${err.message}`.slice(0, 300);
+  // A key that covers several workspaces has to name one on every request.
+  if (err instanceof Anthropic.BadRequestError && /not scoped to a workspace/i.test(said(err))) {
+    return 'This Anthropic API key is not tied to a workspace. Put a key made inside one workspace (Claude Console → Settings → API keys) in ANTHROPIC_API_KEY, or add the workspace ID as ANTHROPIC_WORKSPACE_ID, in the Worker’s settings in Cloudflare.';
+  }
+  if (err instanceof Anthropic.BadRequestError) return `Anthropic turned the request down: ${said(err)}`.slice(0, 300);
   if (err instanceof Anthropic.InternalServerError) return 'Claude had a problem on its side. Try again shortly.';
   if (err instanceof Anthropic.APIConnectionError) return 'Could not reach Claude in time.';
   if (err instanceof Anthropic.APIError) {
     return err.status === 402
       ? 'The Anthropic account needs credit or a payment method.'
-      : `Claude answered ${err.status}: ${err.message}`.slice(0, 300);
+      : `Claude answered ${err.status}: ${said(err)}`.slice(0, 300);
   }
   return String((err && err.message) || err).slice(0, 300);
 }
@@ -55,10 +63,14 @@ async function askJSON(env, { system, content, schema, effort, timeout, maxRetri
     timeout,
     maxRetries,
   });
+  const workspace = String(env.ANTHROPIC_WORKSPACE_ID || '').trim();
   const res = await client.beta.messages.create({
     model: MODEL,
     max_tokens: 8000,
     ...FALLBACK,
+    // Only needed for a key that covers several workspaces rather than one;
+    // the SDK sends it as the anthropic-workspace-id header.
+    ...(workspace ? { workspace_id: workspace } : {}),
     system,
     messages: [{ role: 'user', content }],
     output_config: { effort, format: { type: 'json_schema', schema } },
@@ -146,7 +158,7 @@ export async function triageInquiry(env, id, { timeout = 25000, maxRetries = 0 }
     first_name: row.first_name,
     interested_in: LABEL[row.interest] || null,
     preferred_home: row.plan ? `${row.plan} bedroom` : 'No preference',
-    target_move_in: row.move_in || null,
+    target_move_in: moveInLabel(row.move_in),
     heard_about_us: LABEL[row.source] || null,
     sent_from: row.form === 'tour' ? 'The tour booking page' : 'The contact page',
     message: row.message || '(no message)',

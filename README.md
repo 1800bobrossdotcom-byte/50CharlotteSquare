@@ -519,8 +519,16 @@ only difference between them.
 
 ### Claude, optional
 
-With an `ANTHROPIC_API_KEY` secret on the Pages project, two things switch on.
+With an `ANTHROPIC_API_KEY` secret on the Worker, two things switch on.
 Without it, nothing changes and nothing is sent anywhere.
+
+Make the key inside one workspace: Claude Console → **Settings → API keys →
+Create key**, and pick a workspace (the Default Workspace is fine). A key that
+covers several workspaces has to name one on every request, and the dashboard
+says so ("not tied to a workspace"). Either replace it with a key made inside a
+workspace, or keep it and add that workspace's ID (it starts `wrkspc_`; see the
+ID column under **Settings → Workspaces**) as a second secret,
+`ANTHROPIC_WORKSPACE_ID`.
 
 - **Each enquiry** gets a one-line summary, topic tags, a spam flag and a
   draft reply, shown on its card in the dashboard. The draft is a text box to
@@ -1386,6 +1394,7 @@ wrangler secret put LEAD_TO
 wrangler secret put LEAD_FROM
 wrangler secret put RESEND_API_KEY
 wrangler secret put ANTHROPIC_API_KEY   # optional: Claude
+wrangler secret put ANTHROPIC_WORKSPACE_ID   # only for a key that covers several workspaces
 ```
 
 `LEAD_TO` is where inquiry notifications land: one address, or several
@@ -1464,11 +1473,13 @@ safe here. The email provider said: `401: API key is invalid`."*
 | `401: API key is invalid` | `RESEND_API_KEY` is wrong or was revoked |
 | `403: You can only send testing emails to your own email address` | `LEAD_TO` is not the Resend account's address, and no domain is verified |
 | `403: The domain is not verified` | `LEAD_FROM` uses a domain Resend has not verified |
-| `RESEND_API_KEY is not set on this deployment` | Secret missing, or set but not redeployed since |
+| `RESEND_API_KEY is not set on this deployment` | Secret missing, or added as a build variable instead of a Worker secret |
 | `422` | Malformed `LEAD_FROM` — it needs `Name <address>` or a bare address |
 
-Secrets are read at invocation, but a Pages deployment pins its own environment:
-**set a secret, then redeploy**, or the Function keeps running without it.
+Add secrets on the Worker under **Settings → Variables and Secrets**, type
+**Secret**. Saving one there, or with `wrangler secret put`, deploys a new
+version that has it, so there is nothing else to redeploy. Build variables are
+a different list: the build sees them, the running site never does.
 
 ### 5. DNS, from GoDaddy to Cloudflare
 
@@ -1478,8 +1489,8 @@ holds — especially MX. Cloudflare gives you two nameservers; put those into
 GoDaddy under **My Products → Domain → Nameservers → Change → I'll use my own**.
 Propagation is usually minutes and can be up to 24 hours.
 
-Then in the Pages project, **Custom domains → Set up a domain**, and add
-**`www.charlottesquareroc.com`**. Cloudflare writes the CNAME itself.
+Then on the Worker, **Settings → Domains & Routes → Add → Custom domain**, and
+add **`www.charlottesquareroc.com`**. Cloudflare writes the DNS record itself.
 
 For the apex, add `charlottesquareroc.com` as well — and then send it to `www`
 with a **Redirect Rule** (Rules → Redirect Rules → Create):
@@ -1490,7 +1501,7 @@ with a **Redirect Rule** (Rules → Redirect Rules → Create):
 | Then | Dynamic redirect, `concat("https://www.charlottesquareroc.com", http.request.uri.path)` |
 | Status | 301, preserve query string |
 
-This cannot live in `_redirects`. Cloudflare Pages allows relative sources only,
+This cannot live in `_redirects`. Cloudflare allows relative sources only there,
 so a rule matching on hostname is rejected outright — see the next section.
 
 ### 6. `_redirects` has a dialect, and it is not Netlify's
