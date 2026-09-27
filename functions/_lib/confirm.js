@@ -20,8 +20,8 @@ import { moveInLabel } from './movein.js';
 const PHONE = '(585) 748-5588';
 const PHONE_TEL = '+15857485588';
 const HOURS = 'Monday to Friday, 8am to 4pm';
-// Who answers. Named in the email so the reply comes from someone they met.
-const TEAM = 'Vicki, Tesa, or Tatum';
+// Who answers: whoever on the leasing team picks it up. Always opens a sentence.
+const TEAM = 'A team member';
 const STREET = '50 Charlotte Street, Rochester, NY 14607';
 const QUIET = 12 * 3600;   // seconds between two confirmations to one address
 
