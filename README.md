@@ -1609,14 +1609,22 @@ deployments → edit → New version** keeps the same address.
 
 ### 5. DNS, from GoDaddy to Cloudflare
 
-Add the site at **Cloudflare → Add a site → charlottesquareroc.com**, let it
-scan the existing records, and check that scan against what GoDaddy currently
-holds — especially MX. Cloudflare gives you two nameservers; put those into
-GoDaddy under **My Products → Domain → Nameservers → Change → I'll use my own**.
-Propagation is usually minutes and can be up to 24 hours.
+Add the site in the **same Cloudflare account as the Worker**: **Add a domain →
+charlottesquareroc.com**, Free plan. Let it scan the existing records, and check
+that scan against what GoDaddy currently holds, especially MX and TXT (any email
+on the domain, and any Google verification). The old website's `@` and `www`
+records will be replaced by the Worker in a moment; everything else should stay.
+
+In GoDaddy, **turn DNSSEC off first** if it is on (Domain → DNS → DNSSEC): with
+it on, the nameserver change breaks the domain until the old signatures expire.
+Then **Nameservers → Change → I'll use my own**, and enter the two Cloudflare
+gives you. Cloudflare emails when the domain is active: usually minutes, at
+most a day.
 
 Then on the Worker, **Settings → Domains & Routes → Add → Custom domain**, and
-add **`www.charlottesquareroc.com`**. Cloudflare writes the DNS record itself.
+add **`www.charlottesquareroc.com`**. If Cloudflare says a record already exists
+for it, that is the old website's: replace it. Cloudflare writes the DNS record
+and the certificate itself.
 
 For the apex, add `charlottesquareroc.com` as well — and then send it to `www`
 with a **Redirect Rule** (Rules → Redirect Rules → Create):
@@ -1629,6 +1637,24 @@ with a **Redirect Rule** (Rules → Redirect Rules → Create):
 
 This cannot live in `_redirects`. Cloudflare allows relative sources only there,
 so a rule matching on hostname is rejected outright — see the next section.
+
+Once the site answers on `www`:
+
+1. **Test it for real:** send the form on www.charlottesquareroc.com, then check
+   the leasing email, the visitor's confirmation, the new row in the lead sheet,
+   and the dashboard at `/admin/`.
+2. **Resend → Webhooks:** change the endpoint's URL to
+   `https://www.charlottesquareroc.com/api/email-events`. The signing secret
+   stays the same.
+3. **Google Search Console:** add the domain (Cloudflare can add the TXT record
+   for you) and submit `https://www.charlottesquareroc.com/sitemap.xml`.
+4. **Leave the workers.dev address on.** The emails sent while testing link to
+   it, and every page's canonical tag already names `www`, so search engines
+   will not treat it as a second site.
+
+Nothing else moves: the confirmation email's links follow whichever address the
+form was sent from, the lead sheet is called by the Worker, and email sends
+from the domain verified in Resend, which is not this one.
 
 ### 6. `_redirects` has a dialect, and it is not Netlify's
 
