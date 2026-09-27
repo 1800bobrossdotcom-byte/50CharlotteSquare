@@ -17,6 +17,7 @@ import { aiEnabled } from '../_lib/ai.js';
 import { notify } from './inquiry.js';
 import { logEmail } from '../_lib/email.js';
 import { sheetEnabled, sheetAndRecord } from '../_lib/sheet.js';
+import { confirmAndRecord } from '../_lib/confirm.js';
 
 const MAX_LIMIT = 200;
 const DEFAULT_LIMIT = 50;
@@ -132,6 +133,21 @@ export async function onRequestPost({ request, env }) {
         .bind(sent.ok ? 1 : 0, sent.ok ? null : (sent.error || 'Unknown error'), id).run();
     } catch { /* the answer below still says what happened */ }
     return sent.ok ? json({ ok: true, id }) : json({ ok: false, id, error: sent.error || 'Unknown error' }, 502);
+  }
+
+  // {id, confirm: true}: send the visitor their branded confirmation now,
+  // e.g. for an enquiry from before it existed, or one they say never came.
+  // Skips the 12-hour gap; never goes to an address that has unsubscribed.
+  if (body.confirm) {
+    let row;
+    try {
+      row = await env.DB.prepare('SELECT * FROM inquiries WHERE id = ?').bind(id).first();
+    } catch {
+      return json({ error: 'Could not read it.' }, 500);
+    }
+    if (!row) return json({ error: 'No such enquiry.' }, 404);
+    const sent = await confirmAndRecord(env, row, new URL(request.url).origin, { force: true });
+    return sent.ok ? json({ ok: true, id }) : json({ ok: false, id, error: sent.note || 'Not sent.' }, 502);
   }
 
   // {id, sheet: true}: add the enquiry to the leasing team's Google Sheet,

@@ -700,6 +700,35 @@
     sendWhy.className = 'lead__aierr';
     sendWhy.hidden = true;
 
+    // The visitor's confirmation, when they have not had one: an enquiry from
+    // before it existed, a refusal, or someone who says it never came.
+    if (r.confirm_ok !== 1 && !r.unsubscribed_at) {
+      const again = button('Send confirmation');
+      again.title = 'Email this person the branded “we’ve got your message” confirmation now.';
+      again.addEventListener('click', async () => {
+        again.disabled = true;
+        again.textContent = 'Sending…';
+        try {
+          const res = await fetch('/api/inquiries', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: r.id, confirm: true }),
+          });
+          if (res.status === 401) { location.reload(); return; }
+          const d = await res.json().catch(() => ({}));
+          if (!res.ok || !d.ok) throw new Error(d.error || `Server returned ${res.status}`);
+          loadLeads();
+        } catch (err) {
+          again.disabled = false;
+          again.textContent = 'Send confirmation';
+          const hint = emailHint(err.message);
+          sendWhy.textContent = `Confirmation not sent. ${err.message}${hint ? ' ' + hint : ''}`;
+          sendWhy.hidden = false;
+        }
+      });
+      foot.append(again);
+    }
+
     if (leadSheet && r.sheet_ok !== 1) {
       const add = button(r.sheet_ok === 0 ? 'Try the sheet again' : 'Add to lead sheet');
       add.addEventListener('click', async () => {

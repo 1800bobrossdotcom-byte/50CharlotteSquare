@@ -204,8 +204,9 @@ async function prefsFor(env, email, now) {
 
 /** Send the visitor their confirmation. Returns {ok, id} or {ok:false, reason,
  *  note}: reason is unsubscribed, recent, off or error, and note says why in
- *  words the dashboard can show as they are. */
-export async function sendConfirmation(env, row, origin) {
+ *  words the dashboard can show as they are. force is the dashboard's button:
+ *  it skips the 12-hour gap, never an unsubscribe. */
+export async function sendConfirmation(env, row, origin, { force = false } = {}) {
   if (!env.RESEND_API_KEY) return { ok: false, reason: 'off', note: 'Email is not set up yet.' };
   if (!env.DB) return { ok: false, reason: 'off', note: 'No database, so no unsubscribe link: not sent.' };
   const email = String(row.email || '').trim().toLowerCase();
@@ -219,7 +220,7 @@ export async function sendConfirmation(env, row, origin) {
   }
   if (!prefs) return { ok: false, reason: 'error', note: 'Could not check their email preferences: not sent.' };
   if (prefs.unsubscribed_at) return { ok: false, reason: 'unsubscribed', note: 'They have unsubscribed.' };
-  if (prefs.last_sent_at && now - prefs.last_sent_at < QUIET) return { ok: false, reason: 'recent', note: 'They already got one in the last 12 hours.' };
+  if (!force && prefs.last_sent_at && now - prefs.last_sent_at < QUIET) return { ok: false, reason: 'recent', note: 'They already got one in the last 12 hours.' };
 
   const links = {
     home: `${origin}/`,
@@ -251,8 +252,8 @@ export async function sendConfirmation(env, row, origin) {
 }
 
 /** Send it, and log how it went, for the enquiry's card and the reports. */
-export async function confirmAndRecord(env, row, origin) {
-  const result = await sendConfirmation(env, row, origin);
+export async function confirmAndRecord(env, row, origin, opts) {
+  const result = await sendConfirmation(env, row, origin, opts);
   await logEmail(env, 'confirmation', row.id, result);
   if (!result.ok) console.log('confirmation not sent:', result.note);
   return result;
