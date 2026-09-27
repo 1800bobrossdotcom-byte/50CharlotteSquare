@@ -27,6 +27,8 @@ import { aiEnabled, triageInquiry } from '../_lib/ai.js';
 import { moveInValue, moveInLabel } from '../_lib/movein.js';
 import { sendEmail, leadTo, logEmail } from '../_lib/email.js';
 import { confirmAndRecord } from '../_lib/confirm.js';
+import { label, cameVia } from '../_lib/labels.js';
+import { sheetEnabled, sheetAndRecord } from '../_lib/sheet.js';
 
 /* Submissions per IP per window. High enough that a couple sent in earnest, or
    a shared office NAT, never trips it; low enough to be useless to a script. */
@@ -60,23 +62,6 @@ const looksLikeEmail = (s) => typeof s === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]
 
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-const LABEL = {
-  tour: 'Scheduling a tour', availability: 'Current availability',
-  pricing: 'Pricing and lease terms', question: 'A general question',
-  1: 'One bedroom', 2: 'Two bedroom', 3: 'Three bedroom',
-  search: 'Search', listing: 'Apartment listing site', social: 'Social media',
-  walkby: 'Walked by', referral: 'Friend or resident', website: 'Website',
-};
-const label = (v) => (v && LABEL[v]) || v || '—';
-
-/** "google / cpc · spring-lease · tour page B", or '' when nothing is known. */
-const cameVia = (row) => [
-  row.utm_source && [row.utm_source, row.utm_medium].filter(Boolean).join(' / '),
-  row.utm_campaign && `campaign ${row.utm_campaign}`,
-  !row.utm_source && row.referrer,
-  row.variant && `tour page ${row.variant.toUpperCase()}`,
-].filter(Boolean).join(' · ');
 
 /** Where this visitor came from, read off their own pageviews: the first one
  *  today — or yesterday, for an enquiry sent just after midnight UTC — that
@@ -253,6 +238,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
   // shows how each went, or why it did not, whenever someone next opens it.
   // The visitor's own branded confirmation, with its unsubscribe link:
   if (waitUntil) waitUntil(confirmAndRecord(env, { ...row, id }, origin));
+  // And a row in the leasing team's Google Sheet, when one is connected.
+  if (sheetEnabled(env) && waitUntil) waitUntil(sheetAndRecord(env, { ...row, id, ts: now }));
   if (aiEnabled(env) && waitUntil) waitUntil(triageInquiry(env, id));
 
   // 202 regardless: the lead is safe. notified and notify_err are what the

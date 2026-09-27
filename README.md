@@ -1397,6 +1397,8 @@ wrangler secret put ANTHROPIC_API_KEY   # optional: Claude
 wrangler secret put ANTHROPIC_WORKSPACE_ID   # only for a key that covers several workspaces
 wrangler secret put RESEND_WEBHOOK_SECRET    # optional: delivery reports, see 4
 wrangler secret put REPLY_TO                 # optional: where replies to confirmations go
+wrangler secret put LEADS_SHEET_URL          # optional: the Google Sheet lead list, see below
+wrangler secret put LEADS_SHEET_TOKEN
 ```
 
 `LEAD_TO` is where inquiry notifications land: one address, or several
@@ -1546,6 +1548,50 @@ address. Opens and clicks are counted too if tracking is switched on for the
 domain in Resend, but that means a tracking pixel and rewritten links, which
 this site's privacy policy does not describe: it is off, and turning it on
 means updating the policy first.
+
+### The lead sheet in Google Workspace
+
+Every enquiry can also land in a Google Sheet the leasing team shares, newest
+at the top. Each row has a **Status** dropdown (New, Contacted, Tour booked,
+Toured, Applied, Leased, Not a fit, No reply, each with its own colour), an
+**Owner** dropdown (Vicki, Gianni, Unassigned), a **Next step** date with a
+calendar, a **Replied** checkbox and a **Notes** column, plus everything from
+the form in words rather than codes. A new lead nobody has replied to after a
+day turns pale red. Sheets has no radio buttons; a dropdown is the same one
+choice from a list. The choices live on the sheet's **Lists** tab, so the team
+can change them without code.
+
+It is a Google Apps Script in the sheet itself, `tools/lead-sheet/Code.gs`: no
+Google Cloud project, no service account. The site posts each enquiry to the
+script's web-app address with a secret token, after the visitor has their
+answer. The script checks the token, keeps one row per enquiry (a retry
+never duplicates) and writes whatever the visitor typed as plain text, so a
+name like `=IMPORTXML(…)` can never run as a formula.
+
+Setup, once, about five minutes (the same steps are at the top of `Code.gs`):
+
+1. Signed in with an Evolution24 Google Workspace account, make a new sheet
+   (sheets.new), e.g. *Charlotte Square leads*. Whoever makes it owns it, and
+   the script runs as them.
+2. **Extensions → Apps Script**. Replace the sample code with `Code.gs`, Save.
+3. Choose **setup** in the toolbar, press **Run**, allow access. The sheet
+   gets its tabs, dropdowns and colours; the token is in the execution log (or
+   later: the sheet's **Charlotte Square** menu → *Show the connection token*).
+4. **Deploy → New deployment → Web app**. Execute as *Me*, Who has access
+   *Anyone*. Copy the Web app URL. *Anyone* is what lets the website reach it;
+   the token is what keeps everyone else out.
+5. On the Worker in Cloudflare, add the secrets `LEADS_SHEET_URL` (that URL)
+   and `LEADS_SHEET_TOKEN` (the token).
+6. **Share** the sheet with the leasing team as Editors, inside the Workspace:
+   it holds prospects' contact details.
+
+Then every card on the dashboard says whether that enquiry is in the sheet.
+Ones from before it was connected, or that hit a hiccup, have an **Add to lead
+sheet** button; pressing it twice is harmless. If a card says *Google asked
+for a sign-in*, the web app is not deployed with *Who has access: Anyone*, or
+the Workspace's admin settings do not allow web apps open to anyone, which
+is the Workspace admin's to change. After changing `Code.gs`, **Deploy → Manage
+deployments → edit → New version** keeps the same address.
 
 ### 5. DNS, from GoDaddy to Cloudflare
 

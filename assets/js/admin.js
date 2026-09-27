@@ -450,6 +450,7 @@
 
   // Whether the server has an Anthropic key, as /api/inquiries reports it.
   let leadAi = false;
+  let leadSheet = false;   // a Google Sheet is connected
 
   const button = (text, cls = 'ghost') => {
     const b = document.createElement('button');
@@ -609,6 +610,15 @@
       card.append(meta);
     }
 
+    // Whether it reached the leasing team's Google Sheet, when one is connected.
+    if (leadSheet) {
+      const g = document.createElement('p');
+      g.className = 'lead__via';
+      g.textContent = r.sheet_ok === 1 ? 'In the lead sheet.'
+        : r.sheet_ok === 0 ? `Not in the lead sheet: ${r.sheet_note || 'unknown'}` : 'Not in the lead sheet yet.';
+      card.append(g);
+    }
+
     // The branded "we've got it" the visitor was sent, or why not.
     if (r.confirm_ok === 1 || r.confirm_ok === 0) {
       const c = document.createElement('p');
@@ -690,6 +700,31 @@
     sendWhy.className = 'lead__aierr';
     sendWhy.hidden = true;
 
+    if (leadSheet && r.sheet_ok !== 1) {
+      const add = button(r.sheet_ok === 0 ? 'Try the sheet again' : 'Add to lead sheet');
+      add.addEventListener('click', async () => {
+        add.disabled = true;
+        add.textContent = 'Adding…';
+        try {
+          const res = await fetch('/api/inquiries', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: r.id, sheet: true }),
+          });
+          if (res.status === 401) { location.reload(); return; }
+          const d = await res.json().catch(() => ({}));
+          if (!res.ok || !d.ok) throw new Error(d.error || `Server returned ${res.status}`);
+          loadLeads();
+        } catch (err) {
+          add.disabled = false;
+          add.textContent = 'Try the sheet again';
+          sendWhy.textContent = `Not added. ${err.message}`;
+          sendWhy.hidden = false;
+        }
+      });
+      foot.append(add);
+    }
+
     if (!r.notified) {
       const flag = document.createElement('span');
       flag.className = 'lead__flag';
@@ -762,6 +797,7 @@
       if (!res.ok) throw new Error(`Server returned ${res.status}`);
       const d = await res.json();
       leadAi = Boolean(d.ai);
+      leadSheet = Boolean(d.sheet);
 
       host.replaceChildren();
       if (!d.inquiries.length) {

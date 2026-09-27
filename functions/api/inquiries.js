@@ -16,6 +16,7 @@ import { requireSession, json } from '../_lib/auth.js';
 import { aiEnabled } from '../_lib/ai.js';
 import { notify } from './inquiry.js';
 import { logEmail } from '../_lib/email.js';
+import { sheetEnabled, sheetAndRecord } from '../_lib/sheet.js';
 
 const MAX_LIMIT = 200;
 const DEFAULT_LIMIT = 50;
@@ -55,7 +56,9 @@ export async function onRequestGet({ request, env }) {
                          WHEN bounced_at IS NOT NULL THEN 'bounced'
                          WHEN delivered_at IS NOT NULL THEN 'delivered' END
                FROM emails m WHERE m.inquiry_id = inquiries.id AND m.kind = 'confirmation'
-              ORDER BY m.id DESC LIMIT 1) AS confirm_status`;
+              ORDER BY m.id DESC LIMIT 1) AS confirm_status,
+            (SELECT ok FROM lead_sync s WHERE s.inquiry_id = inquiries.id) AS sheet_ok,
+            (SELECT note FROM lead_sync s WHERE s.inquiry_id = inquiries.id) AS sheet_note`;
   let rows;
   for (const extra of [NEWER + MAIL, NEWER, '']) {
     try { rows = await list(extra).all(); break; } catch { /* try with less */ }
@@ -91,6 +94,8 @@ export async function onRequestGet({ request, env }) {
       lastError: c.last_error || null,
       // Whether the dashboard should offer Claude's summaries at all.
       ai: aiEnabled(env),
+      // Whether a Google Sheet is connected, so cards say if each lead is in it.
+      sheet: sheetEnabled(env),
     });
   } catch (err) {
     return json({ error: 'Could not read the enquiries.' }, 500);
@@ -127,6 +132,22 @@ export async function onRequestPost({ request, env }) {
         .bind(sent.ok ? 1 : 0, sent.ok ? null : (sent.error || 'Unknown error'), id).run();
     } catch { /* the answer below still says what happened */ }
     return sent.ok ? json({ ok: true, id }) : json({ ok: false, id, error: sent.error || 'Unknown error' }, 502);
+  }
+
+  // {id, sheet: true}: add the enquiry to the leasing team's Google Sheet,
+  // e.g. one from before the sheet was connected, or after a hiccup. The
+  // sheet itself keeps one row per enquiry, so pressing twice is harmless.
+  if (body.sheet) {
+    if (!sheetEnabled(env)) return json({ error: 'The lead sheet is not connected.' }, 503);
+    let row;
+    try {
+      row = await env.DB.prepare('SELECT * FROM inquiries WHERE id = ?').bind(id).first();
+    } catch {
+      return json({ error: 'Could not read it.' }, 500);
+    }
+    if (!row) return json({ error: 'No such enquiry.' }, 404);
+    const sent = await sheetAndRecord(env, row);
+    return sent.ok ? json({ ok: true, id }) : json({ ok: false, id, error: sent.note }, 502);
   }
 
   const handled = body.handled ? 1 : 0;

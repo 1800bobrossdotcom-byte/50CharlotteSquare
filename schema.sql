@@ -149,6 +149,14 @@ CREATE INDEX IF NOT EXISTS idx_emails_day     ON emails(day, kind);
 CREATE INDEX IF NOT EXISTS idx_emails_resend  ON emails(resend_id);
 CREATE INDEX IF NOT EXISTS idx_emails_inquiry ON emails(inquiry_id, kind);
 
+-- Whether each enquiry reached the leasing team's Google Sheet, for its card.
+CREATE TABLE IF NOT EXISTS lead_sync (
+  inquiry_id INTEGER PRIMARY KEY,
+  ok         INTEGER NOT NULL,         -- 1 in the sheet, 0 not
+  note       TEXT,                     -- why not, in words the dashboard shows
+  ts         INTEGER NOT NULL
+);
+
 -- Upgrading a database created before 25 September 2026? Everything above is
 -- IF NOT EXISTS, but SQLite has no ADD COLUMN IF NOT EXISTS, so the new columns
 -- need adding once. Run these one at a time; "duplicate column name" just means
