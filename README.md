@@ -1116,6 +1116,8 @@ On phones, hero and tile text carries a soft shadow and the hero gradient deepen
 
 Evolution24's own logo ships in `assets/img/` in two pieces of art: `evolution24-logo-white.png` (knockout, for dark grounds) and `evolution24-logo.png` (full color, for light ones). Both came from evolution24.net. It appears in the footer badge, the management section on the home page, the company block on the story page, and the management office card on the contact page. Every one of those, and every mention of the company name in body copy, links to https://evolution24.net/ in a new tab.
 
+Evolution24's Instagram, [@evolution24properties](https://www.instagram.com/evolution24properties/) (`EVO_INSTAGRAM` in the generator), is linked with its glyph under the footer's Evolution24 chip on every page, beside the logo in the home page's management section, as a button in the Our Story page's Evolution24 block, and on the contact page's management office card. It is also in Evolution24's JSON-LD `sameAs`. The tour pages leave it out, so an ad click stays on the page.
+
 The footer carries both files and lets CSS pick: the knockout art on the dark footers, the color art in the Gallery style. The color art's tan and cream are made for a dark ground (on the light footer the cream "24" all but disappeared), so in the Gallery footer and on the contact page's management office card the logo sits on its own dark chip. If the logo is ever redrawn, replace the two files and nothing else changes.
 
 ### The C, drawn
