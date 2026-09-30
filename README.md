@@ -1619,7 +1619,7 @@ means updating the policy first.
 Every enquiry can also land in a Google Sheet the leasing team shares, newest
 at the top. Each row has a **Status** dropdown (New, Contacted, Tour booked,
 Toured, Applied, Leased, Not a fit, No reply, each with its own colour), an
-**Owner** dropdown (Vicki, Gianni, Unassigned), a **Next step** date with a
+**Owner** dropdown (Vicki, Tesa, Tatum, Gianni, Unassigned), a **Next step** date with a
 calendar, a **Replied** checkbox and a **Notes** column, plus everything from
 the form in words rather than codes. A new lead nobody has replied to after a
 day turns pale red, and a Next step date that has come round turns red. It is
@@ -1630,7 +1630,16 @@ reply, follow-ups due, tours booked) and bars by status and by how people heard
 about the building. The logos are inside the script, so the sheet loads nothing
 from outside. Sheets has no radio buttons; a dropdown is the same one choice
 from a list. The choices live on the sheet's **Lists** tab, so the team
-can change them without code.
+can change them without code: type a new name under **Owner** there and every
+Owner dropdown offers it at once. (`OWNERS` in `Code.gs` only seeds the list
+for a brand-new sheet; running setup again never overwrites the Lists tab.)
+
+New-lead emails go to every address in the Cloudflare secret `LEAD_TO`,
+separated by commas. To add someone, edit that secret on the Worker (Settings
+→ Variables and Secrets). Cloudflare hides a secret's value, so type the whole
+list again with the new address at the end: a prospect's reply to their
+confirmation email goes to the first address, unless `REPLY_TO` is set.
+Addresses stay in that secret, never in this repo.
 
 It is a Google Apps Script in the sheet itself, `tools/lead-sheet/Code.gs`: no
 Google Cloud project, no service account. The site posts each enquiry to the
