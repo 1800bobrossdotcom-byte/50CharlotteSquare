@@ -21,8 +21,9 @@ three archived* below.
 |---|---|---|
 | `/` | `index.html` | Hero with the LEED Gold seal, at-a-glance stats, intro, certified-green badges, residences preview, amenity bento grid, East End ticker, management intro, tour CTA |
 | `/residences/` | `residences/index.html` | Filterable 1/2/3-bedroom floor plans, what's included, in-home features, FAQ |
+| `/residences/one-bedroom/` | `residences/one-bedroom/index.html` | One home type, in full: sizes, outdoor space, what comes with it, in-home features, the other two types, its own FAQ. Same for `two-bedroom/` and `three-bedroom/`; see *One page per home type* |
 | `/amenities/` | `amenities/index.html` | Bento overview, detail rows (terrace, fitness, community room, pocket park), sustainability, gallery with lightbox |
-| `/neighborhood/` | `neighborhood/index.html` | Walk/bike/transit, the Charlotte Street index, what's-near cards, Google map |
+| `/neighborhood/` | `neighborhood/index.html` | Walk/bike/transit, the Charlotte Street index, what's-near cards, near the Eastman School of Music (`#eastman`), Google map |
 | `/story/` | `story/index.html` | The Charlotte story, podium cross-section diagram, the LEED Gold spec sheet (`#specs`), about Evolution24 |
 | `/contact/` | `contact/index.html` | Working inquiry form, contact cards, resident portal, map |
 | `/privacy/` | `privacy/index.html` | Privacy policy, accessibility statement, fair housing |
@@ -1112,6 +1113,68 @@ The amenities gallery opens a lightbox (a native `<dialog>`): arrow keys, swipe,
 
 On phones, hero and tile text carries a soft shadow and the hero gradient deepens so type stays readable over any photo.
 
+### One page per home type
+
+`/residences/one-bedroom/`, `/residences/two-bedroom/` and `/residences/three-bedroom/`
+exist because that is how people search ("1 bedroom apartments rochester ny",
+"2 bedroom apartments rochester ny"), and a page about exactly that answers it
+better than a filter chip on a page about everything. They come from
+`HOME_TYPES` in the generator, one entry per type, and each page carries:
+
+- its own title, description and H1 ("1 Bedroom Apartments in Rochester, NY |
+  50 Charlotte Square"), with breadcrumbs on the page and in the JSON-LD
+  (Home › Residences › One bedroom);
+- an at-a-glance sheet: bedrooms, full baths, size, outdoor space, parking,
+  laundry, utilities and rent;
+- the in-home features, the shared spaces, the other two types as cards, and
+  its own FAQ, which is also its `FAQPage` data;
+- a `FloorPlan` node in the JSON-LD (beds, baths, floor size, features) tied to
+  the building's `#property`.
+
+They say only what is known for each type. The rent line gives the building's
+range and asks for the type's current price; the utilities line says "select"
+and points to the leasing team. Once per-type rents or the utilities list are
+confirmed, `HOME_TYPES` is the one place to put them. These are three real
+pages with different facts, not a batch of near-identical keyword pages, which
+Google treats as doorway pages and demotes. The copy describes the home, never
+who should live in it (fair housing): "an office or a guest room" is about the
+space; "ideal for couples" would be about people.
+
+The plan cards on the home and residences pages link to them ("One-bedroom
+details"), and so does the footer, on every page. A visit to one counts as
+floor-plan interest on the dashboard, under the same name as the residences
+page's filter chip ("1 bedroom"), so the two add up: `<main data-plan>` on the
+page, read by `analytics.js`.
+
+The neighborhood page's `#eastman` section covers the other search worth a
+section rather than a page: the Eastman School of Music and Kodak Hall are on
+Gibbs Street, about a quarter mile away (0.23 to 0.32 miles on foot by
+OpenStreetMap routing, five to seven minutes), and the building has a
+soundproof practice room.
+
+### The favicon, everywhere Google looks
+
+Google shows a site's favicon beside it in results, and takes it from the home
+page's `<link rel="icon">` when it crawls the home page. Every page now offers
+it three ways, all drawn by `write_brand_marks()` from the same `C_PATH` as the
+logo, so they cannot drift from it:
+
+- `/favicon.ico` (16, 32 and 48 px): the address crawlers and older browsers
+  try first, and Google's preferred multiple of 48;
+- `assets/img/favicon.svg`: what modern browsers use;
+- `assets/img/apple-touch-icon.png` (180 px): iPhone home screens, and also a
+  favicon source Google accepts.
+
+`site.webmanifest` lists `icon-192.png`, `icon-512.png` and a maskable
+`icon-maskable-512.png` whose C is shrunk into the circle Android crops to. All
+of it is crawlable (`robots.txt` blocks only the dashboard, the API, the
+archive and shared reports) and published by `scripts/stage.sh`.
+
+Google refreshes the favicon only when it re-crawls the home page. To hurry it:
+Search Console → URL Inspection → `https://www.charlottesquareroc.com/` →
+Request indexing. The new icon usually shows within days, sometimes a few
+weeks.
+
 ## Evolution24 branding
 
 Evolution24's own logo ships in `assets/img/` in two pieces of art: `evolution24-logo-white.png` (knockout, for dark grounds) and `evolution24-logo.png` (full color, for light ones). Both came from evolution24.net. It appears in the footer badge, the management section on the home page, the company block on the story page, and the management office card on the contact page. Every one of those, and every mention of the company name in body copy, links to https://evolution24.net/ in a new tab.
@@ -1348,6 +1411,12 @@ Checked against a design catalogue of cross-estate findings (Sept 2026 pass). Th
 - **Transitions name their properties.** A `transition: all` on the floor-plan filter chips animated layout as well as colour. Now only colour, background and border transition.
 - **The focus ring comes from outside the brand palette.** It was a 3px brand-coloured glow with no gap, which on a brick button was close to invisible. It is now a 2px solid functional blue (`#2F6FED`, lightened to `#7FB3FF` on dark grounds) with a 2px offset, so it clears 3:1 against the surface behind it in all four styles.
 - **Controls meet the 24px target floor.** The hero slideshow's progress segments were 3px tall and also served as the tap target; the bar is still 3px but the button around it is 24px. Navigation, footer and standalone arrow links were one to six pixels short and now clear it. Links inline in a sentence keep the WCAG 2.5.8 exception.
+
+Names and numbers stay whole on a line. `keep_number()` in the generator ties
+"50 Charlotte", "Charlotte Square" and "LEED Gold" with non-breaking spaces in
+the words on every page, and wraps the leasing phone number in `.nowrap`, so
+none of them ends one line and starts the next. Titles, attributes and the
+JSON-LD keep plain spaces.
 
 Known departures, kept deliberately: the Gallery style uses a pure white ground rather than a warm one, and buttons in Brick & Stone lift on hover where Gallery and Atelier only change colour.
 

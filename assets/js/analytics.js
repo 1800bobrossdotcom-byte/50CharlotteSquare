@@ -78,6 +78,12 @@
 
   send('pageview');
 
+  // A home-type page (/residences/one-bedroom/ and so on) is interest in that
+  // plan, counted under the same name as the residences page's filter chip so
+  // the dashboard adds the two together.
+  const planPage = document.querySelector('main[data-plan]');
+  if (planPage) send('plan_view', { plan: planPage.getAttribute('data-plan').slice(0, 40) });
+
   /* ---- Named events -------------------------------------------------------
      Delegated from the document, so this file adds no listeners to anything in
      particular and nothing else has to know it exists. */
