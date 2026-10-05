@@ -155,7 +155,7 @@ function describe(obj, depth = 0) {
 
 // Embeds worth asking for: the unit's type, rent and status. Never people.
 const WANTED_EMBED = /(type|rent|status|occup|vacan|market|avail|ready|notice|floor)/i;
-const DISCOVERY_VERSION = 6;
+const DISCOVERY_VERSION = 7;
 
 // Rent Manager sends a unit's ID, property, name and sort order and nothing
 // more unless fields are asked for by name, and the list of names is behind a
@@ -345,6 +345,7 @@ const toNum = (v) => {
   const n = Number(String(v).replace(/[$,]/g, ''));
   return Number.isFinite(n) ? n : null;
 };
+const pos = (v) => { const n = toNum(v); return n && n > 0 ? n : null; };
 const toDay = (v) => {
   if (!v) return null;
   const m = /^(\d{4}-\d{2}-\d{2})/.exec(String(v));
@@ -367,7 +368,7 @@ function currentOf(list) {
 }
 
 function currentRent(u) {
-  const direct = toNum(pick(typeof u.MarketRent === 'object' ? undefined : u.MarketRent, u.Rent, u.AskingRent, u.AdvertisedRent, u.DefaultRent));
+  const direct = pick(pos(typeof u.MarketRent === 'object' ? undefined : u.MarketRent), pos(u.Rent), pos(u.AskingRent), pos(u.AdvertisedRent), pos(u.DefaultRent));
   if (direct) return direct;
   const cur = [u.CurrentMarketRent, u.MarketRent].find((o) => o && typeof o === 'object' && !Array.isArray(o));
   if (cur) {
@@ -387,6 +388,21 @@ function currentRent(u) {
   return toNum(pick(type.MarketRent, type.Rent, type.DefaultRent));
 }
 
+/** Rent Manager's occupancy record for a unit: who is in it is never read,
+ *  only its type (CurrentOccupant, and so on) and its move-out and notice dates. */
+function occupancyOf(u) {
+  const o = u.CurrentOccupancyStatus;
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return null;
+  return {
+    hasType: 'OccupancyType' in o,
+    type: typeof o.OccupancyType === 'string' ? o.OccupancyType.toLowerCase() : '',
+    empty: !Object.keys(o).some((k) => o[k] !== null && o[k] !== '' && k !== 'MetaTag'),
+    moveOut: toDay(pick(o.ExpectedMoveOutDate, o.MoveOutDate)),
+    notice: toDay(o.NoticeDate),
+    ended: toDay(o.EndDate),
+  };
+}
+
 export function normalize(env, u) {
   const type = u.UnitType && typeof u.UnitType === 'object' ? u.UnitType : {};
   const id = pick(u.UnitID, u.Id, u.ID);
@@ -403,7 +419,20 @@ export function normalize(env, u) {
   // model, a down unit or an office is never for rent; "not ready" is empty
   // but being prepared, so it is listed as opening soon, not as available now.
   let status = 'unknown';
-  if (/model|\bdown\b|offline|admin|employee|unavailable|not available|hold/.test(t)) status = 'taken';
+  const occ = occupancyOf(u);
+  const today = new Date().toISOString().slice(0, 10);
+  let occDate = null;
+  if (occ && (occ.hasType || occ.empty) && !/model|\bdown\b|offline|admin|employee|unavailable|not available|hold/.test(t)) {
+    if (/vacant/.test(occ.type) || occ.empty) status = 'vacant';
+    else if (/future|pending|pre/.test(occ.type)) status = 'taken';
+    else if (occ.ended && occ.ended < today) status = 'vacant';
+    else if (occ.moveOut && occ.moveOut >= today) { status = 'notice'; occDate = occ.moveOut; }
+    else status = 'taken';
+    // A vacant unit still being prepared opens when it is ready.
+    if (status === 'vacant' && /not ready|make[- ]?ready|unready/.test(t)) status = 'making-ready';
+  }
+  if (status !== 'unknown') { /* settled by the occupancy record */ }
+  else if (/model|\bdown\b|offline|admin|employee|unavailable|not available|hold/.test(t)) status = 'taken';
   else if (/rented|leased|occupied/.test(t.replace(/un(rented|leased)/g, ''))) status = 'taken';
   else if (/not ready|make[- ]?ready|unready/.test(t)) status = 'making-ready';
   else if (vacantFlag === true || /vacant|available|ready/.test(t)) status = 'vacant';
@@ -411,14 +440,14 @@ export function normalize(env, u) {
   else if (vacantFlag === false) status = 'taken';
   const statusObj = [u.CurrentOccupancyStatus, u.OccupancyStatus, u.CurrentUnitStatus, u.UnitStatus, u.Vacancy, fromList]
     .find((o) => o && typeof o === 'object' && !Array.isArray(o)) || {};
-  const available = toDay(pick(u.AvailableDate, u.ReadyDate, u.DateAvailable, u.VacateDate, u.ExpectedMoveOutDate,
-    statusObj.AvailableDate, statusObj.ReadyDate, statusObj.EndDate, statusObj.Date));
+  const available = occDate || toDay(pick(u.AvailableDate, u.ReadyDate, u.DateAvailable, u.VacateDate, u.ExpectedMoveOutDate,
+    statusObj.AvailableDate, statusObj.ReadyDate, statusObj === u.CurrentOccupancyStatus ? undefined : statusObj.EndDate, statusObj.Date));
   return {
     id,
     unit: String(pick(u.Name, u.UnitName, u.Number, id)).trim(),
-    beds: toNum(pick(u.Bedrooms, u.Beds, u.BedroomCount, type.Bedrooms, type.Beds)),
-    baths: toNum(pick(u.Bathrooms, u.Baths, u.BathroomCount, type.Bathrooms, type.Baths)),
-    sqft: toNum(pick(u.SquareFootage, u.SqFt, u.SquareFeet, type.SquareFootage, type.SqFt)),
+    beds: pick(pos(u.Bedrooms), pos(u.Beds), pos(u.BedroomCount), pos(type.Bedrooms), pos(type.Beds)) ?? null,
+    baths: pick(pos(u.Bathrooms), pos(u.Baths), pos(u.BathroomCount), pos(type.Bathrooms), pos(type.Baths)) ?? null,
+    sqft: pick(pos(u.SquareFootage), pos(u.SqFt), pos(u.SquareFeet), pos(type.SquareFootage), pos(type.SqFt)) ?? null,
     rent: currentRent(u),
     status,
     available,
@@ -445,7 +474,18 @@ export async function refresh(env) {
     : found && Array.isArray(found.embeds) && found.embeds.length ? `&embeds=${found.embeds.join(',')}` : '';
   const r = await unitsQuery(env, token, `&pagesize=1000${select}`);
   if (!r.ok) throw new RMError(explain(r, 'units').replace('{pid}', String(pid)), r.status);
-  const all = asList(r.data).map((u) => normalize(env, u)).filter(Boolean);
+  const rows = asList(r.data);
+  const all = rows.map((u) => normalize(env, u)).filter(Boolean);
+  // Counts behind the result, numbers only: how Rent Manager describes the
+  // units' occupancy and status, and how they were read. Never who.
+  const tally = (f) => rows.reduce((m, u) => { const k = f(u) || '(none)'; m[k] = (m[k] || 0) + 1; return m; }, {});
+  const summary = {
+    occupancyType: tally((u) => { const o = occupancyOf(u); return o ? (o.empty ? '(empty)' : o.type) : null; }),
+    unitStatus: tally((u) => String(nameOf(u.CurrentUnitStatus) || '')),
+    moveOutDates: rows.filter((u) => { const o = occupancyOf(u); return o && o.moveOut; }).length,
+    noticeDates: rows.filter((u) => { const o = occupancyOf(u); return o && o.notice; }).length,
+    read: all.reduce((m, n) => { m[n.status] = (m[n.status] || 0) + 1; return m; }, {}),
+  };
   const today = new Date().toISOString().slice(0, 10);
   const open = all.filter((n) => n.status === 'vacant' || n.status === 'making-ready'
     // A notice unit is listed only with a move-out date still to come:
@@ -457,12 +497,16 @@ export async function refresh(env) {
   // The first time Rent Manager returns open units, the list goes on the site
   // by itself, as Evolution24 asked. Once the switch has been set either way
   // on the dashboard, that choice stands.
-  if (open.length && !(await getKey(env, 'publish'))) await setPublished(env, true);
+  // Unless the result looks wrong: more than a quarter of the building open at
+  // once is far likelier a misread than a vacancy, so it waits for a person.
+  const plausible = open.length <= Math.max(10, Math.ceil(all.length * 0.25));
+  if (open.length && plausible && !(await getKey(env, 'publish'))) await setPublished(env, true);
   await putKey(env, 'status', {
     ok: true, total: all.length, open: open.length,
     unread: all.filter((n) => n.status === 'unknown').length,
     noRent: open.filter((n) => !n.rent).length, rate: r.rate,
     limited: onlyNumbers(found), needs: onlyNumbers(found) ? neededPrivilege(found) || 'Units' : null,
+    plausible, summary,
   });
   return listing;
 }
@@ -489,8 +533,10 @@ export async function publicStatus(env) {
 export async function recentDiscovery(env) {
   const d = await getDiscovery(env);
   if (!d || !d.ts || Date.now() / 1000 - d.ts > 2 * 3600) return null;
+  const st = await getStatus(env);
   const { v, company: co, property, unitCount, properties, embeds, fields, full, accepted: acc, embedded, probes, diagnostics, rate, ts } = d;
-  return { v, company: co, property, unitCount, properties, embeds, fields, full, accepted: acc, embedded, probes, diagnostics, rate, ts };
+  return { v, company: co, property, unitCount, properties, embeds, fields, full, accepted: acc, embedded, probes, diagnostics, rate, ts,
+    latest: st ? { at: st.ts, ok: st.ok, open: st.open, total: st.total, plausible: st.plausible, summary: st.summary } : null };
 }
 
 /** For the site: the list, only when switched on and recent enough to trust. */
