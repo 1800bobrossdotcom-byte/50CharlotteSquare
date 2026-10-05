@@ -1179,6 +1179,100 @@
     setTimeout(() => { builderCopy.textContent = 'Copy'; }, 1800);
   });
 
+  /* ---- Rent Manager ------------------------------------------------------------
+     The open units the website reads from Rent Manager: whether the connection
+     works, a preview of the list, and the switch that puts it on the site. The
+     server does the talking; nothing here ever sees the Rent Manager login. */
+  const rmStatus = $('#rm-status');
+  const rmCheck = $('#rm-check');
+  const rmRefresh = $('#rm-refresh');
+  const rmPublish = $('#rm-publish');
+  const rmDetails = $('#rm-details');
+  const rmFields = $('#rm-fields');
+  const rmMoney = (n) => (n ? `$${Math.round(n).toLocaleString()}` : '—');
+  const rmWhen = (a) => (a === 'now' ? 'Now' : a ? shortDay(a) : '—');
+
+  function renderRM(d) {
+    const st = d.status;
+    const units = d.listing && Array.isArray(d.listing.units) ? d.listing.units : [];
+    let line;
+    if (!d.configured) {
+      line = 'Not connected. Add RM_USERNAME and RM_PASSWORD as secrets in the Worker’s settings in Cloudflare, then press Check connection.';
+    } else if (!st) {
+      line = `Ready to connect to ${d.company}.api.rentmanager.com for property ${d.property}. Press Check connection.`;
+    } else if (!st.ok) {
+      line = `Last try ${ago(st.ts)} did not work: ${st.error}`;
+    } else {
+      line = `Connected. Updated ${ago(st.ts)}: ${st.open} open now or soon, of ${st.total} units at property ${d.property}.`;
+      if (st.unread) line += ` For ${st.unread} of them Rent Manager’s status could not be read, so they are left off.`;
+      if (st.rate && st.rate.remaining != null) line += ` Rent Manager calls left this hour: ${st.rate.remaining}${st.rate.limit ? ` of ${st.rate.limit}` : ''}.`;
+    }
+    if (d.note) line += ` ${d.note}`;
+    if (d.error && (!st || st.error !== d.error)) line += ` ${d.error}`;
+    rmStatus.textContent = line;
+
+    rmCheck.disabled = !d.configured;
+    rmRefresh.disabled = !d.configured || !d.discovery;
+    rmPublish.checked = Boolean(d.published);
+    rmPublish.disabled = !d.listing;
+
+    tableN('#rm-preview', ['Unit', 'Beds', 'Baths', 'Sq ft', 'Rent', 'Available'],
+      units.map((u) => ({
+        k: String(u.unit), w: 0,
+        cells: [u.beds ?? '—', u.baths ?? '—', u.sqft ? num(u.sqft) : '—', rmMoney(u.rent), rmWhen(u.available)],
+      })),
+      d.listing ? 'Nothing open right now, or nothing Rent Manager marks as open.' : 'No list yet.');
+
+    if (d.discovery) {
+      const { properties, unitCount, fields, embeds, embedded, company: co, property } = d.discovery;
+      rmFields.textContent = JSON.stringify({ company: co, property, unitCount, properties, embeds, fields, embedded }, null, 1);
+      rmDetails.hidden = false;
+    } else {
+      rmDetails.hidden = true;
+    }
+  }
+
+  async function loadRM() {
+    try {
+      const res = await fetch('/api/rentmanager', { headers: { Accept: 'application/json' } });
+      if (res.status === 401) { location.reload(); return; }
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || `Server returned ${res.status}`);
+      renderRM(d);
+    } catch (err) {
+      rmStatus.textContent = `Could not load the Rent Manager status: ${err.message}`;
+    }
+  }
+
+  async function rmAction(action, btn) {
+    const was = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = action === 'check' ? 'Checking…' : action === 'refresh' ? 'Refreshing…' : was; }
+    try {
+      const res = await fetch('/api/rentmanager', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      if (res.status === 401) { location.reload(); return; }
+      const d = await res.json().catch(() => ({}));
+      if (d && d.configured !== undefined) renderRM(d);
+      else if (!res.ok) rmStatus.textContent = d.error || `Server returned ${res.status}`;
+    } catch (err) {
+      rmStatus.textContent = `Rent Manager could not be reached: ${err.message}`;
+    } finally {
+      if (btn) { btn.textContent = was; btn.disabled = false; }
+    }
+  }
+
+  rmCheck.addEventListener('click', () => rmAction('check', rmCheck));
+  rmRefresh.addEventListener('click', () => rmAction('refresh', rmRefresh));
+  rmPublish.addEventListener('change', () => rmAction(rmPublish.checked ? 'publish' : 'unpublish', null));
+  $('#rm-copy').addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    try { await navigator.clipboard.writeText(rmFields.textContent); btn.textContent = 'Copied'; } catch { btn.textContent = 'Could not copy'; }
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+  });
+
   /* ---- Controls ------------------------------------------------------------ */
   document.querySelectorAll('.seg [data-days]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -1206,4 +1300,5 @@
   load();
   loadLeads();
   loadReports();
+  loadRM();
 })();

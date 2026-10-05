@@ -157,6 +157,15 @@ CREATE TABLE IF NOT EXISTS lead_sync (
   ts         INTEGER NOT NULL
 );
 
+-- Rent Manager: the latest list of open units, how the last refresh went, what
+-- the connection check found, and whether the list is on the site. One row per
+-- key. Unit details only: never a resident, a lease or a payment.
+CREATE TABLE IF NOT EXISTS rm_cache (
+  key   TEXT    PRIMARY KEY,           -- listing | status | discovery | publish
+  ts    INTEGER NOT NULL,
+  body  TEXT    NOT NULL               -- JSON
+);
+
 -- Upgrading a database created before 25 September 2026? Everything above is
 -- IF NOT EXISTS, but SQLite has no ADD COLUMN IF NOT EXISTS, so the new columns
 -- need adding once. Run these one at a time; "duplicate column name" just means

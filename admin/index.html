@@ -62,6 +62,25 @@
       <ul class="report-list" id="report-list"></ul>
     </section>
 
+    <section class="panel" id="rm-panel" aria-labelledby="rm-title">
+      <div class="panel__head">
+        <h2 id="rm-title">Rent Manager</h2>
+        <span class="panel__note">Open units for the website, read from Rent Manager every half hour. Unit details only, never residents.</span>
+      </div>
+      <p class="rm-status" id="rm-status" role="status" aria-live="polite">Loading…</p>
+      <div class="rm-actions">
+        <button type="button" class="ghost" id="rm-check">Check connection</button>
+        <button type="button" class="ghost" id="rm-refresh">Refresh now</button>
+        <label class="rm-switch"><input type="checkbox" id="rm-publish"> Show on website</label>
+      </div>
+      <div id="rm-preview"></div>
+      <details class="rm-details" id="rm-details" hidden>
+        <summary>What a unit looks like in Rent Manager</summary>
+        <p class="panel__note">Field names and types, and sample values only for unit facts such as status, dates, rent and size. No resident information. Copy it and send it to whoever maintains the site if the list above looks wrong.</p>
+        <pre id="rm-fields"></pre>
+        <button type="button" class="ghost" id="rm-copy">Copy</button>
+      </details>
+    </section>
     <section class="panel panel--leads">
       <div class="panel__head">
         <h2>Enquiries</h2>

@@ -20,7 +20,7 @@ three archived* below.
 | URL | File | What it does |
 |---|---|---|
 | `/` | `index.html` | Hero with the LEED Gold seal, at-a-glance stats, intro, certified-green badges, residences preview, amenity bento grid, East End ticker, management intro, tour CTA |
-| `/residences/` | `residences/index.html` | Filterable 1/2/3-bedroom floor plans, what's included, in-home features, FAQ |
+| `/residences/` | `residences/index.html` | Filterable 1/2/3-bedroom floor plans, the open units from Rent Manager (`#available`), what's included, in-home features, FAQ |
 | `/residences/one-bedroom/` | `residences/one-bedroom/index.html` | One home type, in full: sizes, outdoor space, what comes with it, in-home features, the other two types, its own FAQ. Same for `two-bedroom/` and `three-bedroom/`; see *One page per home type* |
 | `/amenities/` | `amenities/index.html` | Bento overview, detail rows (terrace, fitness, community room, pocket park), sustainability, gallery with lightbox |
 | `/neighborhood/` | `neighborhood/index.html` | Walk/bike/transit, the Charlotte Street index, what's-near cards, near the Eastman School of Music (`#eastman`), Google map |
@@ -624,6 +624,64 @@ limit, not the 10 ms. The `events` table grows by one row per pageview — at
 5,000 views a month that is 60,000 rows a year, far inside the 5 GB limit.
 There is no pruning job because there is nothing yet to prune; add one if this
 ever runs across all eleven properties.
+
+## Rent Manager: live availability
+
+The residences page and each home-type page list the units that are open now
+or opening soon, with their rent, size and date, each with an Apply button that
+opens Evolution24's own application in Rent Manager
+(`https://evolution.twa.rentmanager.com/ApplyNow?locations=&unitID=<id>`, the
+format the old site used). The plan cards on every page change from "Pricing on
+request" to "From $X · N open now or soon". With no list, or no script, the
+pages read exactly as before.
+
+**How it flows.** A schedule (`[triggers] crons` in `wrangler.toml`, at 7 and 37
+past each hour) runs `scheduledRefresh()` in `functions/_lib/rentmanager.js`: it
+signs in to Rent Manager's Web API (`POST /Authentication/AuthorizeUser`, then the
+`X-RM12Api-ApiToken` header), reads Charlotte Square's units, keeps only the open
+ones, and saves the list in D1 (`rm_cache`). Pages read that copy through
+`/api/units`, cached five minutes at the edge, so a visitor never waits on, or
+spends, a Rent Manager call. Rent Manager limits calls per hour for the whole
+company; a refresh uses two, about four an hour.
+
+**What counts as open.** Vacant units ("Available now", or their date if it is
+still ahead), units being made ready ("Opening soon", or their date), and units
+on notice with a move-out date still to come. Never a unit marked rented or
+leased (Vacant-Rented, Notice-Rented, pre-leased), a model, a down unit, or one
+whose status cannot be read. Exact rents, unit numbers and Apply links are shown,
+as Evolution24 asked.
+
+**Privacy.** Only unit details are read or kept: number, bedrooms, baths, size,
+rent, status and date. Lease and tenant data is never requested, and the
+connection check's field summary never copies values from fields that could hold
+a person's details or free-text notes.
+
+**Settings** (Worker → Settings → Variables and Secrets in Cloudflare):
+
+| Name | What it is |
+|---|---|
+| `RM_USERNAME`, `RM_PASSWORD` | Secrets. The website's own Rent Manager user: Web API access, read-only, properties and units only |
+| `RM_COMPANY` | Optional. The company code in Rent Manager's addresses; `evolution` unless set |
+| `RM_LOCATION_ID` | Optional. Only for a company with more than one location |
+| `RM_PROPERTY_ID` | Optional. Charlotte Square is `12` unless set |
+| `RM_BASE_URL` | Local tests only, to point at a stand-in |
+
+**Turning it on, in order.**
+
+1. Add `RM_USERNAME` and `RM_PASSWORD` as secrets. Nothing else changes yet.
+2. Dashboard → Rent Manager → **Check connection**. It signs in, records what a
+   unit looks like in this company's Rent Manager (field names and types only),
+   and fetches a first list into the preview.
+3. If the preview is right, switch on **Show on website**. If it is empty or
+   wrong, open "What a unit looks like in Rent Manager", **Copy**, and send it to
+   whoever maintains the site: `normalize()` in `functions/_lib/rentmanager.js`
+   maps those fields, and Rent Manager's field reference is behind a login, so
+   the first real check is where the mapping is confirmed.
+
+**When something fails.** The dashboard says what Rent Manager answered, in
+words. The site keeps showing the last good list for up to a day, then falls
+back to "Ask about availability". A refresh that fails after a good one emails
+the leasing inbox (`LEAD_TO`) once.
 
 ## Photos
 

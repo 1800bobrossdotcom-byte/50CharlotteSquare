@@ -11,7 +11,8 @@
    and receives { request, env, params, waitUntil, next }. This file is the
    small router that calls them the same way, so they run unchanged.
 
-   Also here: /unsubscribe/<token>, the link at the foot of every email.
+   Also here: /unsubscribe/<token>, the link at the foot of every email, and
+   the scheduled refresh of the open units from Rent Manager.
    ============================================================================= */
 import * as admin from '../functions/admin/_middleware.js';
 import * as collect from '../functions/api/collect.js';
@@ -21,9 +22,12 @@ import * as inquiry from '../functions/api/inquiry.js';
 import * as insights from '../functions/api/insights.js';
 import * as login from '../functions/api/login.js';
 import * as logout from '../functions/api/logout.js';
+import * as rentmanager from '../functions/api/rentmanager.js';
 import * as reports from '../functions/api/reports.js';
 import * as stats from '../functions/api/stats.js';
 import * as triage from '../functions/api/triage.js';
+import * as units from '../functions/api/units.js';
+import { scheduledRefresh } from '../functions/_lib/rentmanager.js';
 import * as tour from '../functions/tour/index.js';
 import * as report from '../functions/r/[token].js';
 import * as unsubscribe from '../functions/unsubscribe/[token].js';
@@ -72,9 +76,11 @@ const API = {
   '/api/insights': insights,
   '/api/login': login,
   '/api/logout': logout,
+  '/api/rentmanager': rentmanager,
   '/api/reports': reports,
   '/api/stats': stats,
   '/api/triage': triage,
+  '/api/units': units,
 };
 
 // _headers covers every file served straight from public/, but by design not
@@ -174,5 +180,12 @@ export default {
       next: (input, init) => env.ASSETS.fetch(input ? new Request(input, init) : request),
     });
     return secure(res, hit.admin);
+  },
+
+  // The open units from Rent Manager, on the schedule in wrangler.toml. Does
+  // nothing until RM_USERNAME and RM_PASSWORD are set.
+  async scheduled(event, env, ctx) {
+    await ensureSchema(env);
+    ctx.waitUntil(scheduledRefresh(env));
   },
 };

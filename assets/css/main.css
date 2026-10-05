@@ -560,6 +560,30 @@ body.menu-open { overflow: hidden; }
 .plan__price { font-weight: 700; line-height: 1.2; }
 .plan__price small { display: block; font-weight: 600; font-size: .72rem; color: var(--fg-subtle); margin-top: .1rem; }
 .plan__more { align-self: flex-start; font-size: .93rem; }
+
+/* Open units from Rent Manager, filled in by main.js (hidden until there are some) */
+.units { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
+.units__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .4rem 2rem; margin-bottom: 1.1rem; }
+.units__title { margin: 0; }
+.units__head .note { margin: 0; max-width: 34rem; }
+.units__list { display: grid; gap: .75rem; }
+.unit {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: .6rem 1.75rem;
+  padding: 1rem 1.25rem; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.unit__name { font-size: 1.2rem; margin: 0; }
+.unit__meta { margin: .2rem 0 0; color: var(--fg-muted); font-size: .92rem; }
+.unit__rent { margin: 0; font-weight: 700; font-size: 1.1rem; white-space: nowrap; }
+.unit__rent span { font-weight: 600; font-size: .85rem; color: var(--fg-muted); }
+.unit__when { margin: 0; font-size: .92rem; color: var(--fg-muted); white-space: nowrap; }
+.unit__when.is-now { color: var(--accent); font-weight: 700; }
+.units__none { color: var(--fg-muted); margin: 1rem 0 0; }
+@media (max-width: 640px) {
+  .unit { grid-template-columns: minmax(0, 1fr) auto; }
+  .unit__head { grid-column: 1 / -1; }
+  .unit__when { grid-column: 1; grid-row: 3; }
+  .unit__apply { grid-column: 2; grid-row: 2 / span 2; align-self: center; }
+}
 /* The two other home types on a home-type page: two columns, not two of three */
 @media (min-width: 1100px) { .plans.plans--two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 58rem; } }
 .plan[hidden] { display: none; }

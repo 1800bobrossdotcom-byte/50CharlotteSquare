@@ -161,7 +161,6 @@
   const chipWrap = $('[data-filter-group]');
   if (chipWrap) {
     const scope = chipWrap.closest('section') || document;
-    const plans = $$('[data-beds]', scope);
     const empty = $('.plans__empty', scope);
     chipWrap.addEventListener('click', (e) => {
       const chip = e.target.closest('.chip');
@@ -173,12 +172,24 @@
       });
       const f = chip.dataset.filter;
       let shown = 0;
-      plans.forEach((p) => {
+      // Read at click time: the open units from Rent Manager arrive after load.
+      $$('.plan[data-beds]', scope).forEach((p) => {
         const show = f === 'all' || p.dataset.beds === f;
         p.hidden = !show;
         if (show) shown++;
       });
       if (empty) empty.style.display = shown ? 'none' : 'block';
+      const units = $('[data-units]', scope);
+      if (units && !units.hidden) {
+        let open = 0;
+        $$('.unit[data-beds]', units).forEach((u) => {
+          const show = f === 'all' || u.dataset.beds === f;
+          u.hidden = !show;
+          if (show) open++;
+        });
+        const none = $('.units__none', units);
+        if (none) none.hidden = open > 0;
+      }
     });
   }
 
@@ -443,4 +454,81 @@
   let lx = null;
   img.addEventListener('pointerdown', (e) => { lx = e.clientX; });
   img.addEventListener('pointerup', (e) => { if (lx !== null && Math.abs(e.clientX - lx) > 40) openAt(idx + (e.clientX < lx ? 1 : -1), e.clientX < lx ? 28 : -28); lx = null; });
+})();
+
+/* =============================================================================
+   Open units, from Rent Manager through /api/units. Where a page has a place
+   for them (the residences page and each home-type page) they are listed with
+   an Apply link, and the plan cards on any page swap "Pricing on request" for
+   the lowest current rent. With no list, or no script, the pages read as before.
+   ============================================================================= */
+(() => {
+  'use strict';
+  const host = document.querySelector('[data-units]');
+  const cards = Array.from(document.querySelectorAll('.plan[data-beds]'));
+  if (!host && !cards.length) return;
+
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const money = (n) => '$' + Math.round(n).toLocaleString('en-US');
+  const when = (a) => {
+    if (a === 'now') return 'Available now';
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(a || '');
+    return m ? `Available ${MON[Number(m[2]) - 1]} ${Number(m[3])}` : 'Opening soon';
+  };
+  const label = (u) => (/^\d/.test(u.unit) ? `Unit ${u.unit}` : String(u.unit));
+  const facts = (u) => [
+    u.beds != null ? `${u.beds} bed` : null,
+    u.baths != null ? `${u.baths} bath` : null,
+    u.sqft ? `${Math.round(u.sqft).toLocaleString('en-US')} sq ft` : null,
+  ].filter(Boolean).join(' · ');
+  const node = (tag, cls, text) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  };
+
+  fetch('/api/units', { headers: { Accept: 'application/json' } })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => {
+      const units = d && Array.isArray(d.units) ? d.units : [];
+      if (!units.length) return;
+
+      // Plan cards: the lowest current rent for that many bedrooms, and how many.
+      cards.forEach((card) => {
+        const mine = units.filter((u) => String(u.beds) === card.dataset.beds);
+        const price = card.querySelector('.plan__price');
+        if (!mine.length || !price || !price.firstChild) return;
+        const rents = mine.map((u) => u.rent).filter((r) => r > 0);
+        if (rents.length) price.firstChild.textContent = `From ${money(Math.min(...rents))}`;
+        const small = price.querySelector('small');
+        if (small) small.textContent = `${mine.length} open now or soon`;
+      });
+
+      if (!host) return;
+      const want = host.dataset.unitsBeds;
+      const list = want && want !== 'all' ? units.filter((u) => String(u.beds) === want) : units;
+      if (!list.length) return;
+      const box = host.querySelector('[data-units-list]');
+      list.forEach((u) => {
+        const row = node('article', 'unit');
+        if (u.beds != null) row.dataset.beds = String(u.beds);
+        const head = node('div', 'unit__head');
+        head.append(node('h3', 'unit__name', label(u)), node('p', 'unit__meta', facts(u)));
+        const rent = node('p', 'unit__rent', u.rent ? money(u.rent) : 'Rent on request');
+        if (u.rent) rent.append(node('span', null, ' a month'));
+        const avail = node('p', 'unit__when' + (u.available === 'now' ? ' is-now' : ''), when(u.available));
+        row.append(head, rent, avail);
+        if (/^https:\/\//.test(u.apply || '')) {
+          const apply = node('a', 'btn btn--sm btn--primary unit__apply', 'Apply');
+          apply.href = u.apply;
+          apply.rel = 'noopener';
+          apply.setAttribute('aria-label', `Apply for ${label(u).toLowerCase()}`);
+          row.append(apply);
+        }
+        box.append(row);
+      });
+      host.hidden = false;
+    })
+    .catch(() => { /* the page already says "Ask about availability" */ });
 })();
