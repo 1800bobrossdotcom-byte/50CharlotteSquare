@@ -290,12 +290,41 @@ export async function refresh(env) {
     .map((n) => publicUnit(env, n))
     .sort((a, b) => (a.beds ?? 9) - (b.beds ?? 9) || (a.rent ?? 1e9) - (b.rent ?? 1e9));
   const listing = await putKey(env, 'listing', { property: pid, units: open });
+  // The first time Rent Manager returns open units, the list goes on the site
+  // by itself, as Evolution24 asked. Once the switch has been set either way
+  // on the dashboard, that choice stands.
+  if (open.length && !(await getKey(env, 'publish'))) await setPublished(env, true);
   await putKey(env, 'status', {
     ok: true, total: all.length, open: open.length,
     unread: all.filter((n) => n.status === 'unknown').length,
     noRent: open.filter((n) => !n.rent).length, rate: r.rate,
   });
   return listing;
+}
+
+/** A public, wordless health line: whether the connection is set up, when it
+ *  last ran, whether that worked, and Rent Manager's status code if not. No
+ *  error text, field names or settings. */
+export async function publicStatus(env) {
+  const [st, published] = await Promise.all([getStatus(env), isPublished(env)]);
+  return {
+    configured: rmConfigured(env), published,
+    at: st ? st.ts : null,
+    ok: st ? Boolean(st.ok) : null,
+    open: st && st.ok ? st.open : null,
+    code: st && !st.ok ? st.code || 0 : null,
+  };
+}
+
+/** What a unit looks like (field names and types, the same summary as the
+ *  dashboard's, never resident data), readable for two hours after a
+ *  connection check so the field mapping can be finished without copying it
+ *  out of the dashboard. Otherwise null. */
+export async function recentDiscovery(env) {
+  const d = await getDiscovery(env);
+  if (!d || !d.ts || Date.now() / 1000 - d.ts > 2 * 3600) return null;
+  const { company: co, property, unitCount, properties, embeds, fields, embedded, ts } = d;
+  return { company: co, property, unitCount, properties, embeds, fields, embedded, ts };
 }
 
 /** For the site: the list, only when switched on and recent enough to trust. */

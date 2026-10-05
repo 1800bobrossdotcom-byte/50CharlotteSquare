@@ -672,11 +672,16 @@ a person's details or free-text notes.
 2. Dashboard → Rent Manager → **Check connection**. It signs in, records what a
    unit looks like in this company's Rent Manager (field names and types only),
    and fetches a first list into the preview.
-3. If the preview is right, switch on **Show on website**. If it is empty or
-   wrong, open "What a unit looks like in Rent Manager", **Copy**, and send it to
-   whoever maintains the site: `normalize()` in `functions/_lib/rentmanager.js`
-   maps those fields, and Rent Manager's field reference is behind a login, so
-   the first real check is where the mapping is confirmed.
+3. The first time a refresh finds open units, the list goes on the site by
+   itself; **Show on website** turns it off, and once set by hand that choice
+   stands. If the preview is empty or wrong, open "What a unit looks like in
+   Rent Manager", **Copy**, and send it to whoever maintains the site:
+   `normalize()` in `functions/_lib/rentmanager.js` maps those fields, and Rent
+   Manager's field reference is behind a login, so the first real check is
+   where the mapping is confirmed. For two hours after a check the same summary
+   (names and types, never resident data) is also readable at
+   `/api/units?fields`, and `/api/units` always carries a wordless health line
+   (`live`: set up, last run, worked, Rent Manager's status code if not).
 
 **When something fails.** The dashboard says what Rent Manager answered, in
 words. The site keeps showing the last good list for up to a day, then falls
