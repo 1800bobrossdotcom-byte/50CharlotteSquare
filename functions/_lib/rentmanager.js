@@ -155,7 +155,7 @@ function describe(obj, depth = 0) {
 
 // Embeds worth asking for: the unit's type, rent and status. Never people.
 const WANTED_EMBED = /(type|rent|status|occup|vacan|market|avail|ready|notice|floor)/i;
-const DISCOVERY_VERSION = 5;
+const DISCOVERY_VERSION = 6;
 
 // Rent Manager sends a unit's ID, property, name and sort order and nothing
 // more unless fields are asked for by name, and the list of names is behind a
