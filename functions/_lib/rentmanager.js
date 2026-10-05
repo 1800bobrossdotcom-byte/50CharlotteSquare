@@ -155,7 +155,7 @@ function describe(obj, depth = 0) {
 
 // Embeds worth asking for: the unit's type, rent and status. Never people.
 const WANTED_EMBED = /(type|rent|status|occup|vacan|market|avail|ready|notice|floor)/i;
-const DISCOVERY_VERSION = 4;
+const DISCOVERY_VERSION = 5;
 
 // Rent Manager sends a unit's ID, property, name and sort order and nothing
 // more unless fields are asked for by name, and the list of names is behind a
@@ -267,6 +267,30 @@ export async function discover(env) {
     // Keep the dotted names only if they bring back more than the plain request did.
     if (u && JSON.stringify(u).length > JSON.stringify(sampleUnit || {}).length) { sampleUnit = u; nested = true; }
   }
+  // If the embeds still did not come back, try the other ways Rent Manager may
+  // want them asked for, once, and record what each returns (field names and
+  // types only, the same filter as the summary): the answer says whether the
+  // request needs another form or the website's user needs another permission.
+  let diagnostics = null;
+  if (!sampleUnit || !embeds.some((e) => e in sampleUnit)) {
+    diagnostics = [];
+    const tries = [
+      ['fields param alone (should drop SortOrder)', `/Units/${id}?fields=UnitID,Name`],
+      ['embed, singular', `/Units/${id}?embed=UnitType&fields=UnitID,Name,UnitType`],
+      ['the list, embeds', `/Units?filters=UnitID,eq,${id}&embeds=UnitType,CurrentUnitStatus,CurrentMarketRent`],
+      ['linked: statuses', `/Units/${id}/UnitStatuses`],
+      ['linked: market rents', `/Units/${id}/MarketRents`],
+      ['unit types', '/UnitTypes?pagesize=2'],
+    ];
+    for (const [note, path] of tries) {
+      const t = await call(env, path, { token });
+      budget.rate = t.rate;
+      const first = asList(t.data)[0];
+      diagnostics.push({ note, path: path.replace(String(id), '{unit}'), status: t.status,
+        said: t.ok ? '' : said(t.data), count: Array.isArray(t.data) ? t.data.length : t.ok ? 1 : 0,
+        shape: t.ok && first && typeof first === 'object' ? describe(first) : null });
+    }
+  }
   const fields = sampleUnit ? plain.filter((n) => n in sampleUnit) : [];
   const acc = { fields, embeds: sampleUnit ? embeds.filter((e) => e in sampleUnit) : [], embedParam: 'embeds', mode: 'together', nested };
   const embedded = sampleUnit ? describe(sampleUnit) : null;
@@ -274,7 +298,7 @@ export async function discover(env) {
     v: DISCOVERY_VERSION, company: company(env), property: pid, properties, unitCount: one.total,
     fields: describe(sample), full: inst.ok ? describe(full) : `not readable (${inst.status})`,
     accepted: acc, embeds: acc.mode === 'no-embeds' ? [] : embeds,
-    embedded, probes: budget.log, rate: budget.rate,
+    embedded, probes: budget.log, diagnostics, rate: budget.rate,
   });
 }
 
@@ -447,8 +471,8 @@ export async function publicStatus(env) {
 export async function recentDiscovery(env) {
   const d = await getDiscovery(env);
   if (!d || !d.ts || Date.now() / 1000 - d.ts > 2 * 3600) return null;
-  const { v, company: co, property, unitCount, properties, embeds, fields, full, accepted: acc, embedded, probes, ts } = d;
-  return { v, company: co, property, unitCount, properties, embeds, fields, full, accepted: acc, embedded, probes, ts };
+  const { v, company: co, property, unitCount, properties, embeds, fields, full, accepted: acc, embedded, probes, diagnostics, rate, ts } = d;
+  return { v, company: co, property, unitCount, properties, embeds, fields, full, accepted: acc, embedded, probes, diagnostics, rate, ts };
 }
 
 /** For the site: the list, only when switched on and recent enough to trust. */
