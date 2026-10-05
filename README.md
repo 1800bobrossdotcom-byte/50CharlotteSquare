@@ -674,7 +674,7 @@ a person's details or free-text notes.
 
 | Name | What it is |
 |---|---|
-| `RM_USERNAME`, `RM_PASSWORD` | Secrets. The website's own Rent Manager user: Web API access, read-only, properties and units only |
+| `RM_USERNAME`, `RM_PASSWORD` | Secrets. The website's own Rent Manager user: Web API access, read-only, properties and units only. It needs the **Units** privilege: without it Rent Manager still lists the units but sends only their numbers, and refuses status requests with "Insufficient privileges. Required privilege: Units." |
 | `RM_COMPANY` | Optional. The company code in Rent Manager's addresses; `evolution` unless set |
 | `RM_LOCATION_ID` | Optional. Only for a company with more than one location |
 | `RM_PROPERTY_ID` | Optional. Charlotte Square is `12` unless set |
@@ -696,6 +696,11 @@ a person's details or free-text notes.
    (names and types, never resident data) is also readable at
    `/api/units?fields`, and `/api/units` always carries a wordless health line
    (`live`: set up, last run, worked, Rent Manager's status code if not).
+
+**When only unit numbers come back.** That is the missing Units privilege.
+The dashboard says so in words; once the privilege is added, press Check
+connection, or wait: a check that found only numbers is redone by the schedule
+once it is an hour old.
 
 **When something fails.** The dashboard says what Rent Manager answered, in
 words. The site keeps showing the last good list for up to a day, then falls

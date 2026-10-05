@@ -302,6 +302,22 @@ export async function discover(env) {
   });
 }
 
+/** True when the check could read nothing but unit numbers: what Rent Manager
+ *  does when the website's user lacks the Units privilege. */
+function onlyNumbers(found) {
+  const acc = found && found.accepted;
+  return Boolean(acc && !(acc.fields || []).length && !(acc.embeds || []).length);
+}
+
+/** The privilege Rent Manager named when it refused a diagnostic request. */
+function neededPrivilege(found) {
+  for (const d of (found && found.diagnostics) || []) {
+    const m = /Required privilege:\s*([^.]+)/i.exec(d.said || '');
+    if (m) return m[1].trim();
+  }
+  return null;
+}
+
 /** After a deploy that changes how the check works, run it once by itself,
  *  rather than waiting for the schedule: at most once an hour per version. */
 export async function rediscoverIfStale(env) {
@@ -446,6 +462,7 @@ export async function refresh(env) {
     ok: true, total: all.length, open: open.length,
     unread: all.filter((n) => n.status === 'unknown').length,
     noRent: open.filter((n) => !n.rent).length, rate: r.rate,
+    limited: onlyNumbers(found), needs: onlyNumbers(found) ? neededPrivilege(found) || 'Units' : null,
   });
   return listing;
 }
@@ -460,6 +477,7 @@ export async function publicStatus(env) {
     at: st ? st.ts : null,
     ok: st ? Boolean(st.ok) : null,
     open: st && st.ok ? st.open : null,
+    limited: Boolean(st && st.limited),
     code: st && !st.ok ? st.code || 0 : null,
   };
 }
@@ -492,7 +510,9 @@ export async function scheduledRefresh(env) {
       && Date.now() / 1000 - before.ts < (before.rate.resetIn || 0)) return;   // leave the hour's last calls alone
   try {
     const found = await getDiscovery(env);
-    if (!found || (found.v || 1) < DISCOVERY_VERSION) await discover(env);
+    if (!found || (found.v || 1) < DISCOVERY_VERSION || (onlyNumbers(found) && Date.now() / 1000 - found.ts > 3600)) {
+      await discover(env);
+    }
     await refresh(env);
   } catch (err) {
     await putKey(env, 'status', { ok: false, error: err.message, code: err.status || 0 });

@@ -1204,6 +1204,9 @@
       line = `Last try ${ago(st.ts)} did not work: ${st.error}`;
     } else {
       line = `Connected. Updated ${ago(st.ts)}: ${st.open} open now or soon, of ${st.total} units at property ${d.property}.`;
+      if (st.limited) {
+        line = `Connected, but Rent Manager is sharing only unit numbers with the website’s user, so nothing can be listed. In Rent Manager, give that user the “${st.needs || 'Units'}” privilege, then press Check connection (or wait: it checks again by itself within the hour).`;
+      }
       if (st.unread) line += ` For ${st.unread} of them Rent Manager’s status could not be read, so they are left off.`;
       if (st.rate && st.rate.remaining != null) line += ` Rent Manager calls left this hour: ${st.rate.remaining}${st.rate.limit ? ` of ${st.rate.limit}` : ''}.`;
     }
