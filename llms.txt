@@ -39,6 +39,7 @@
 ## Pages
 - [Home](https://www.charlottesquareroc.com/): overview and photographs
 - [Residences](https://www.charlottesquareroc.com/residences/): floor plans, what is included, frequently asked questions
+- [Availability](https://www.charlottesquareroc.com/availability/): the homes open now or opening soon, with rent and move-in date
 - [One-bedroom apartments](https://www.charlottesquareroc.com/residences/one-bedroom/): 765 to 1,045 sq ft, one bath
 - [Two-bedroom apartments](https://www.charlottesquareroc.com/residences/two-bedroom/): about 1,100 to 1,400 sq ft, two baths
 - [Three-bedroom apartments](https://www.charlottesquareroc.com/residences/three-bedroom/): up to 1,640 sq ft, two baths

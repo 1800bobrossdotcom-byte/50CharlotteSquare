@@ -21,6 +21,7 @@ three archived* below.
 |---|---|---|
 | `/` | `index.html` | Hero with the LEED Gold seal, at-a-glance stats, intro, certified-green badges, residences preview, amenity bento grid, East End ticker, management intro, tour CTA |
 | `/residences/` | `residences/index.html` | Filterable 1/2/3-bedroom floor plans, the open units from Rent Manager (`#available`), what's included, in-home features, FAQ |
+| `/availability/` | `availability/index.html` | **Availability** in the menu: the open units from Rent Manager with a bedroom filter and Apply on each, the three floor plans, and a "nothing listed this minute" note pointing to leasing when there are none |
 | `/residences/one-bedroom/` | `residences/one-bedroom/index.html` | One home type, in full: sizes, outdoor space, what comes with it, in-home features, the other two types, its own FAQ. Same for `two-bedroom/` and `three-bedroom/`; see *One page per home type* |
 | `/amenities/` | `amenities/index.html` | Bento overview, detail rows (terrace, fitness, community room, pocket park), sustainability, gallery with lightbox |
 | `/neighborhood/` | `neighborhood/index.html` | Walk/bike/transit, the Charlotte Street index, what's-near cards, near the Eastman School of Music (`#eastman`), Google map |
@@ -627,7 +628,7 @@ ever runs across all eleven properties.
 
 ## Rent Manager: live availability
 
-The residences page and each home-type page list the units that are open now
+The Availability page (in the menu), the residences page and each home-type page list the units that are open now
 or opening soon, with their rent, size and date, each with an Apply button that
 opens Evolution24's own application in Rent Manager
 (`https://evolution.twa.rentmanager.com/ApplyNow?locations=&unitID=<id>`, the
@@ -657,6 +658,16 @@ same with the fields inside the embeds named (`UnitType.Bedrooms` and so on),
 keeps whichever brings back more, and every refresh asks for exactly that:
 about eight calls, once. A deploy that changes how the check works
 (`DISCOVERY_VERSION`) runs it once by itself, at most once an hour.
+
+**How Rent Manager reports it here.** With the Units privilege, a unit comes
+back with its unit type (bedrooms and baths; named like "1B/1B", which is read
+when the counts are blank), its current market rent, and an occupancy record:
+`OccupancyType` (`CurrentOccupant`, or an empty record for a vacant unit) with
+expected move-out and notice dates. The unit's own size and room fields are
+usually 0, which is read as "not filled in". Who occupies a unit is never read.
+The status keeps the counts behind each run (numbers only), and the first list
+goes on the site by itself only when under a quarter of the building reads as
+open; more than that waits for a person.
 
 **What counts as open.** Vacant units ("Available now", or their date if it is
 still ahead), units being made ready ("Opening soon", or their date), and units
@@ -1499,6 +1510,10 @@ Names and numbers stay whole on a line. `keep_number()` in the generator ties
 the words on every page, and wraps the leasing phone number in `.nowrap`, so
 none of them ends one line and starts the next. Titles, attributes and the
 JSON-LD keep plain spaces.
+
+The full menu row needs about 1200px with six items, the resident login and
+the tour button, so narrower screens get the Menu button the phone layout uses,
+and menu labels never wrap.
 
 Known departures, kept deliberately: the Gallery style uses a pure white ground rather than a warm one, and buttons in Brick & Stone lift on hover where Gallery and Atelier only change colour.
 

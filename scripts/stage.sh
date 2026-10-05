@@ -21,7 +21,7 @@ mkdir public
 for p in \
   index.html 404.html robots.txt sitemap.xml llms.txt site.webmanifest favicon.ico googlec8931dc626c500a1.html \
   _headers _redirects .well-known assets admin \
-  residences amenities neighborhood story contact privacy terms \
+  residences availability amenities neighborhood story contact privacy terms \
   the-charlotte-story roc-the-east-end life-at-the-square contact-us \
   tour-a tour-b tour-c
 do

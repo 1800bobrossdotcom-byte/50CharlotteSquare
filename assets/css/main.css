@@ -307,10 +307,14 @@ button { font: inherit; color: inherit; }
 .menu-btn__icon span { position: absolute; left: 0; right: 0; height: 2px; background: currentColor; border-radius: 2px; }
 .menu-btn__icon span:first-child { top: 0; }
 .menu-btn__icon span:last-child { bottom: 0; }
-@media (min-width: 1000px) {
+/* Six menu items, the resident login and the tour button need about 1200px in a
+   row; narrower screens get the Menu button the phone layout uses. */
+.nav a, .topbar__actions .portal { white-space: nowrap; }
+@media (min-width: 1200px) {
   .nav, .topbar__actions { display: flex; }
   .menu-btn { display: none; }
 }
+@media (min-width: 1200px) and (max-width: 1365px) { .nav { gap: 1.4rem; } }
 
 .drawer {
   position: fixed; inset: 0; z-index: 60; background: var(--ink); color: var(--stone);
@@ -578,6 +582,11 @@ body.menu-open { overflow: hidden; }
 .unit__when { margin: 0; font-size: .92rem; color: var(--fg-muted); white-space: nowrap; }
 .unit__when.is-now { color: var(--accent); font-weight: 700; }
 .units__none { color: var(--fg-muted); margin: 1rem 0 0; }
+/* The availability page: the list straight under its heading, or a note when none is listed */
+.units--page { margin-top: 0; }
+.units-empty { max-width: 44rem; padding: clamp(1.5rem, 3vw, 2.25rem); background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); }
+.units-empty h3 { margin: 0 0 .6rem; }
+.units-empty p { margin: 0; color: var(--fg-muted); }
 @media (max-width: 640px) {
   .unit { grid-template-columns: minmax(0, 1fr) auto; }
   .unit__head { grid-column: 1 / -1; }

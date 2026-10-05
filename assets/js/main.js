@@ -529,6 +529,10 @@
         box.append(row);
       });
       host.hidden = false;
+      // The availability page: swap its "nothing listed" note for the list, and
+      // show the bedroom filter now there is something to filter.
+      document.querySelectorAll('[data-units-empty]').forEach((n) => { n.hidden = true; });
+      document.querySelectorAll('[data-units-chips]').forEach((n) => { n.hidden = false; });
     })
     .catch(() => { /* the page already says "Ask about availability" */ });
 })();

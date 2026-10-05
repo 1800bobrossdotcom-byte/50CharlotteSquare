@@ -155,7 +155,7 @@ function describe(obj, depth = 0) {
 
 // Embeds worth asking for: the unit's type, rent and status. Never people.
 const WANTED_EMBED = /(type|rent|status|occup|vacan|market|avail|ready|notice|floor)/i;
-const DISCOVERY_VERSION = 7;
+const DISCOVERY_VERSION = 8;
 
 // Rent Manager sends a unit's ID, property, name and sort order and nothing
 // more unless fields are asked for by name, and the list of names is behind a
@@ -403,6 +403,13 @@ function occupancyOf(u) {
   };
 }
 
+/** Bedrooms (part 1) or baths (part 2) from a unit type named like "2B/2B",
+ *  "3BR/2BA" or "2 Bed / 1.5 Bath". */
+function fromTypeName(type, part) {
+  const m = /(\d+)\s*(?:B|BR|BD|Bed(?:room)?s?)\s*\/\s*(\d+(?:\.\d+)?)\s*(?:B|BA|Bath(?:room)?s?)\b/i.exec(String(type && type.Name || ''));
+  return m ? Number(m[part]) : undefined;
+}
+
 export function normalize(env, u) {
   const type = u.UnitType && typeof u.UnitType === 'object' ? u.UnitType : {};
   const id = pick(u.UnitID, u.Id, u.ID);
@@ -445,8 +452,9 @@ export function normalize(env, u) {
   return {
     id,
     unit: String(pick(u.Name, u.UnitName, u.Number, id)).trim(),
-    beds: pick(pos(u.Bedrooms), pos(u.Beds), pos(u.BedroomCount), pos(type.Bedrooms), pos(type.Beds)) ?? null,
-    baths: pick(pos(u.Bathrooms), pos(u.Baths), pos(u.BathroomCount), pos(type.Bathrooms), pos(type.Baths)) ?? null,
+    // Where the unit type's room counts are blank, its name usually says them ("2B/2B").
+    beds: pick(pos(u.Bedrooms), pos(u.Beds), pos(u.BedroomCount), pos(type.Bedrooms), pos(type.Beds), fromTypeName(type, 1)) ?? null,
+    baths: pick(pos(u.Bathrooms), pos(u.Baths), pos(u.BathroomCount), pos(type.Bathrooms), pos(type.Baths), fromTypeName(type, 2)) ?? null,
     sqft: pick(pos(u.SquareFootage), pos(u.SqFt), pos(u.SquareFeet), pos(type.SquareFootage), pos(type.SqFt)) ?? null,
     rent: currentRent(u),
     status,
