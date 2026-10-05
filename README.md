@@ -646,13 +646,17 @@ company; a refresh uses two, about four an hour.
 
 **Asking for the right fields.** By default Rent Manager sends only a unit's
 ID, property, name and sort order; everything else has to be asked for by
-name, and the list of names is behind its help-page login. So the connection
-check first finds out how Rent Manager treats a name it does not know (ignores
-it, lists the valid ones, or names only the bad one), then asks for the likely
-embeds (unit type, statuses, market rents) and fields (size, rooms, rent,
-dates) in the cheapest way that allows: a few dozen calls at most, once. Every
-refresh then asks for exactly what was accepted. A deploy that changes how the
-check works (`DISCOVERY_VERSION`) runs it once by itself, at most once an hour.
+name, and the list of names is behind its help-page login. The first live
+checks showed how this company's Rent Manager behaves: it ignores field names
+it does not know, refuses embeds it does not know (404 "Unspecified Error";
+`MarketRents` is one), and returns an embed only when it is named in `fields`
+as well as `embeds`. It accepts `UnitType`, `UnitStatuses`,
+`CurrentOccupancyStatus`, `CurrentUnitStatus` and `CurrentMarketRent`
+(`KNOWN_EMBEDS`). So the check asks for every likely name at once, then the
+same with the fields inside the embeds named (`UnitType.Bedrooms` and so on),
+keeps whichever brings back more, and every refresh asks for exactly that:
+about eight calls, once. A deploy that changes how the check works
+(`DISCOVERY_VERSION`) runs it once by itself, at most once an hour.
 
 **What counts as open.** Vacant units ("Available now", or their date if it is
 still ahead), units being made ready ("Opening soon", or their date), and units

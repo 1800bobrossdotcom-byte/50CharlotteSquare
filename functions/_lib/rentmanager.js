@@ -155,14 +155,14 @@ function describe(obj, depth = 0) {
 
 // Embeds worth asking for: the unit's type, rent and status. Never people.
 const WANTED_EMBED = /(type|rent|status|occup|vacan|market|avail|ready|notice|floor)/i;
-const DISCOVERY_VERSION = 3;
+const DISCOVERY_VERSION = 4;
 
-// Rent Manager's collections send a unit's ID, property, name and sort order
-// and nothing more unless asked for fields by name, and the list of names is
-// behind a login. So the check finds out how Rent Manager treats a name it
-// does not know, then asks for the likely ones in the cheapest way that
-// reaction allows, most useful first, and every refresh asks for exactly the
-// ones it accepted. None of these names a person.
+// Rent Manager sends a unit's ID, property, name and sort order and nothing
+// more unless fields are asked for by name, and the list of names is behind a
+// login. It ignores field names it does not know, refuses embeds it does not
+// know, and returns an embed only when it is named in fields too. So the check
+// asks for every likely name at once, keeps what comes back, and every
+// refresh asks for exactly that. None of these names a person.
 const BASE_FIELDS = ['UnitID', 'PropertyID', 'Name', 'SortOrder'];
 const FIELD_GROUPS = [
   ['UnitTypeID', 'SquareFootage', 'Bedrooms', 'Bathrooms'],
@@ -170,9 +170,19 @@ const FIELD_GROUPS = [
   ['Status', 'UnitStatus', 'IsReady', 'VacateDate', 'ExpectedMoveOutDate', 'IsDown', 'IsModel', 'IsActive'],
   ['SqFt', 'SquareFeet', 'Beds', 'Baths', 'Rent', 'DefaultRent', 'DateAvailable', 'NoticeDate', 'IsOnNotice', 'OccupancyStatus'],
 ];
-const EMBED_GROUPS = [['UnitType'], ['UnitStatuses'], ['MarketRents'], ['CurrentOccupancyStatus'],
-  ['CurrentUnitStatus'], ['CurrentMarketRent'], ['Vacancy'], ['OccupancyStatus']];
-const RELEVANT = /(type|sq|foot|feet|bed|bath|rent|vacan|ready|avail|status|notice|move|model|down|active|floor|date)/i;
+// What this company's Rent Manager accepted on the first live checks (it
+// refused MarketRents, and ignores field names it does not know). An embed
+// only comes back when it is named in fields too.
+const KNOWN_EMBEDS = ['UnitType', 'UnitStatuses', 'CurrentOccupancyStatus', 'CurrentUnitStatus', 'CurrentMarketRent'];
+// Fields inside those embeds, asked for by dotted name in case the embeds
+// come back as bare as the unit itself.
+const NESTED = [
+  'UnitType.Name', 'UnitType.Bedrooms', 'UnitType.Bathrooms', 'UnitType.SquareFootage', 'UnitType.MarketRent',
+  'CurrentMarketRent.Amount', 'CurrentMarketRent.StartDate',
+  'CurrentOccupancyStatus.Name', 'CurrentOccupancyStatus.StartDate', 'CurrentOccupancyStatus.EndDate',
+  'CurrentUnitStatus.Name', 'CurrentUnitStatus.StartDate', 'CurrentUnitStatus.EndDate', 'CurrentUnitStatus.UnitStatusType',
+  'UnitStatuses.Name', 'UnitStatuses.StartDate', 'UnitStatuses.EndDate', 'UnitStatuses.UnitStatusType',
+];
 const unique = (a) => [...new Set(a)];
 const isStub = (v) => v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 1 && 'ApiUri' in v;
 const said = (d) => (d && typeof d === 'object'
@@ -195,63 +205,6 @@ async function ask(env, token, unitId, qs, budget, note) {
   return r;
 }
 
-/** Which of `names` Rent Manager accepts as fields (kind 'fields') or embeds. */
-function present(r, names, kind) {
-  const u = asList(r.data)[0] || {};
-  return names.filter((n) => n in u && (kind === 'fields' || Array.isArray(u[n]) || (u[n] && typeof u[n] === 'object' && !isStub(u[n]))));
-}
-
-/** How Rent Manager treats a name it does not know: 'ignores' it, 'lists' the
- *  valid ones in its refusal (returned), or 'names' only the bad one. */
-async function reaction(env, token, unitId, param, budget) {
-  const fake = 'ZzNoSuchName';
-  const qs = param === 'fields' ? `fields=UnitID,${fake}` : `${param}=${fake}`;
-  const r = await ask(env, token, unitId, qs, budget, `${param}: how is an unknown name treated?`);
-  if (r.ok) return { how: 'ignores' };
-  if (r.status !== 400) return { how: 'error', status: r.status };
-  const words = unique((said(r.data).match(/\b[A-Z][A-Za-z0-9]{2,}\b/g) || []).filter((w) => w !== fake));
-  return words.length >= 6 ? { how: 'lists', valid: words } : { how: 'names' };
-}
-
-/** Group by group, most useful first: ask for the group; on a refusal that
- *  names one name, drop it and ask again; on one that names none, split. */
-async function groups(env, token, unitId, param, kind, list, budget) {
-  const got = [];
-  const queue = list.map((g) => g.slice());
-  while (queue.length && budget.left > 0) {
-    const g = queue.shift();
-    if (!g.length) continue;
-    const qs = kind === 'fields' ? `fields=${unique([...BASE_FIELDS, ...g]).join(',')}` : `${param}=${g.join(',')}`;
-    const r = await ask(env, token, unitId, qs, budget, `${param}: ${g.join(',')}`);
-    if (r.ok) { got.push(...present(r, g, kind)); continue; }
-    if (r.status !== 400) continue;
-    const text = said(r.data);
-    const named = g.filter((n) => new RegExp(`\\b${n}\\b`, 'i').test(text));
-    if (named.length && named.length < g.length) queue.unshift(g.filter((n) => !named.includes(n)));
-    else if (g.length > 1) queue.unshift(g.slice(0, Math.ceil(g.length / 2)), g.slice(Math.ceil(g.length / 2)));
-  }
-  return unique(got);
-}
-
-/** Fields or embeds Rent Manager accepts, in as few calls as its reaction allows. */
-async function accepted(env, token, unitId, param, kind, list, extra, budget) {
-  const all = unique([...extra, ...list.flat()]).filter((n) => !NEVER.test(n));
-  const how = await reaction(env, token, unitId, param, budget);
-  budget.reactions[param] = how.how;
-  if (how.how === 'ignores') {
-    const qs = kind === 'fields' ? `fields=${unique([...BASE_FIELDS, ...all]).join(',')}` : `${param}=${all.join(',')}`;
-    const r = await ask(env, token, unitId, qs, budget, `${param}: all at once`);
-    return r.ok ? present(r, all, kind) : [];
-  }
-  if (how.how === 'lists') {
-    const valid = how.valid.filter((n) => RELEVANT.test(n) && !NEVER.test(n) && !BASE_FIELDS.includes(n));
-    const qs = kind === 'fields' ? `fields=${unique([...BASE_FIELDS, ...valid]).join(',')}` : `${param}=${valid.join(',')}`;
-    const r = valid.length ? await ask(env, token, unitId, qs, budget, `${param}: the valid names it listed`) : null;
-    return r && r.ok ? present(r, valid, kind) : [];
-  }
-  return groups(env, token, unitId, param, kind, [extra.filter((n) => !NEVER.test(n)), ...list], budget);
-}
-
 /** The query string that asks for the accepted fields and embeds. */
 function selectQuery(acc) {
   if (!acc) return '';
@@ -259,7 +212,8 @@ function selectQuery(acc) {
   const embeds = acc.mode === 'no-embeds' ? [] : acc.embeds || [];
   const parts = [];
   if (fields.length || embeds.length) {
-    parts.push(`fields=${unique([...BASE_FIELDS, ...fields, ...(acc.mode === 'separate' ? [] : embeds)]).join(',')}`);
+    parts.push(`fields=${unique([...BASE_FIELDS, ...fields, ...(acc.mode === 'separate' ? [] : embeds),
+      ...(acc.nested ? NESTED.filter((n) => embeds.includes(n.split('.')[0])) : [])]).join(',')}`);
   }
   if (embeds.length) parts.push(`${acc.embedParam || 'embeds'}=${embeds.join(',')}`);
   return parts.length ? `&${parts.join('&')}` : '';
@@ -279,7 +233,7 @@ export async function discover(env) {
   if (!sample) throw new RMError(`Rent Manager returned no units for property ${pid}.`, one.status);
   const id = sample.UnitID ?? sample.Id ?? sample.ID;
 
-  const budget = { left: 18, log: [], rate: one.rate, reactions: {} };
+  const budget = { left: 8, log: [], rate: one.rate };
   // The unit's own record, which may carry every field and embed name.
   const inst = await ask(env, token, id, '', budget, 'the unit record');
   const full = inst.ok ? asList(inst.data)[0] || {} : {};
@@ -287,31 +241,39 @@ export async function discover(env) {
   const fullFields = named.filter((k) => full[k] === null || typeof full[k] !== 'object');
   const fullEmbeds = named.filter((k) => full[k] && typeof full[k] === 'object' && WANTED_EMBED.test(k));
 
-  // Embeds first, one per call if it comes to that: they are where Rent
-  // Manager is likeliest to keep a unit's status, rent and room counts. Then
-  // the most useful plain fields.
-  let embedParam = 'embeds';
-  let embeds = await accepted(env, token, id, 'embeds', 'embeds', EMBED_GROUPS.slice(0, 6), fullEmbeds, budget);
-  if (!embeds.length && budget.reactions.embeds === 'ignores' && budget.left > 4) {
-    embedParam = 'embed';           // Rent Manager's guide spells it both ways
-    embeds = await accepted(env, token, id, 'embed', 'embeds', EMBED_GROUPS.slice(0, 6), fullEmbeds, budget);
-  }
-  const fields = await accepted(env, token, id, 'fields', 'fields', FIELD_GROUPS.slice(0, 2), fullFields, budget);
-
-  // One unit with everything accepted, asked the way refreshes will ask.
-  const acc = { fields, embeds, embedParam, mode: 'together' };
-  let embedded = null;
-  if (fields.length || embeds.length) {
-    for (const mode of embeds.length ? ['together', 'separate', 'no-embeds'] : ['together']) {
-      acc.mode = mode;
-      const r = await ask(env, token, id, selectQuery(acc).slice(1), budget, `sample, ${mode}`);
-      if (r.ok) { embedded = describe(asList(r.data)[0]); break; }
+  // Every plain field worth having (unknown names are ignored) and the known
+  // embeds, named in fields as well, in one request; then the same with the
+  // fields inside the embeds named too. If the combined request is refused,
+  // fall back to checking each embed on its own.
+  const plain = unique([...fullFields, ...FIELD_GROUPS.flat()]).filter((n) => !NEVER.test(n));
+  let embeds = KNOWN_EMBEDS.slice();
+  const both = (extra) => `fields=${unique([...BASE_FIELDS, ...plain, ...embeds, ...extra]).join(',')}&embeds=${embeds.join(',')}`;
+  let r = await ask(env, token, id, both([]), budget, 'plain fields and the known embeds');
+  if (!r.ok) {
+    const ok = [];
+    for (const e of KNOWN_EMBEDS) {
+      if (budget.left < 3) break;
+      const t = await ask(env, token, id, `fields=${[...BASE_FIELDS, e].join(',')}&embeds=${e}`, budget, `embed ${e} alone`);
+      if (t.ok) ok.push(e);
     }
+    embeds = ok;
+    r = embeds.length ? await ask(env, token, id, both([]), budget, 'plain fields and the embeds that work') : r;
   }
+  let sampleUnit = r.ok ? asList(r.data)[0] || null : null;
+  let nested = false;
+  if (r.ok && budget.left > 1) {
+    const d = await ask(env, token, id, both(NESTED), budget, 'with fields inside the embeds named');
+    const u = d.ok ? asList(d.data)[0] || null : null;
+    // Keep the dotted names only if they bring back more than the plain request did.
+    if (u && JSON.stringify(u).length > JSON.stringify(sampleUnit || {}).length) { sampleUnit = u; nested = true; }
+  }
+  const fields = sampleUnit ? plain.filter((n) => n in sampleUnit) : [];
+  const acc = { fields, embeds: sampleUnit ? embeds.filter((e) => e in sampleUnit) : [], embedParam: 'embeds', mode: 'together', nested };
+  const embedded = sampleUnit ? describe(sampleUnit) : null;
   return putKey(env, 'discovery', {
     v: DISCOVERY_VERSION, company: company(env), property: pid, properties, unitCount: one.total,
     fields: describe(sample), full: inst.ok ? describe(full) : `not readable (${inst.status})`,
-    reactions: budget.reactions, accepted: acc, embeds: acc.mode === 'no-embeds' ? [] : embeds,
+    accepted: acc, embeds: acc.mode === 'no-embeds' ? [] : embeds,
     embedded, probes: budget.log, rate: budget.rate,
   });
 }
@@ -485,8 +447,8 @@ export async function publicStatus(env) {
 export async function recentDiscovery(env) {
   const d = await getDiscovery(env);
   if (!d || !d.ts || Date.now() / 1000 - d.ts > 2 * 3600) return null;
-  const { v, company: co, property, unitCount, properties, embeds, fields, full, reactions, accepted: acc, embedded, probes, ts } = d;
-  return { v, company: co, property, unitCount, properties, embeds, fields, full, reactions, accepted: acc, embedded, probes, ts };
+  const { v, company: co, property, unitCount, properties, embeds, fields, full, accepted: acc, embedded, probes, ts } = d;
+  return { v, company: co, property, unitCount, properties, embeds, fields, full, accepted: acc, embedded, probes, ts };
 }
 
 /** For the site: the list, only when switched on and recent enough to trust. */
