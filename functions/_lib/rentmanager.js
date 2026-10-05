@@ -155,6 +155,28 @@ function describe(obj, depth = 0) {
 
 // Embeds worth asking for: the unit's type, rent and status. Never people.
 const WANTED_EMBED = /(type|rent|status|occup|vacan|market|avail|ready|notice|floor)/i;
+const DISCOVERY_VERSION = 3;
+
+// Rent Manager's collections send a unit's ID, property, name and sort order
+// and nothing more unless asked for fields by name, and the list of names is
+// behind a login. So the check finds out how Rent Manager treats a name it
+// does not know, then asks for the likely ones in the cheapest way that
+// reaction allows, most useful first, and every refresh asks for exactly the
+// ones it accepted. None of these names a person.
+const BASE_FIELDS = ['UnitID', 'PropertyID', 'Name', 'SortOrder'];
+const FIELD_GROUPS = [
+  ['UnitTypeID', 'SquareFootage', 'Bedrooms', 'Bathrooms'],
+  ['MarketRent', 'IsVacant', 'ReadyDate', 'AvailableDate'],
+  ['Status', 'UnitStatus', 'IsReady', 'VacateDate', 'ExpectedMoveOutDate', 'IsDown', 'IsModel', 'IsActive'],
+  ['SqFt', 'SquareFeet', 'Beds', 'Baths', 'Rent', 'DefaultRent', 'DateAvailable', 'NoticeDate', 'IsOnNotice', 'OccupancyStatus'],
+];
+const EMBED_GROUPS = [['UnitType'], ['UnitStatuses'], ['MarketRents'], ['CurrentOccupancyStatus'],
+  ['CurrentUnitStatus'], ['CurrentMarketRent'], ['Vacancy'], ['OccupancyStatus']];
+const RELEVANT = /(type|sq|foot|feet|bed|bath|rent|vacan|ready|avail|status|notice|move|model|down|active|floor|date)/i;
+const unique = (a) => [...new Set(a)];
+const isStub = (v) => v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 1 && 'ApiUri' in v;
+const said = (d) => (d && typeof d === 'object'
+  ? String(d.UserMessage || d.Message || d.DeveloperMessage || JSON.stringify(d)) : String(d || '')).slice(0, 400);
 
 async function unitsQuery(env, token, extra) {
   const pid = propertyId(env);
@@ -162,6 +184,85 @@ async function unitsQuery(env, token, extra) {
   // If this company's units are filtered under another name, ask through the property.
   if (r.status === 400) r = await call(env, `/Properties/${pid}/Units?${extra.replace(/^&/, '')}`, { token });
   return r;
+}
+
+/** One request for a unit, logged for the field summary. */
+async function ask(env, token, unitId, qs, budget, note) {
+  budget.left--;
+  const r = await call(env, `/Units/${unitId}${qs ? `?${qs}` : ''}`, { token });
+  budget.rate = r.rate;
+  budget.log.push({ note, status: r.status, said: r.ok ? '' : said(r.data) });
+  return r;
+}
+
+/** Which of `names` Rent Manager accepts as fields (kind 'fields') or embeds. */
+function present(r, names, kind) {
+  const u = asList(r.data)[0] || {};
+  return names.filter((n) => n in u && (kind === 'fields' || Array.isArray(u[n]) || (u[n] && typeof u[n] === 'object' && !isStub(u[n]))));
+}
+
+/** How Rent Manager treats a name it does not know: 'ignores' it, 'lists' the
+ *  valid ones in its refusal (returned), or 'names' only the bad one. */
+async function reaction(env, token, unitId, param, budget) {
+  const fake = 'ZzNoSuchName';
+  const qs = param === 'fields' ? `fields=UnitID,${fake}` : `${param}=${fake}`;
+  const r = await ask(env, token, unitId, qs, budget, `${param}: how is an unknown name treated?`);
+  if (r.ok) return { how: 'ignores' };
+  if (r.status !== 400) return { how: 'error', status: r.status };
+  const words = unique((said(r.data).match(/\b[A-Z][A-Za-z0-9]{2,}\b/g) || []).filter((w) => w !== fake));
+  return words.length >= 6 ? { how: 'lists', valid: words } : { how: 'names' };
+}
+
+/** Group by group, most useful first: ask for the group; on a refusal that
+ *  names one name, drop it and ask again; on one that names none, split. */
+async function groups(env, token, unitId, param, kind, list, budget) {
+  const got = [];
+  const queue = list.map((g) => g.slice());
+  while (queue.length && budget.left > 0) {
+    const g = queue.shift();
+    if (!g.length) continue;
+    const qs = kind === 'fields' ? `fields=${unique([...BASE_FIELDS, ...g]).join(',')}` : `${param}=${g.join(',')}`;
+    const r = await ask(env, token, unitId, qs, budget, `${param}: ${g.join(',')}`);
+    if (r.ok) { got.push(...present(r, g, kind)); continue; }
+    if (r.status !== 400) continue;
+    const text = said(r.data);
+    const named = g.filter((n) => new RegExp(`\\b${n}\\b`, 'i').test(text));
+    if (named.length && named.length < g.length) queue.unshift(g.filter((n) => !named.includes(n)));
+    else if (g.length > 1) queue.unshift(g.slice(0, Math.ceil(g.length / 2)), g.slice(Math.ceil(g.length / 2)));
+  }
+  return unique(got);
+}
+
+/** Fields or embeds Rent Manager accepts, in as few calls as its reaction allows. */
+async function accepted(env, token, unitId, param, kind, list, extra, budget) {
+  const all = unique([...extra, ...list.flat()]).filter((n) => !NEVER.test(n));
+  const how = await reaction(env, token, unitId, param, budget);
+  budget.reactions[param] = how.how;
+  if (how.how === 'ignores') {
+    const qs = kind === 'fields' ? `fields=${unique([...BASE_FIELDS, ...all]).join(',')}` : `${param}=${all.join(',')}`;
+    const r = await ask(env, token, unitId, qs, budget, `${param}: all at once`);
+    return r.ok ? present(r, all, kind) : [];
+  }
+  if (how.how === 'lists') {
+    const valid = how.valid.filter((n) => RELEVANT.test(n) && !NEVER.test(n) && !BASE_FIELDS.includes(n));
+    const qs = kind === 'fields' ? `fields=${unique([...BASE_FIELDS, ...valid]).join(',')}` : `${param}=${valid.join(',')}`;
+    const r = valid.length ? await ask(env, token, unitId, qs, budget, `${param}: the valid names it listed`) : null;
+    return r && r.ok ? present(r, valid, kind) : [];
+  }
+  return groups(env, token, unitId, param, kind, [extra.filter((n) => !NEVER.test(n)), ...list], budget);
+}
+
+/** The query string that asks for the accepted fields and embeds. */
+function selectQuery(acc) {
+  if (!acc) return '';
+  const fields = acc.fields || [];
+  const embeds = acc.mode === 'no-embeds' ? [] : acc.embeds || [];
+  const parts = [];
+  if (fields.length || embeds.length) {
+    parts.push(`fields=${unique([...BASE_FIELDS, ...fields, ...(acc.mode === 'separate' ? [] : embeds)]).join(',')}`);
+  }
+  if (embeds.length) parts.push(`${acc.embedParam || 'embeds'}=${embeds.join(',')}`);
+  return parts.length ? `&${parts.join('&')}` : '';
 }
 
 export async function discover(env) {
@@ -176,21 +277,60 @@ export async function discover(env) {
   if (!one.ok) throw new RMError(explain(one, 'units').replace('{pid}', String(pid)), one.status);
   const sample = asList(one.data)[0];
   if (!sample) throw new RMError(`Rent Manager returned no units for property ${pid}.`, one.status);
-  const embeds = Object.entries(sample)
-    .filter(([k, v]) => v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 1 && v.ApiUri
-      && WANTED_EMBED.test(k) && !NEVER.test(k))
-    .map(([k]) => k);
+  const id = sample.UnitID ?? sample.Id ?? sample.ID;
+
+  const budget = { left: 18, log: [], rate: one.rate, reactions: {} };
+  // The unit's own record, which may carry every field and embed name.
+  const inst = await ask(env, token, id, '', budget, 'the unit record');
+  const full = inst.ok ? asList(inst.data)[0] || {} : {};
+  const named = Object.keys(full).filter((k) => k !== 'ApiUri' && !BASE_FIELDS.includes(k) && !NEVER.test(k));
+  const fullFields = named.filter((k) => full[k] === null || typeof full[k] !== 'object');
+  const fullEmbeds = named.filter((k) => full[k] && typeof full[k] === 'object' && WANTED_EMBED.test(k));
+
+  // Embeds first, one per call if it comes to that: they are where Rent
+  // Manager is likeliest to keep a unit's status, rent and room counts. Then
+  // the most useful plain fields.
+  let embedParam = 'embeds';
+  let embeds = await accepted(env, token, id, 'embeds', 'embeds', EMBED_GROUPS.slice(0, 6), fullEmbeds, budget);
+  if (!embeds.length && budget.reactions.embeds === 'ignores' && budget.left > 4) {
+    embedParam = 'embed';           // Rent Manager's guide spells it both ways
+    embeds = await accepted(env, token, id, 'embed', 'embeds', EMBED_GROUPS.slice(0, 6), fullEmbeds, budget);
+  }
+  const fields = await accepted(env, token, id, 'fields', 'fields', FIELD_GROUPS.slice(0, 2), fullFields, budget);
+
+  // One unit with everything accepted, asked the way refreshes will ask.
+  const acc = { fields, embeds, embedParam, mode: 'together' };
   let embedded = null;
-  let rate = one.rate;
-  if (embeds.length) {
-    const rich = await unitsQuery(env, token, `&pagesize=1&embeds=${embeds.join(',')}`);
-    if (rich.ok) embedded = describe(asList(rich.data)[0]);
-    rate = rich.rate;
+  if (fields.length || embeds.length) {
+    for (const mode of embeds.length ? ['together', 'separate', 'no-embeds'] : ['together']) {
+      acc.mode = mode;
+      const r = await ask(env, token, id, selectQuery(acc).slice(1), budget, `sample, ${mode}`);
+      if (r.ok) { embedded = describe(asList(r.data)[0]); break; }
+    }
   }
   return putKey(env, 'discovery', {
-    company: company(env), property: pid, properties,
-    unitCount: one.total, fields: describe(sample), embeds, embedded, rate,
+    v: DISCOVERY_VERSION, company: company(env), property: pid, properties, unitCount: one.total,
+    fields: describe(sample), full: inst.ok ? describe(full) : `not readable (${inst.status})`,
+    reactions: budget.reactions, accepted: acc, embeds: acc.mode === 'no-embeds' ? [] : embeds,
+    embedded, probes: budget.log, rate: budget.rate,
   });
+}
+
+/** After a deploy that changes how the check works, run it once by itself,
+ *  rather than waiting for the schedule: at most once an hour per version. */
+export async function rediscoverIfStale(env) {
+  if (!rmConfigured(env) || !env.DB) return;
+  const found = await getDiscovery(env);
+  if (found && (found.v || 1) >= DISCOVERY_VERSION) return;
+  const tried = await getKey(env, `tried-v${DISCOVERY_VERSION}`);
+  if (tried && Date.now() / 1000 - tried.ts < 3600) return;
+  await putKey(env, `tried-v${DISCOVERY_VERSION}`, { at: Date.now() });
+  try {
+    await discover(env);
+    await refresh(env);
+  } catch (err) {
+    await putKey(env, 'status', { ok: false, error: err.message, code: err.status || 0 });
+  }
 }
 
 /* ---- Step 2: the open units -------------------------------------------------
@@ -208,11 +348,30 @@ const toDay = (v) => {
   const m = /^(\d{4}-\d{2}-\d{2})/.exec(String(v));
   return m && !m[1].startsWith('0001') && !m[1].startsWith('1900') ? m[1] : null;
 };
-const nameOf = (o) => (o && typeof o === 'object' ? pick(o.Name, o.Description, o.Status, o.StatusName) : o);
+const nameOf = (o) => {
+  if (!o || typeof o !== 'object') return o;
+  const inner = [o.UnitStatusType, o.StatusType, o.OccupancyStatusType, o.Type].find((t) => t && typeof t === 'object');
+  return pick(o.Name, o.StatusName, o.Description, typeof o.Status === 'string' ? o.Status : undefined, inner && pick(inner.Name, inner.Description));
+};
+/** The status in force today from a list of status periods: started, not ended. */
+function currentOf(list) {
+  if (!Array.isArray(list) || !list.length) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  const live = list.filter((x) => x && typeof x === 'object')
+    .map((x) => ({ x, from: toDay(pick(x.StartDate, x.DateFrom, x.EffectiveDate)) || '0000', to: toDay(pick(x.EndDate, x.DateTo)) }))
+    .filter((r) => r.from <= today && (!r.to || r.to >= today))
+    .sort((a, b) => (a.from < b.from ? 1 : -1));
+  return live.length ? live[0].x : null;
+}
 
 function currentRent(u) {
-  const direct = toNum(pick(u.MarketRent, u.Rent, u.AskingRent, u.AdvertisedRent));
+  const direct = toNum(pick(typeof u.MarketRent === 'object' ? undefined : u.MarketRent, u.Rent, u.AskingRent, u.AdvertisedRent, u.DefaultRent));
   if (direct) return direct;
+  const cur = [u.CurrentMarketRent, u.MarketRent].find((o) => o && typeof o === 'object' && !Array.isArray(o));
+  if (cur) {
+    const a = toNum(pick(cur.Amount, cur.MarketRent, cur.Rent));
+    if (a) return a;
+  }
   const list = pick(u.MarketRents, u.UnitMarketRents);
   if (Array.isArray(list) && list.length) {
     const today = new Date().toISOString().slice(0, 10);
@@ -230,9 +389,11 @@ export function normalize(env, u) {
   const type = u.UnitType && typeof u.UnitType === 'object' ? u.UnitType : {};
   const id = pick(u.UnitID, u.Id, u.ID);
   if (id === undefined) return null;
+  const fromList = currentOf(u.UnitStatuses) || currentOf(u.OccupancyStatuses);
   const statusText = String(pick(
     nameOf(u.CurrentOccupancyStatus), nameOf(u.OccupancyStatus), nameOf(u.CurrentUnitStatus),
-    nameOf(u.UnitStatus), nameOf(u.VacancyStatus), u.Status, '',
+    nameOf(u.UnitStatus), nameOf(u.VacancyStatus), nameOf(u.Vacancy), nameOf(fromList),
+    typeof u.Status === 'string' ? u.Status : nameOf(u.Status), '',
   )).toLowerCase();
   const vacantFlag = pick(u.IsVacant, u.Vacant);
   const t = statusText;
@@ -246,8 +407,8 @@ export function normalize(env, u) {
   else if (vacantFlag === true || /vacant|available|ready/.test(t)) status = 'vacant';
   else if (/notice|vacating|move[- ]?out/.test(t)) status = 'notice';
   else if (vacantFlag === false) status = 'taken';
-  const statusObj = [u.CurrentOccupancyStatus, u.OccupancyStatus, u.CurrentUnitStatus, u.UnitStatus]
-    .find((o) => o && typeof o === 'object') || {};
+  const statusObj = [u.CurrentOccupancyStatus, u.OccupancyStatus, u.CurrentUnitStatus, u.UnitStatus, u.Vacancy, fromList]
+    .find((o) => o && typeof o === 'object' && !Array.isArray(o)) || {};
   const available = toDay(pick(u.AvailableDate, u.ReadyDate, u.DateAvailable, u.VacateDate, u.ExpectedMoveOutDate,
     statusObj.AvailableDate, statusObj.ReadyDate, statusObj.EndDate, statusObj.Date));
   return {
@@ -278,8 +439,9 @@ export async function refresh(env) {
   const { token } = await authorize(env);
   const pid = propertyId(env);
   const found = await getDiscovery(env);
-  const embeds = found && Array.isArray(found.embeds) ? found.embeds : [];
-  const r = await unitsQuery(env, token, `&pagesize=1000${embeds.length ? `&embeds=${embeds.join(',')}` : ''}`);
+  const select = found && found.accepted ? selectQuery(found.accepted)
+    : found && Array.isArray(found.embeds) && found.embeds.length ? `&embeds=${found.embeds.join(',')}` : '';
+  const r = await unitsQuery(env, token, `&pagesize=1000${select}`);
   if (!r.ok) throw new RMError(explain(r, 'units').replace('{pid}', String(pid)), r.status);
   const all = asList(r.data).map((u) => normalize(env, u)).filter(Boolean);
   const today = new Date().toISOString().slice(0, 10);
@@ -323,8 +485,8 @@ export async function publicStatus(env) {
 export async function recentDiscovery(env) {
   const d = await getDiscovery(env);
   if (!d || !d.ts || Date.now() / 1000 - d.ts > 2 * 3600) return null;
-  const { company: co, property, unitCount, properties, embeds, fields, embedded, ts } = d;
-  return { company: co, property, unitCount, properties, embeds, fields, embedded, ts };
+  const { v, company: co, property, unitCount, properties, embeds, fields, full, reactions, accepted: acc, embedded, probes, ts } = d;
+  return { v, company: co, property, unitCount, properties, embeds, fields, full, reactions, accepted: acc, embedded, probes, ts };
 }
 
 /** For the site: the list, only when switched on and recent enough to trust. */
@@ -343,7 +505,8 @@ export async function scheduledRefresh(env) {
   if (before && before.rate && before.rate.remaining !== null && before.rate.remaining < 5
       && Date.now() / 1000 - before.ts < (before.rate.resetIn || 0)) return;   // leave the hour's last calls alone
   try {
-    if (!(await getDiscovery(env))) await discover(env);
+    const found = await getDiscovery(env);
+    if (!found || (found.v || 1) < DISCOVERY_VERSION) await discover(env);
     await refresh(env);
   } catch (err) {
     await putKey(env, 'status', { ok: false, error: err.message, code: err.status || 0 });

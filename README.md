@@ -644,6 +644,16 @@ ones, and saves the list in D1 (`rm_cache`). Pages read that copy through
 spends, a Rent Manager call. Rent Manager limits calls per hour for the whole
 company; a refresh uses two, about four an hour.
 
+**Asking for the right fields.** By default Rent Manager sends only a unit's
+ID, property, name and sort order; everything else has to be asked for by
+name, and the list of names is behind its help-page login. So the connection
+check first finds out how Rent Manager treats a name it does not know (ignores
+it, lists the valid ones, or names only the bad one), then asks for the likely
+embeds (unit type, statuses, market rents) and fields (size, rooms, rent,
+dates) in the cheapest way that allows: a few dozen calls at most, once. Every
+refresh then asks for exactly what was accepted. A deploy that changes how the
+check works (`DISCOVERY_VERSION`) runs it once by itself, at most once an hour.
+
 **What counts as open.** Vacant units ("Available now", or their date if it is
 still ahead), units being made ready ("Opening soon", or their date), and units
 on notice with a move-out date still to come. Never a unit marked rented or

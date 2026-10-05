@@ -11,10 +11,12 @@
    than a day old; the pages then say "Ask about availability" as before.
    ============================================================================= */
 import { json } from '../_lib/auth.js';
-import { publicListing, publicStatus, recentDiscovery } from '../_lib/rentmanager.js';
+import { publicListing, publicStatus, recentDiscovery, rediscoverIfStale } from '../_lib/rentmanager.js';
 
-export async function onRequestGet({ request, env }) {
+export async function onRequestGet({ request, env, waitUntil }) {
   if (!env.DB) return json({ units: [] });
+  // A new way of reading Rent Manager runs its check once, in the background.
+  if (waitUntil) waitUntil(rediscoverIfStale(env).catch(() => {}));
   const url = new URL(request.url);
   // ?fields: the field summary from a connection check in the last two hours.
   if (url.searchParams.has('fields')) {
