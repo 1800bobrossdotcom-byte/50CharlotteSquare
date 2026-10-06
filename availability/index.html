@@ -345,18 +345,31 @@
 
 <section class="section" aria-labelledby="list-title">
   <div class="container">
-    <div class="section__head section__head--row">
-      <div class="reveal"><p class="eyebrow">Open now, or opening soon</p><h2 id="list-title">The current list.</h2></div>
-      <div class="chips" data-filter-group data-units-chips role="group" aria-label="Filter by bedrooms" hidden>
-        <button class="chip is-active" type="button" data-filter="all" aria-pressed="true">All homes</button>
-        <button class="chip" type="button" data-filter="1" aria-pressed="false">1 bedroom</button>
-        <button class="chip" type="button" data-filter="2" aria-pressed="false">2 bedroom</button>
-        <button class="chip" type="button" data-filter="3" aria-pressed="false">3 bedroom</button>
-      </div>
+    <div class="section__head reveal">
+      <p class="eyebrow">Open now, or opening soon</p><h2 id="list-title">The current list.</h2>
     </div>
     <div class="units units--page" id="available" data-units data-units-beds="all" hidden>
+      <div class="units-tools" data-units-tools>
+        <div class="chips" data-units-filter="beds" role="group" aria-label="Bedrooms">
+          <button class="chip is-active" type="button" data-value="all" aria-pressed="true">All<span class="chip__more"> homes</span></button>
+          <button class="chip" type="button" data-value="1" aria-pressed="false">1 bed<span class="chip__more">room</span></button>
+          <button class="chip" type="button" data-value="2" aria-pressed="false">2 bed<span class="chip__more">room</span></button>
+          <button class="chip" type="button" data-value="3" aria-pressed="false">3 bed<span class="chip__more">room</span></button>
+        </div>
+        <div class="chips" data-units-filter="furnished" role="group" aria-label="Furnished or unfurnished" hidden>
+          <button class="chip is-active" type="button" data-value="all" aria-pressed="true">Any</button>
+          <button class="chip" type="button" data-value="yes" aria-pressed="false">Furnished</button>
+          <button class="chip" type="button" data-value="no" aria-pressed="false">Unfurnished</button>
+        </div>
+        <label class="units-tools__sort">Sort
+          <select data-units-sort>
+            <option value="asc">Price, low to high</option>
+            <option value="desc">Price, high to low</option>
+          </select>
+        </label>
+      </div>
       <div class="units__list" data-units-list></div>
-      <p class="units__none" hidden>None of this size is open right now. The leasing team can tell you when one will be.</p>
+      <p class="units__none" hidden>Nothing open matches that right now. The leasing team can tell you what is coming.</p>
       <p class="note mt-2">Straight from our leasing system and updated through the day. Apply opens Evolution24’s secure online application for that home. Rents and dates can change; the leasing team always has the latest.</p>
     </div>
     <div class="units-empty" data-units-empty>

@@ -576,6 +576,13 @@ body.menu-open { overflow: hidden; }
   padding: 1rem 1.25rem; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius);
 }
 .unit__name { font-size: 1.2rem; margin: 0; }
+/* "Furnished" beside the unit number. The negative margins keep it from
+   making that row taller than the rest. */
+.unit__tag {
+  display: inline-block; margin: -.3rem 0 -.3rem .45rem; padding: .3rem .5rem; vertical-align: .16em;
+  font: 700 .7rem/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap;
+  border: 1px solid var(--line-strong); border-radius: var(--pill); color: var(--fg);
+}
 .unit__meta { margin: .2rem 0 0; color: var(--fg-muted); font-size: .92rem; }
 .unit__rent { margin: 0; font-weight: 700; font-size: 1.1rem; white-space: nowrap; }
 .unit__rent span { font-weight: 600; font-size: .85rem; color: var(--fg-muted); }
@@ -584,10 +591,25 @@ body.menu-open { overflow: hidden; }
 .units__none { color: var(--fg-muted); margin: 1rem 0 0; }
 /* The availability page: the list straight under its heading, or a note when none is listed */
 .units--page { margin-top: 0; }
+/* Its filters (bedrooms, furnished or not) and price sort, above the list */
+.units-tools { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.75rem; margin-bottom: 1.25rem; }
+.units-tools .chips { margin: 0; }
+.units-tools__sort { display: inline-flex; align-items: center; gap: .6rem; margin-left: auto; font-size: .92rem; font-weight: 600; }
+.units-tools__sort select {
+  appearance: none; -webkit-appearance: none; font: inherit; color: var(--fg); cursor: pointer;
+  padding: .55rem 2.5rem .55rem 1.1rem; border: 1.5px solid var(--line-strong); border-radius: var(--pill);
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236E727A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right .9rem center;
+}
+.units-tools__sort select:hover { border-color: var(--fg); }
+.units-tools__sort select:focus-visible { outline: none; box-shadow: var(--focus); }
 .units-empty { max-width: 44rem; padding: clamp(1.5rem, 3vw, 2.25rem); background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); }
 .units-empty h3 { margin: 0 0 .6rem; }
 .units-empty p { margin: 0; color: var(--fg-muted); }
 @media (max-width: 640px) {
+  .units-tools { gap: .6rem; }
+  .units-tools .chip { padding: .45rem .85rem; font-size: .88rem; }
+  .units-tools__sort { margin-left: 0; }
+  .units-tools .chip__more { display: none; }   /* "1 bed", not "1 bedroom": four to a row */
   .unit { grid-template-columns: minmax(0, 1fr) auto; }
   .unit__head { grid-column: 1 / -1; }
   .unit__when { grid-column: 1; grid-row: 3; }

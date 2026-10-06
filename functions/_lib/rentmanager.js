@@ -33,6 +33,10 @@ const DEFAULT_COMPANY = 'evolution';
 const DEFAULT_PROPERTY = 12;
 const STALE_AFTER = 24 * 3600;       // an older list is not shown: it would mislead
 
+// Homes let furnished, by unit number. The site reads no furnished field from
+// Rent Manager, so they are listed here; take a unit off once it is let bare.
+const FURNISHED = new Set(['322']);
+
 export const rmConfigured = (env) => Boolean(env.RM_USERNAME && env.RM_PASSWORD);
 export const company = (env) => String(env.RM_COMPANY || DEFAULT_COMPANY).trim().toLowerCase();
 export const propertyId = (env) => Number.parseInt(env.RM_PROPERTY_ID || DEFAULT_PROPERTY, 10);
@@ -552,7 +556,8 @@ export async function publicListing(env) {
   if (!(await isPublished(env))) return { units: [] };
   const l = await getListing(env);
   if (!l || !l.ts || Date.now() / 1000 - l.ts > STALE_AFTER) return { units: [] };
-  return { updated: l.ts, units: l.units || [] };
+  const units = (l.units || []).map((u) => (FURNISHED.has(String(u.unit)) ? { ...u, furnished: true } : u));
+  return { updated: l.ts, units };
 }
 
 /** The scheduled run: first a connection check if there has never been one,

@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://www.charlottesquareroc.com/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>1.0</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-exterior.jpg</image:loc><image:title>50 Charlotte Square apartments at 50 Charlotte Street, Rochester NY</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/community-room.jpg</image:loc><image:title>The community room at 50 Charlotte Square, with lounge seating along a wall of windows</image:title></image:image>
@@ -19,7 +19,7 @@
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/residences/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>0.9</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-bedroom.webp</image:loc><image:title>A bedroom at 50 Charlotte Square</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-1br.webp</image:loc><image:title>One-bedroom kitchen at 50 Charlotte Square</image:title></image:image>
@@ -39,7 +39,7 @@
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/residences/one-bedroom/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-1br.webp</image:loc><image:title>One-bedroom kitchen at 50 Charlotte Square</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-kitchen.jpg</image:loc><image:title>A kitchen at 50 Charlotte Square, with a stone-topped island, stainless appliances and pendant lighting</image:title></image:image>
@@ -48,7 +48,7 @@
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/residences/two-bedroom/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-2br.webp</image:loc><image:title>Two-bedroom living room at 50 Charlotte Square</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/unit-kitchen-range.jpg</image:loc><image:title>The range wall of a kitchen at 50 Charlotte Square, with a full-height pantry beside the refrigerator</image:title></image:image>
@@ -57,7 +57,7 @@
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/residences/three-bedroom/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-3br.webp</image:loc><image:title>Three-bedroom bedroom at 50 Charlotte Square</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/residence-balcony.jpg</image:loc><image:title>A private covered balcony at 50 Charlotte Square looking over the East End rooftops</image:title></image:image>
@@ -66,7 +66,7 @@
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/availability/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>0.9</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/exterior-corner.jpg</image:loc><image:title>50 Charlotte Square from the corner of Charlotte Street</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/plan-1br.webp</image:loc><image:title>One-bedroom kitchen at 50 Charlotte Square</image:title></image:image>
@@ -75,7 +75,7 @@
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/amenities/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-lounge.jpg</image:loc><image:title>The community room at 50 Charlotte Square</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-terrace.jpg</image:loc><image:title>The shared terrace at 50 Charlotte Square, with pergola and skyline</image:title></image:image>
@@ -99,33 +99,33 @@
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/neighborhood/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>0.7</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/neighborhood-hero.jpg</image:loc><image:title>Rochester’s East End</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/neighborhood-streets.jpg</image:loc><image:title>Streets of the East End, Rochester NY</image:title></image:image>
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/story/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>0.6</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-aerial.jpg</image:loc><image:title>50 Charlotte Square from above, showing the rooftop solar array</image:title></image:image>
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/contact/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>0.9</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/lobby-corridor.jpg</image:loc><image:title>Contact &amp; Tours</image:title></image:image>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/exterior-sign.jpg</image:loc><image:title>The Charlotte Square at the East End sign above the ground-floor retail on Charlotte Street</image:title></image:image>
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/privacy/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>0.2</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-aerial.jpg</image:loc><image:title>50 Charlotte Square from above, showing the rooftop solar array</image:title></image:image>
   </url>
   <url>
     <loc>https://www.charlottesquareroc.com/terms/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <priority>0.2</priority>
     <image:image><image:loc>https://www.charlottesquareroc.com/assets/img/hero-aerial.jpg</image:loc><image:title>50 Charlotte Square from above, showing the rooftop solar array</image:title></image:image>
   </url>

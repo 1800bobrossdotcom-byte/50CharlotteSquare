@@ -458,9 +458,11 @@
 
 /* =============================================================================
    Open units, from Rent Manager through /api/units. Where a page has a place
-   for them (the residences page and each home-type page) they are listed with
-   an Apply link, and the plan cards on any page swap "Pricing on request" for
-   the lowest current rent. With no list, or no script, the pages read as before.
+   for them (the residences, availability and home-type pages) they are listed
+   lowest rent first with an Apply link, and the plan cards on any page swap
+   "Pricing on request" for the lowest current rent. The availability page adds
+   filters (bedrooms, furnished or not) and a price sort. With no list, or no
+   script, the pages read as before.
    ============================================================================= */
 (() => {
   'use strict';
@@ -493,6 +495,9 @@
     .then((d) => {
       const units = d && Array.isArray(d.units) ? d.units : [];
       if (!units.length) return;
+      // Lowest rent first; a home without a rent goes last; ties by unit number.
+      units.sort((a, b) => (!(a.rent > 0) - !(b.rent > 0)) || (a.rent - b.rent)
+        || String(a.unit).localeCompare(String(b.unit), 'en', { numeric: true }));
 
       // Plan cards: the lowest current rent for that many bedrooms, and how many.
       cards.forEach((card) => {
@@ -510,11 +515,16 @@
       const list = want && want !== 'all' ? units.filter((u) => String(u.beds) === want) : units;
       if (!list.length) return;
       const box = host.querySelector('[data-units-list]');
-      list.forEach((u) => {
+      list.forEach((u, i) => {
         const row = node('article', 'unit');
         if (u.beds != null) row.dataset.beds = String(u.beds);
+        row.dataset.furnished = u.furnished ? 'yes' : 'no';
+        if (u.rent > 0) row.dataset.rent = String(u.rent);
+        row.dataset.order = String(i);
         const head = node('div', 'unit__head');
-        head.append(node('h3', 'unit__name', label(u)), node('p', 'unit__meta', facts(u)));
+        const name = node('h3', 'unit__name', label(u));
+        if (u.furnished) name.append(' ', node('span', 'unit__tag', 'Furnished'));
+        head.append(name, node('p', 'unit__meta', facts(u)));
         const rent = node('p', 'unit__rent', u.rent ? money(u.rent) : 'Rent on request');
         if (u.rent) rent.append(node('span', null, ' a month'));
         const avail = node('p', 'unit__when' + (u.available === 'now' ? ' is-now' : ''), when(u.available));
@@ -529,10 +539,50 @@
         box.append(row);
       });
       host.hidden = false;
-      // The availability page: swap its "nothing listed" note for the list, and
-      // show the bedroom filter now there is something to filter.
+      // The availability page: swap its "nothing listed" note for the list.
       document.querySelectorAll('[data-units-empty]').forEach((n) => { n.hidden = true; });
-      document.querySelectorAll('[data-units-chips]').forEach((n) => { n.hidden = false; });
+      tools(box);
     })
     .catch(() => { /* the page already says "Ask about availability" */ });
+
+  // The availability page's filters and sort. The filters combine; the
+  // furnished one shows only when a furnished home is on the list.
+  function tools(box) {
+    const bar = host.querySelector('[data-units-tools]');
+    if (!bar) return;
+    const rows = Array.from(box.querySelectorAll('.unit'));
+    const want = { beds: 'all', furnished: 'all' };
+    const sort = bar.querySelector('[data-units-sort]');
+    const none = host.querySelector('.units__none');
+    const furnished = bar.querySelector('[data-units-filter="furnished"]');
+    if (furnished) furnished.hidden = !rows.some((r) => r.dataset.furnished === 'yes');
+    const rent = (r) => Number(r.dataset.rent) || 0;
+
+    const update = () => {
+      const dir = sort && sort.value === 'desc' ? -1 : 1;
+      rows.sort((a, b) => (!rent(a) - !rent(b)) || dir * (rent(a) - rent(b)) || a.dataset.order - b.dataset.order)
+        .forEach((r) => box.append(r));
+      let shown = 0;
+      rows.forEach((r) => {
+        const show = Object.keys(want).every((k) => want[k] === 'all' || r.dataset[k] === want[k]);
+        r.hidden = !show;
+        if (show) shown++;
+      });
+      if (none) none.hidden = shown > 0;
+    };
+
+    bar.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      const group = chip && chip.closest('[data-units-filter]');
+      if (!group) return;
+      group.querySelectorAll('.chip').forEach((c) => {
+        c.classList.toggle('is-active', c === chip);
+        c.setAttribute('aria-pressed', String(c === chip));
+      });
+      want[group.dataset.unitsFilter] = chip.dataset.value;
+      update();
+    });
+    if (sort) sort.addEventListener('change', update);
+    update();   // a browser may have restored the sort from the last visit
+  }
 })();
