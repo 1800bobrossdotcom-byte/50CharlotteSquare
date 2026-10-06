@@ -1,0 +1,226 @@
+[
+ {
+  "svg": "logo-horizontal/charlotte-square-logo-horizontal-color.svg",
+  "kind": "logo",
+  "colorway": "color",
+  "w": 445.06399999999996,
+  "h": 86.0
+ },
+ {
+  "svg": "logo-horizontal/charlotte-square-logo-horizontal-reverse.svg",
+  "kind": "logo",
+  "colorway": "reverse",
+  "w": 445.06399999999996,
+  "h": 86.0
+ },
+ {
+  "svg": "logo-horizontal/charlotte-square-logo-horizontal-black.svg",
+  "kind": "logo",
+  "colorway": "black",
+  "w": 445.06399999999996,
+  "h": 86.0
+ },
+ {
+  "svg": "logo-horizontal/charlotte-square-logo-horizontal-white.svg",
+  "kind": "logo",
+  "colorway": "white",
+  "w": 445.06399999999996,
+  "h": 86.0
+ },
+ {
+  "svg": "logo-horizontal-short/charlotte-square-logo-horizontal-short-color.svg",
+  "kind": "logo",
+  "colorway": "color",
+  "w": 445.06399999999996,
+  "h": 86.0
+ },
+ {
+  "svg": "logo-horizontal-short/charlotte-square-logo-horizontal-short-reverse.svg",
+  "kind": "logo",
+  "colorway": "reverse",
+  "w": 445.06399999999996,
+  "h": 86.0
+ },
+ {
+  "svg": "logo-horizontal-short/charlotte-square-logo-horizontal-short-black.svg",
+  "kind": "logo",
+  "colorway": "black",
+  "w": 445.06399999999996,
+  "h": 86.0
+ },
+ {
+  "svg": "logo-horizontal-short/charlotte-square-logo-horizontal-short-white.svg",
+  "kind": "logo",
+  "colorway": "white",
+  "w": 445.06399999999996,
+  "h": 86.0
+ },
+ {
+  "svg": "logo-stacked/charlotte-square-logo-stacked-color.svg",
+  "kind": "logo",
+  "colorway": "color",
+  "w": 326.4768,
+  "h": 306.00079999999997
+ },
+ {
+  "svg": "logo-stacked/charlotte-square-logo-stacked-reverse.svg",
+  "kind": "logo",
+  "colorway": "reverse",
+  "w": 326.4768,
+  "h": 306.00079999999997
+ },
+ {
+  "svg": "logo-stacked/charlotte-square-logo-stacked-black.svg",
+  "kind": "logo",
+  "colorway": "black",
+  "w": 326.4768,
+  "h": 306.00079999999997
+ },
+ {
+  "svg": "logo-stacked/charlotte-square-logo-stacked-white.svg",
+  "kind": "logo",
+  "colorway": "white",
+  "w": 326.4768,
+  "h": 306.00079999999997
+ },
+ {
+  "svg": "logo-stacked-short/charlotte-square-logo-stacked-short-color.svg",
+  "kind": "logo",
+  "colorway": "color",
+  "w": 326.4768,
+  "h": 282.592
+ },
+ {
+  "svg": "logo-stacked-short/charlotte-square-logo-stacked-short-reverse.svg",
+  "kind": "logo",
+  "colorway": "reverse",
+  "w": 326.4768,
+  "h": 282.592
+ },
+ {
+  "svg": "logo-stacked-short/charlotte-square-logo-stacked-short-black.svg",
+  "kind": "logo",
+  "colorway": "black",
+  "w": 326.4768,
+  "h": 282.592
+ },
+ {
+  "svg": "logo-stacked-short/charlotte-square-logo-stacked-short-white.svg",
+  "kind": "logo",
+  "colorway": "white",
+  "w": 326.4768,
+  "h": 282.592
+ },
+ {
+  "svg": "wordmark/charlotte-square-wordmark-color.svg",
+  "kind": "wordmark",
+  "colorway": "color",
+  "w": 330.4274149801636,
+  "h": 81.91804000000002
+ },
+ {
+  "svg": "wordmark/charlotte-square-wordmark-reverse.svg",
+  "kind": "wordmark",
+  "colorway": "reverse",
+  "w": 330.4274149801636,
+  "h": 81.91804000000002
+ },
+ {
+  "svg": "wordmark/charlotte-square-wordmark-black.svg",
+  "kind": "wordmark",
+  "colorway": "black",
+  "w": 330.4274149801636,
+  "h": 81.91804000000002
+ },
+ {
+  "svg": "wordmark/charlotte-square-wordmark-white.svg",
+  "kind": "wordmark",
+  "colorway": "white",
+  "w": 330.4274149801636,
+  "h": 81.91804000000002
+ },
+ {
+  "svg": "wordmark-centered/charlotte-square-wordmark-centered-color.svg",
+  "kind": "wordmark",
+  "colorway": "color",
+  "w": 326.4768,
+  "h": 77.8408
+ },
+ {
+  "svg": "wordmark-centered/charlotte-square-wordmark-centered-reverse.svg",
+  "kind": "wordmark",
+  "colorway": "reverse",
+  "w": 326.4768,
+  "h": 77.8408
+ },
+ {
+  "svg": "wordmark-centered/charlotte-square-wordmark-centered-black.svg",
+  "kind": "wordmark",
+  "colorway": "black",
+  "w": 326.4768,
+  "h": 77.8408
+ },
+ {
+  "svg": "wordmark-centered/charlotte-square-wordmark-centered-white.svg",
+  "kind": "wordmark",
+  "colorway": "white",
+  "w": 326.4768,
+  "h": 77.8408
+ },
+ {
+  "svg": "wordmark-short/charlotte-square-wordmark-short-color.svg",
+  "kind": "wordmark",
+  "colorway": "color",
+  "w": 328.744,
+  "h": 54.81
+ },
+ {
+  "svg": "wordmark-short/charlotte-square-wordmark-short-reverse.svg",
+  "kind": "wordmark",
+  "colorway": "reverse",
+  "w": 328.744,
+  "h": 54.81
+ },
+ {
+  "svg": "wordmark-short/charlotte-square-wordmark-short-black.svg",
+  "kind": "wordmark",
+  "colorway": "black",
+  "w": 328.744,
+  "h": 54.81
+ },
+ {
+  "svg": "wordmark-short/charlotte-square-wordmark-short-white.svg",
+  "kind": "wordmark",
+  "colorway": "white",
+  "w": 328.744,
+  "h": 54.81
+ },
+ {
+  "svg": "mark/charlotte-square-mark-color.svg",
+  "kind": "mark",
+  "colorway": "color",
+  "w": 512.0,
+  "h": 512.0
+ },
+ {
+  "svg": "mark/charlotte-square-mark-black.svg",
+  "kind": "mark",
+  "colorway": "black",
+  "w": 512.0,
+  "h": 512.0
+ },
+ {
+  "svg": "mark/charlotte-square-mark-white.svg",
+  "kind": "mark",
+  "colorway": "white",
+  "w": 512.0,
+  "h": 512.0
+ },
+ {
+  "svg": "social/charlotte-square-profile.svg",
+  "kind": "social",
+  "colorway": "color",
+  "w": 1080,
+  "h": 1080
+ }
+]

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Charlotte Square logo guide</title>
+<!-- The two-page guide that ships with the kit. export.cjs prints it to
+     brand/Charlotte-Square-Logo-Guide.pdf; open it in a browser to edit. -->
+<style>
+@font-face { font-family: "Instrument Serif"; font-style: normal; font-weight: 400; src: url(../../assets/fonts/instrument-serif-latin.woff2) format("woff2"); }
+@font-face { font-family: "Instrument Serif"; font-style: italic; font-weight: 400; src: url(../../assets/fonts/instrument-serif-italic-latin.woff2) format("woff2"); }
+@font-face { font-family: "DM Sans"; font-style: normal; font-weight: 300 800; src: url(../../assets/fonts/dm-sans-latin.woff2) format("woff2"); }
+@page { size: letter; margin: 0; }
+:root { --red: #A93B3F; --ink: #1A1A1A; --muted: #4F4B47; --subtle: #6F6A65; --line: #E2DDD6; --stone: #F5F1E9; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #DDD; }
+body { margin: 0; font: 400 9.5pt/1.5 "DM Sans", sans-serif; color: var(--ink); }
+.page { width: 8.5in; height: 11in; padding: .6in .65in .5in; background: #fff; position: relative; overflow: hidden; break-after: page; margin: 0 auto; }
+.page:last-child { break-after: auto; }
+@media screen { .page { margin: 24px auto; } }
+@media print { html { background: #fff; } }
+
+.top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .2in; }
+.top img { height: .5in; }
+.top p { margin: 0; font-size: 7.5pt; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; color: var(--subtle); text-align: right; line-height: 1.6; }
+h1 { font: 400 32pt/1 "Instrument Serif", serif; letter-spacing: -.01em; margin: 0 0 .1in; }
+h1 i { font-style: italic; }
+h2 { font: 700 7pt/1 "DM Sans", sans-serif; letter-spacing: .22em; text-transform: uppercase; color: var(--red); margin: 0 0 .12in; }
+.lede { font-size: 10.5pt; color: var(--muted); max-width: 5.7in; margin: 0 0 .2in; }
+section { margin-bottom: .24in; }
+
+.grid { display: grid; gap: .12in; }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+.card { border: 1px solid var(--line); border-radius: 3px; overflow: hidden; display: flex; flex-direction: column; }
+.art { height: .84in; padding: .13in .16in; }
+.g4 .art { height: .68in; }
+.art img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.art img.round { width: .6in; height: .6in; margin: 0 auto; border-radius: 50%; }
+.txt { padding: .06in .1in .08in; border-top: 1px solid var(--line); flex: 1; }
+.txt b { display: block; font-size: 8.5pt; font-weight: 700; }
+.txt span { display: block; color: var(--muted); font-size: 7.6pt; line-height: 1.35; margin-top: 1px; }
+.txt em { display: block; font-style: normal; color: var(--subtle); font-size: 6.8pt; margin-top: 3px; letter-spacing: .02em; }
+
+.dark { background: var(--ink); }
+.redbg { background: var(--red); }
+.stone { background: var(--stone); }
+
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: .22in; }
+.cols h3, .row h3 { font: 700 9pt/1.2 "DM Sans", sans-serif; margin: 0 0 .05in; }
+.cols p, .row p { margin: 0; color: var(--muted); font-size: 8.4pt; }
+.swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: .12in; }
+.sw { border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+.sw i { display: block; height: .55in; }
+.sw div { padding: .07in .1in .08in; font-size: 7.8pt; line-height: 1.4; color: var(--muted); }
+.sw div b { color: var(--ink); font-size: 8.5pt; display: block; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: .3in; align-items: start; }
+.clear { --h: .55in; display: inline-block; padding: calc(var(--h) / 4); outline: 1px dashed var(--red); outline-offset: 0; margin: .06in 0 .1in; position: relative; }
+.clear img { height: var(--h); display: block; }
+.clear small { position: absolute; left: 0; right: 0; bottom: -.17in; text-align: center; font-size: 6.8pt; color: var(--red); }
+ul { margin: 0; padding-left: 1.1em; color: var(--muted); font-size: 8.4pt; }
+li { margin: 0 0 2px; }
+.foot { position: absolute; left: .65in; right: .65in; bottom: .4in; display: flex; justify-content: space-between; font-size: 7pt; color: var(--subtle); border-top: 1px solid var(--line); padding-top: .08in; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="top">
+    <img src="../../brand/logo-horizontal/charlotte-square-logo-horizontal-color.svg" alt="Charlotte Square at the East End">
+    <p>Logo kit<br>October 2026</p>
+  </div>
+  <h1>The Charlotte Square <i>logo</i></h1>
+  <p class="lede">The logo, the wordmark and the C, drawn from the website's own lettering and colors. Every version comes in four colors, as SVG, PDF and PNG. The folders are named after the versions below.</p>
+
+  <section>
+    <h2>The versions</h2>
+    <div class="grid g3">
+      <div class="card"><div class="art"><img src="../../brand/logo-horizontal/charlotte-square-logo-horizontal-color.svg" alt=""></div><div class="txt"><b>Horizontal logo</b><span>The main logo. Use this one first.</span><em>logo-horizontal</em></div></div>
+      <div class="card"><div class="art"><img src="../../brand/logo-horizontal-short/charlotte-square-logo-horizontal-short-color.svg" alt=""></div><div class="txt"><b>Horizontal, short</b><span>Without "at the East End", for small or tight spaces.</span><em>logo-horizontal-short</em></div></div>
+      <div class="card"><div class="art"><img src="../../brand/logo-stacked/charlotte-square-logo-stacked-color.svg" alt=""></div><div class="txt"><b>Stacked logo</b><span>For square spaces: signs, flyers, social posts.</span><em>logo-stacked</em></div></div>
+      <div class="card"><div class="art"><img src="../../brand/logo-stacked-short/charlotte-square-logo-stacked-short-color.svg" alt=""></div><div class="txt"><b>Stacked, short</b><span>The stacked logo without "at the East End".</span><em>logo-stacked-short</em></div></div>
+      <div class="card"><div class="art"><img src="../../brand/wordmark/charlotte-square-wordmark-color.svg" alt=""></div><div class="txt"><b>Wordmark</b><span>The name on its own, for when the C is already nearby.</span><em>wordmark</em></div></div>
+      <div class="card"><div class="art"><img src="../../brand/wordmark-centered/charlotte-square-wordmark-centered-color.svg" alt=""></div><div class="txt"><b>Wordmark, centered</b><span>The same, centered, for covers and signs.</span><em>wordmark-centered</em></div></div>
+      <div class="card"><div class="art"><img src="../../brand/wordmark-short/charlotte-square-wordmark-short-color.svg" alt=""></div><div class="txt"><b>Wordmark, short</b><span>Just "Charlotte Square".</span><em>wordmark-short</em></div></div>
+      <div class="card"><div class="art"><img src="../../brand/mark/charlotte-square-mark-color.svg" alt=""></div><div class="txt"><b>The C</b><span>The building's sign. For icons and very small spaces.</span><em>mark</em></div></div>
+      <div class="card"><div class="art"><img class="round" src="../../brand/social/charlotte-square-profile-1080px.png" alt=""></div><div class="txt"><b>Profile picture</b><span>For Instagram, Facebook and Google. The C sits inside the circle they crop to.</span><em>social</em></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Four colors</h2>
+    <div class="grid g4">
+      <div class="card"><div class="art"><img src="../../brand/logo-horizontal/charlotte-square-logo-horizontal-color.svg" alt=""></div><div class="txt"><b>Color</b><span>On white and light backgrounds.</span><em>…-color</em></div></div>
+      <div class="card"><div class="art dark"><img src="../../brand/logo-horizontal/charlotte-square-logo-horizontal-reverse.svg" alt=""></div><div class="txt"><b>Reverse</b><span>On dark backgrounds and photos.</span><em>…-reverse</em></div></div>
+      <div class="card"><div class="art stone"><img src="../../brand/logo-horizontal/charlotte-square-logo-horizontal-black.svg" alt=""></div><div class="txt"><b>Black</b><span>One-color printing: forms, newspapers.</span><em>…-black</em></div></div>
+      <div class="card"><div class="art redbg"><img src="../../brand/logo-horizontal/charlotte-square-logo-horizontal-white.svg" alt=""></div><div class="txt"><b>White</b><span>On the red, on photos, for engraving.</span><em>…-white</em></div></div>
+    </div>
+  </section>
+  <div class="foot"><span>Charlotte Square at the East End · 50 Charlotte Street, Rochester, NY</span><span>1 of 2</span></div>
+</div>
+
+<div class="page">
+  <div class="top">
+    <img src="../../brand/logo-horizontal/charlotte-square-logo-horizontal-color.svg" alt="Charlotte Square at the East End">
+    <p>Logo kit<br>Using it</p>
+  </div>
+
+  <section>
+    <h2>Which file to use</h2>
+    <div class="cols">
+      <div><h3>PNG</h3><p>Websites, email signatures, social posts, Word, Google Docs and slides. Transparent backgrounds. Three widths: 600, 1200 and 2400 pixels (the C: 256 to 2048). Pick one at least twice as wide as it will show.</p></div>
+      <div><h3>SVG</h3><p>For web developers and designers. Sharp at any size and the smallest files.</p></div>
+      <div><h3>PDF</h3><p>For printers, sign makers and Illustrator. Sharp at any size. The white versions look blank on a white page; they are there.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Colors</h2>
+    <div class="swatches">
+      <div class="sw"><i style="background:#A93B3F"></i><div><b>Brick red</b>#A93B3F · RGB 169 59 63<br>The C's square</div></div>
+      <div class="sw"><i style="background:#1A1A1A"></i><div><b>Ink</b>#1A1A1A · RGB 26 26 26<br>The name</div></div>
+      <div class="sw"><i style="background:#4F4B47"></i><div><b>Warm gray</b>#4F4B47 · RGB 79 75 71<br>"At the East End"</div></div>
+      <div class="sw"><i style="background:#FFFFFF"></i><div><b>White</b>#FFFFFF · RGB 255 255 255<br>The C, and reversed lettering</div></div>
+    </div>
+    <p style="margin:.1in 0 0;color:var(--muted);font-size:8.2pt">For print there is no official Pantone or CMYK match yet. Give the printer #A93B3F and ask for a proof, or hold it against the sign on the building.</p>
+  </section>
+
+  <section>
+    <h2>Lettering</h2>
+    <div class="cols">
+      <div><h3 style="font:400 17pt/1 'Instrument Serif',serif">Instrument Serif <i>Italic</i></h3><p>"Charlotte" in regular, "Square" in italic.</p></div>
+      <div><h3 style="font:700 8pt/1.9 'DM Sans',sans-serif;letter-spacing:.16em">DM SANS BOLD</h3><p>"At the East End", in capitals, spaced out.</p></div>
+      <div><p>Both are free from Google Fonts and are the website's fonts. The logo files don't need them: the lettering is already drawn in.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Give it room</h2>
+    <div class="row">
+      <div>
+        <div class="clear"><img src="../../brand/logo-horizontal/charlotte-square-logo-horizontal-color.svg" alt=""><small>¼ of the C's square on every side</small></div>
+        <p style="margin-top:.14in">Keep text, edges and other logos at least a quarter of the red square's height away.</p>
+      </div>
+      <div>
+        <h3>Smallest sizes</h3>
+        <p>Horizontal logo: 150 pixels wide on screen, 1.5 inches in print.<br>Stacked logo: 250 pixels, 2 inches.<br>The C: 16 pixels, ¼ inch.<br>Smaller than that, use a short version or the C.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Please don't</h2>
+    <div class="row">
+      <ul>
+        <li>Stretch, squash, tilt or rotate it.</li>
+        <li>Change the colors, or put the red C on a red or busy background.</li>
+        <li>Move, resize or swap the parts.</li>
+      </ul>
+      <ul>
+        <li>Add shadows, outlines or effects.</li>
+        <li>Retype the name in another font.</li>
+        <li>Use a screenshot or a copy from the website. Use these files.</li>
+      </ul>
+    </div>
+  </section>
+  <div class="foot"><span>Charlotte Square at the East End · Managed by Evolution24 Properties</span><span>2 of 2</span></div>
+</div>
+
+</body>
+</html>

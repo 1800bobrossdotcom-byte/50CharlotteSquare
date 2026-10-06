@@ -52,6 +52,7 @@ the-charlotte-story/ roc-the-east-end/ life-at-the-square/ contact-us/
                            redirect stubs, for hosts that honour none of the three
 tour-a/ tour-b/ tour-c/    the three versions /tour/ chooses between
 admin/ functions/ schema.sql wrangler.toml   dashboard, API and database (see Analytics)
+brand/ tools/brand-kit/    the logo kit, and the scripts that draw it (not published)
 package.json               one dependency, the Anthropic SDK, bundled into functions/
 ```
 
@@ -1423,6 +1424,48 @@ site. It is also `alternateName` on the `ApartmentComplex` node.
 The descriptor is sized in `em` so it tracks whatever a style does to `.brand`,
 and set in the body face because the display faces are not built to hold
 letter-spacing at nine pixels.
+
+### The logo kit
+
+`brand/` holds the logo in every form anyone asks for: the horizontal lockup
+(the header's) and the stacked one (the home intro's), each with and without
+"at the East End"; the wordmark three ways; the C on its own; and a profile
+picture whose C sits inside the circle Instagram, Facebook and Google crop to.
+Each comes in four colors: color, reverse (white lettering, for dark grounds
+and photos), and one-color black and white with the C cut out of the square.
+Every one is an SVG, a vector PDF and transparent PNGs 600, 1200 and 2400px
+wide (the C: 256 to 2048). `brand/Charlotte-Square-Logo-Guide.pdf` is two pages
+for whoever receives the files: which version, which file, the colors, the
+fonts, clear space and smallest sizes.
+
+None of it is drawn by hand. `tools/brand-kit/build.py` reads the C from
+`assets/img/favicon.svg`, shapes the name from the site's own font files with
+HarfBuzz, the way a browser does (kerning on; ligatures off, as letter-spacing
+turns them off; DM Sans at the optical size the browser picks), and writes the
+lettering as outlines, so the files need no fonts installed. Laid over the live
+header and intro, rendered by Chromium with the real fonts and CSS, the
+outlines agree to within a quarter of a pixel. Headless Chromium on Linux rounds
+every letter to a whole pixel unless started with `--font-render-hinting=none`;
+Macs and phones do not, and the kit follows them.
+
+It departs from the page in three small ways, on purpose. The stacked
+descriptor is centered on its letters rather than on the browser's box, which
+includes one trailing letter-space. Without the descriptor, the name's capitals
+center on the square. And the descriptor is one solid warm gray, #4F4B47 (the
+Gallery style's `--fg-muted`), rather than the header's ink at 74% opacity,
+which looks the same on white; reversed, it stays white at 74%.
+
+To rebuild after a change to the C, the fonts or the colors:
+
+```bash
+pip install fonttools brotli uharfbuzz
+python3 tools/brand-kit/build.py          # SVG masters
+npm i --no-save playwright && npx playwright install chromium
+node tools/brand-kit/export.cjs           # PNGs, PDFs and the guide
+```
+
+`brand/` and `tools/` are not on `scripts/stage.sh`'s allowlist, so none of this
+is published with the site.
 
 ## A note on the terrace
 
