@@ -641,10 +641,22 @@ Every list runs lowest rent first (a home without a rent last). The
 Availability page adds filters above it: bedrooms, furnished or unfurnished,
 and a price sort, low to high or high to low. The filters combine, and the
 furnished one shows only while a furnished home is on the list. Furnished homes
-also carry a **Furnished** tag beside the unit number. The site reads no
-furnished field from Rent Manager, so they are listed by unit number in
-`FURNISHED` at the top of `functions/_lib/rentmanager.js` (now 322); take a unit
-off once it is let unfurnished.
+also carry a **Furnished** tag beside the unit number. Rent Manager has no
+furnished field the site can read, so the leasing team marks one in the unit's
+name: "322-F" shows as "Unit 322" with the tag (`FURNISHED` in
+`functions/_lib/rentmanager.js`). Take the "-F" off and the tag goes.
+
+**Keeping the list right, from Rent Manager.** Nothing about a unit is edited
+on the site; it all follows Rent Manager within half an hour, or at once with
+**Refresh now** in the dashboard's Rent Manager panel.
+
+- *Rented:* entering the new resident's lease or move-in takes the unit off.
+  So does any status that says it is spoken for (Vacant-Rented, Notice-Rented,
+  pre-leased), or one that takes it off the market (Model, Down, Hold).
+- *Price:* the site shows the unit's current market rent. A new amount with a
+  start date in the future does not show until that date.
+- *Size:* the unit's own square footage. Where that is blank, the unit type's
+  is used; where both are blank, the site shows no size.
 
 **How it flows.** A schedule (`[triggers] crons` in `wrangler.toml`, at 7 and 37
 past each hour) runs `scheduledRefresh()` in `functions/_lib/rentmanager.js`: it

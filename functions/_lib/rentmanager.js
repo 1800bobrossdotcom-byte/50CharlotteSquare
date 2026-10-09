@@ -33,9 +33,10 @@ const DEFAULT_COMPANY = 'evolution';
 const DEFAULT_PROPERTY = 12;
 const STALE_AFTER = 24 * 3600;       // an older list is not shown: it would mislead
 
-// Homes let furnished, by unit number. The site reads no furnished field from
-// Rent Manager, so they are listed here; take a unit off once it is let bare.
-const FURNISHED = new Set(['322']);
+// A furnished home is marked in Rent Manager itself, by "-F" on the end of the
+// unit's name ("322-F"). The site shows it as "Unit 322" with a Furnished tag;
+// taking the "-F" off in Rent Manager takes the tag off here.
+const FURNISHED = /\s*-\s*F$/i;
 
 export const rmConfigured = (env) => Boolean(env.RM_USERNAME && env.RM_PASSWORD);
 export const company = (env) => String(env.RM_COMPANY || DEFAULT_COMPANY).trim().toLowerCase();
@@ -556,7 +557,8 @@ export async function publicListing(env) {
   if (!(await isPublished(env))) return { units: [] };
   const l = await getListing(env);
   if (!l || !l.ts || Date.now() / 1000 - l.ts > STALE_AFTER) return { units: [] };
-  const units = (l.units || []).map((u) => (FURNISHED.has(String(u.unit)) ? { ...u, furnished: true } : u));
+  const units = (l.units || []).map((u) => (FURNISHED.test(String(u.unit))
+    ? { ...u, unit: String(u.unit).replace(FURNISHED, ''), furnished: true } : u));
   return { updated: l.ts, units };
 }
 
