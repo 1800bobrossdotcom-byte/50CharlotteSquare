@@ -9,7 +9,7 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src")
 SITE = "https://www.charlottesquareroc.com"
 
 # Until the site is live on Cloudflare, /tour/ does not exist, so for now the
-# ads carry only Vicki's number. Set this to True after launch and re-render to
+# ads carry only the leasing number. Set this to True after launch and re-render to
 # bring back the "Book a tour" address and a QR code on each feed post.
 SITE_LIVE = False
 
@@ -204,7 +204,7 @@ def stats(items):
     fig = lambda f: "fig fig--gold" if f == "Gold" else "fig"
     return '<div class="stats">' + "".join(f'<div><p class="{fig(f)}">{f}</p><p class="lab">{l}</p></div>' for f, l in items) + "</div>"
 
-CALL = '<p class="clab">Call Vicki</p><p class="cval">(585) 748-5588</p>'
+CALL = '<p class="clab">Call Tatum</p><p class="cval">(585) 748-5588</p>'
 
 def contact(tag=None, qr=None, qr_label="Scan to book a tour"):
     if SITE_LIVE:
@@ -212,7 +212,7 @@ def contact(tag=None, qr=None, qr_label="Scan to book a tour"):
             '<p class="clab">Book a tour</p><p class="cval">charlottesquareroc.com/tour</p>' + CALL)
         right = f'<div class="qr"><div class="qr__card">{qr}</div><p class="clab">{qr_label}</p></div>' if qr else ""
         return f'<footer class="bottom"><div>{left}</div>{right}</footer>'
-    # Phone only: the line on the left, Vicki's number set large on the right,
+    # Phone only: the line on the left, Tatum's number set large on the right,
     # where the QR code sits in the full version.
     left = f'<div><p class="tag tag--solo">{tag}</p></div>' if tag else ""
     return f'<footer class="bottom bottom--call">{left}<div class="call">{CALL}</div></footer>'

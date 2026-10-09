@@ -273,8 +273,8 @@ fix. Nothing in this repository can substitute for it, so asking them is worth
 starting now.
 
 **The second phone number is not an error.** The listing shows (585) 514-5945,
-which is not the (585) 748-5588 on this site. It is an alternate line for the
-same person, confirmed by Gianni. Both reach Vicki; the site publishes one.
+which is not the (585) 748-5588 on this site. It is an alternate line,
+confirmed by Gianni; the site publishes one.
 Do not "correct" either.
 
 **Not done, deliberately.** No doorway pages for "downtown Rochester apartments",
@@ -295,7 +295,7 @@ aggregator has: a real, verified index of the block.
    is a term the aggregator already ranks the building for; the description is
    worth rewriting.
 5. Claim and correct the third-party listings. Apartments.com, Homes.com and ApartmentFinder still name Home Leasing as manager, carry the old phone number, and describe a rooftop terrace. They outrank the site for the building's own name, so they are the first thing a prospect reads.
-5. Create or claim the Google Business Profile at 50 Charlotte Street with Vicki's number and the `www` URL. For a single-address building this moves more than anything on the site.
+5. Create or claim the Google Business Profile at 50 Charlotte Street with the leasing number, (585) 748-5588, and the `www` URL. For a single-address building this moves more than anything on the site.
 
 ## Security
 
@@ -1325,7 +1325,7 @@ for arrivals is `sessionStorage` key `cs-intro`.
 
 - **Copy** lives directly in each page's HTML. Search for the text you want to change.
 - **Header and footer** are repeated in every page for zero-dependency hosting. Change them in one page, then copy the block to the others (or search-and-replace across files).
-- **Leasing contact**: Vicki Barone, (585) 748-5588, appears in the hero, tour buttons, contact page, footer and structured data. Search for `748-5588` to change it. The Evolution24 office line (585) 245-3071 appears only on the contact page's management office card. No email address is printed anywhere on the pages; the contact form's delivery address is set by `EMAIL` in the generator and appears only as an attribute on the form.
+- **Leasing contact**: Tatum Hartmann, (585) 748-5588, appears in the hero, tour buttons, contact page, footer and structured data. Search for `748-5588` to change it. The Evolution24 office line (585) 245-3071 appears only on the contact page's management office card. No email address is printed anywhere on the pages; the contact form's delivery address is set by `EMAIL` in the generator and appears only as an attribute on the form.
 - **Floor plans**: each card is an `<article class="plan" data-beds="…">` in `residences/index.html` and `index.html`. Edit square footage, bullets and the price line there. The filter chips work off `data-beds`.
 - **Resident portal links** point at `https://evolution.twa.rentmanager.com/`.
 
@@ -2037,7 +2037,7 @@ dashboard markup is in the bytes served to a signed-out visitor.
 
 These came from public listings or the previous site and should be verified with the leasing team:
 
-- [x] Move the contact form to a server-side endpoint so the address is not exposed in the page source, and onto a work address rather than a personal one. Done: the form posts to `/api/inquiry`, and intake goes to Vicki's Evolution24 address, set as the `LEAD_TO` secret (September 2026)
+- [x] Move the contact form to a server-side endpoint so the address is not exposed in the page source, and onto a work address rather than a personal one. Done: the form posts to `/api/inquiry`, and intake goes to the leasing team's Evolution24 addresses, set as the `LEAD_TO` secret (September 2026)
 - [ ] Office hours and tour availability
 - [ ] Two-bedroom square footage range (shown as approximate) and current pricing
 - [ ] Exact list of included utilities

@@ -25,7 +25,7 @@ certified (LEED for Homes), and the top Urban Multi-Family project in the 2017
 NAIOP Upstate New York Awards of Excellence. Each one adds the line "LEED® is a
 registered trademark of the U.S. Green Building Council." to the small print.
 
-**For now the only contact is "Call Vicki (585) 748-5588".** The "Book a tour"
+**For now the only contact is "Call Tatum (585) 748-5588".** The "Book a tour"
 address and the QR codes point at `/tour/`, which exists only once the site is
 live on Cloudflare, so they are switched off. After launch, set
 `SITE_LIVE = True` at the top of `make_ads.py` and re-render: the address comes
@@ -56,7 +56,7 @@ Evolution24 Properties"; the two that state a rent say when it was listed.
    downtown. *Alt:* "Residents at the fire table under the pergola on
    Charlotte Square's shared terrace, with downtown Rochester behind."
 4. **Come see it.** Tours by appointment, Monday to Friday, 8am to 4pm. Call
-   Vicki at (585) 748-5588. *Alt:*
+   Tatum at (585) 748-5588. *Alt:*
    "The red and grey four-storey Charlotte Square building on Charlotte
    Street, with the words See your next home in person."
 7. **LEED Gold.** Charlotte Square is LEED Gold certified: independent
