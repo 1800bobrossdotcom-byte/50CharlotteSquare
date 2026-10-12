@@ -490,6 +490,14 @@
     return n;
   };
 
+  // The Worker usually writes the list and the prices into the page itself
+  // (functions/_lib/units-html.js); then there is only the filters to wire up.
+  if (document.documentElement.hasAttribute('data-units-rendered')) {
+    const box = host && host.querySelector('[data-units-list]');
+    if (box && box.children.length) tools(box);
+    return;
+  }
+
   fetch('/api/units', { headers: { Accept: 'application/json' } })
     .then((r) => (r.ok ? r.json() : null))
     .then((d) => {
@@ -550,6 +558,7 @@
   function tools(box) {
     const bar = host.querySelector('[data-units-tools]');
     if (!bar) return;
+    bar.hidden = false;   // shown only once it works
     const rows = Array.from(box.querySelectorAll('.unit'));
     const want = { beds: 'all', furnished: 'all' };
     const sort = bar.querySelector('[data-units-sort]');

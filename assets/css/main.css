@@ -202,6 +202,7 @@ button { font: inherit; color: inherit; }
 /* ---------- Typography helpers ---------------------------------------------- */
 .eyebrow {
   display: inline-flex; align-items: center; gap: .6rem;
+  font-family: var(--font-body); line-height: var(--lh-body);   /* also when it is the page's h1, as on the home page */
   font-size: var(--fs-eyebrow); font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
   color: var(--accent); margin: 0 0 1.1rem;
 }
@@ -370,7 +371,9 @@ body.menu-open { overflow: hidden; }
   [data-style="gallery"] .hero .crumbs { color: var(--accent); text-shadow: none; }
   [data-style="gallery"] .hero .crumbs [aria-current] { color: var(--fg-muted); }
 }
-.hero__title { font-size: var(--fs-display); line-height: .98; letter-spacing: -.035em; max-width: 24ch; margin: 0 0 1.25rem; }
+/* The display face set here, not only through h1: on the home page the big line
+   is a <p>, and the h1 is the eyebrow that says what and where. */
+.hero__title { font-family: var(--font-display); font-weight: 700; text-wrap: balance; font-size: var(--fs-display); line-height: .98; letter-spacing: -.035em; max-width: 24ch; margin: 0 0 1.25rem; }
 .hero--short .hero__title { font-size: var(--fs-h1); max-width: 16ch; }
 .hero__lead { font-size: var(--fs-lead); max-width: 38rem; color: rgba(255, 255, 255, .82); margin: 0 0 2rem; line-height: 1.5; }
 .hero__grid { display: grid; gap: 2rem; align-items: end; }
@@ -898,6 +901,8 @@ html:root[data-style="gallery"] {
 [data-style="gallery"] .stat__value { font-size: clamp(2.2rem, 3vw, 3.2rem); }
 [data-style="gallery"] .stat__value small { font-family: var(--font-body); font-weight: 600; }
 [data-style="gallery"] .eyebrow { font-size: .7rem; letter-spacing: .24em; font-weight: 600; }
+/* The home page's h1 is an eyebrow; the heading rule above outranks .eyebrow alone. */
+[data-style="gallery"] h1.eyebrow { letter-spacing: .24em; font-weight: 600; }
 [data-style="gallery"] .eyebrow::before { width: 1.6rem; height: 1px; border-radius: 0; }
 [data-style="gallery"] .hero__title .accent, [data-style="gallery"] .pull em { font-style: italic; }
 [data-style="gallery"] .pull em { color: var(--accent); }

@@ -4,7 +4,8 @@
    The website is plain files in public/, served by Cloudflare's asset layer
    with _headers and _redirects applied, and never touching this code. Only
    the paths listed under run_worker_first in wrangler.toml come here: the
-   API, the /admin/ gate, the /tour/ test and shared reports.
+   API, the /admin/ gate, the /tour/ test, shared reports, and the pages that
+   show open units, which get the current list written into their HTML.
 
    The route handlers in functions/ were written as Cloudflare Pages Functions
    and keep that shape: each exports onRequestGet, onRequestPost and so on,
@@ -27,7 +28,8 @@ import * as reports from '../functions/api/reports.js';
 import * as stats from '../functions/api/stats.js';
 import * as triage from '../functions/api/triage.js';
 import * as units from '../functions/api/units.js';
-import { scheduledRefresh } from '../functions/_lib/rentmanager.js';
+import { publicListing, scheduledRefresh } from '../functions/_lib/rentmanager.js';
+import { withUnits } from '../functions/_lib/units-html.js';
 import * as tour from '../functions/tour/index.js';
 import * as report from '../functions/r/[token].js';
 import * as unsubscribe from '../functions/unsubscribe/[token].js';
@@ -152,11 +154,38 @@ async function searchConsoleFile(request, env, url) {
   });
 }
 
+/* The pages that list open units, or show "From $X" on their plan cards: the
+   home page, the residences and home-type pages, and availability. The file
+   comes from the asset layer and leaves with the current list in it, so a
+   search engine or an assistant that does not run scripts reads what a
+   visitor sees (units-html.js). If the list cannot be read, the page goes out
+   as built and main.js fills it in, as before. */
+const UNIT_PAGES = /^\/(?:availability\/|residences\/(?:(?:one|two|three)-bedroom\/)?)?$/;
+
+async function unitPage(request, env) {
+  // The whole file every time: a 304 would keep a visitor's old copy, and its old list.
+  const res = await env.ASSETS.fetch(new Request(request.url, { method: 'GET' }));
+  if (res.status !== 200 || !(res.headers.get('Content-Type') || '').includes('text/html')) return res;
+  let units = [];
+  try {
+    await ensureSchema(env);
+    units = (await publicListing(env)).units || [];
+  } catch { /* the page as built */ }
+  const out = withUnits(res, units);
+  const headers = new Headers(out.headers);
+  for (const h of ['ETag', 'Last-Modified', 'Content-Length']) headers.delete(h);
+  headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+  return secure(new Response(request.method === 'HEAD' ? null : out.body, { status: 200, headers }), false);
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const verify = await searchConsoleFile(request, env, url);
     if (verify) return secure(verify, false);
+    if ((request.method === 'GET' || request.method === 'HEAD') && UNIT_PAGES.test(url.pathname)) {
+      return unitPage(request, env);
+    }
     const hit = route(url.pathname);
     // Anything else that reached here is a file: hand it to the asset layer.
     if (!hit) return env.ASSETS.fetch(request);

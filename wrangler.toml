@@ -1,8 +1,9 @@
 # Cloudflare Worker configuration: the website as static assets, plus the few
-# dynamic routes (API, /admin/ gate, /tour/ test, shared reports) in a Worker.
+# dynamic routes (API, /admin/ gate, /tour/ test, shared reports) in a Worker,
+# along with the pages that show open units, which get the list in their HTML.
 #
 # The site itself is plain files; only the paths under run_worker_first below
-# reach any code, so every content page is still served straight from cache.
+# reach any code, so the other content pages are served straight from cache.
 #
 # Deployed by Cloudflare's Git integration (Workers Builds):
 #   Build command    sh scripts/stage.sh      copies only the website into public/
@@ -37,7 +38,7 @@ binding = "ASSETS"
 not_found_handling = "404-page"
 html_handling = "auto-trailing-slash"
 # Everything else is served as a file without running any code.
-run_worker_first = ["/api/*", "/admin", "/admin/*", "/tour", "/tour/*", "/r/*", "/unsubscribe/*", "/google*"]
+run_worker_first = ["/api/*", "/admin", "/admin/*", "/tour", "/tour/*", "/r/*", "/unsubscribe/*", "/google*", "/", "/availability/", "/residences/*"]
 
 # The open units from Rent Manager, fetched into D1 every half hour so no
 # visitor ever waits on, or spends, a Rent Manager API call. Idle until

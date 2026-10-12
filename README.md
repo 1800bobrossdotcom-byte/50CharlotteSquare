@@ -142,6 +142,13 @@ stuffing. Nothing false was claimed: the building is 2016-built and
 LEED Gold certified, with stone countertops, stainless appliances and private
 outdoor space in every home.
 
+In October 2026 the home title moved the search to the front ("Luxury
+Apartments in Downtown Rochester, NY | 50 Charlotte Square"), and the home page's
+`<h1>` became the line above the headline, "Luxury apartments in Rochester’s East
+End". "Live above it all. Steps from everything." still looks exactly as it did;
+it is a `<p class="hero__title">` now, so the page's one heading says what and
+where.
+
 **What that does and does not buy.** On-page work decides whether a page is
 *eligible* for a query and how well it answers it. It does not decide the
 ranking on its own, and no one can promise a position. For this phrase
@@ -172,7 +179,7 @@ unqualified head term is a longer campaign.
 
 The building is called "50 Charlotte Square" wherever search engines and readers
 look for a name, the way a building takes its number: every page title (home:
-"50 Charlotte Square | Luxury Apartments in Rochester, NY"), every meta
+"Luxury Apartments in Downtown Rochester, NY | 50 Charlotte Square"), every meta
 description, `og:site_name`, the JSON-LD `WebSite` and `ApartmentComplex` names
 (with "Charlotte Square", "Charlotte Square at the East End" and "Charlotte
 Square Apartments" as `alternateName`s), the breadcrumb, the web app manifest,
@@ -636,6 +643,17 @@ opens Evolution24's own application in Rent Manager
 format the old site used). The plan cards on every page change from "Pricing on
 request" to "From $X · N open now or soon". With no list, or no script, the
 pages read exactly as before.
+
+**The list is in the page itself.** Search engines that do not run scripts, and
+the assistants that answer apartment questions, read a page as it arrives; when
+only `main.js` drew the list, they read "Nothing is listed as open this minute"
+while a dozen homes were open. The Worker now serves the home, residences,
+home-type and availability pages (`run_worker_first` in `wrangler.toml`) and
+writes the current units and the plan cards' "From $X" into the HTML on the
+way out (`functions/_lib/units-html.js`, the same markup `main.js` draws). Those
+pages carry `data-units-rendered` on `<html>`, and `main.js` then only wires up
+the filters. If the list cannot be read, the page goes out as built and
+`main.js` fills it in as before.
 
 Every list runs lowest rent first (a home without a rent last). The
 Availability page adds filters above it: bedrooms, furnished or unfurnished,
@@ -1241,8 +1259,10 @@ exist because that is how people search ("1 bedroom apartments rochester ny",
 better than a filter chip on a page about everything. They come from
 `HOME_TYPES` in the generator, one entry per type, and each page carries:
 
-- its own title, description and H1 ("1 Bedroom Apartments in Rochester, NY |
-  50 Charlotte Square"), with breadcrumbs on the page and in the JSON-LD
+- its own title, description and H1 (titles lead with the search: "1 Bedroom
+  Apartments, Downtown Rochester, NY", "2 Bedroom Luxury Apartments in Rochester,
+  NY", "3 Bedroom Apartments in Rochester’s East End", each ending
+  "| 50 Charlotte Square"), with breadcrumbs on the page and in the JSON-LD
   (Home › Residences › One bedroom);
 - an at-a-glance sheet: bedrooms, full baths, size, outdoor space, parking,
   laundry, utilities and rent;
