@@ -563,27 +563,54 @@ export async function publicListing(env) {
 }
 
 /** The scheduled run: first a connection check if there has never been one,
- *  then the list. A failure after a success emails the leasing inbox once. */
+ *  then the list. Rent Manager goes down for maintenance now and then ("Database
+ *  updates are in progress"), and the site keeps showing the last list through
+ *  it, so a failure only emails once it has lasted ALERT_AFTER. A refused sign-in
+ *  or a missing privilege will not fix itself, so it emails at once. Once an
+ *  email has gone out, the first good refresh sends an all-clear. */
+const ALERT_AFTER = 3 * 3600;
+const alertTo = (env) => {
+  const to = String(env.ALERT_TO || '').split(',').map((s) => s.trim()).filter(Boolean);
+  return to.length ? to : leadTo(env);
+};
+
 export async function scheduledRefresh(env) {
   if (!rmConfigured(env) || !env.DB) return;
   const before = await getStatus(env);
   if (before && before.rate && before.rate.remaining !== null && before.rate.remaining < 5
       && Date.now() / 1000 - before.ts < (before.rate.resetIn || 0)) return;   // leave the hour's last calls alone
+  const now = Math.floor(Date.now() / 1000);
+  const failing = Boolean(before && !before.ok);
   try {
     const found = await getDiscovery(env);
     if (!found || (found.v || 1) < DISCOVERY_VERSION || (onlyNumbers(found) && Date.now() / 1000 - found.ts > 3600)) {
       await discover(env);
     }
     await refresh(env);
-  } catch (err) {
-    await putKey(env, 'status', { ok: false, error: err.message, code: err.status || 0 });
-    if (before && before.ok) {
-      const to = leadTo(env);
+    if (failing && before.alerted) {
+      const to = alertTo(env);
       if (to.length) {
         await sendEmail(env, {
           to,
+          subject: 'Charlotte Square: the Rent Manager listing is updating again',
+          text: 'The website is reading the open units from Rent Manager again, and the list on the site is current. Nothing needs doing.',
+        }).catch(() => {});
+      }
+    }
+  } catch (err) {
+    const since = failing && before.failingSince ? before.failingSince : now;
+    const needsPerson = err.status === 401 || err.status === 403;
+    const alerted = failing && Boolean(before.alerted);
+    const due = !alerted && (needsPerson || now - since >= ALERT_AFTER);
+    await putKey(env, 'status', { ok: false, error: err.message, code: err.status || 0, failingSince: since, alerted: alerted || due });
+    if (due) {
+      const to = alertTo(env);
+      if (to.length) {
+        const hours = Math.round((now - since) / 3600);
+        await sendEmail(env, {
+          to,
           subject: 'Charlotte Square: the Rent Manager listing stopped updating',
-          text: `The website could not read the open units from Rent Manager.\n\n${err.message}\n\nThe site keeps showing the last list for up to a day, then shows "Ask about availability". The dashboard's Rent Manager panel has the details and a Check connection button.`,
+          text: `The website could not read the open units from Rent Manager${hours > 1 ? ` for the last ${hours} hours` : hours === 1 ? ' for the last hour' : ''}.\n\n${err.message}\n\nThe site keeps showing the last list for up to a day, then shows "Ask about availability". The dashboard's Rent Manager panel has the details and a Check connection button. You will get one more email when it is updating again.`,
         }).catch(() => {});
       }
     }

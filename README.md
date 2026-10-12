@@ -737,8 +737,13 @@ once it is an hour old.
 
 **When something fails.** The dashboard says what Rent Manager answered, in
 words. The site keeps showing the last good list for up to a day, then falls
-back to "Ask about availability". A refresh that fails after a good one emails
-the leasing inbox (`LEAD_TO`) once.
+back to "Ask about availability". Rent Manager goes down for maintenance now
+and then (it answers 503, "Database updates are in progress"), so a failing
+refresh emails only once it has failed for three hours, or at once if Rent
+Manager refused the sign-in or a privilege, which will not fix itself. One
+email per outage, and an all-clear when the list updates again. It goes to
+`ALERT_TO` (a Worker variable, comma-separated) if that is set, otherwise to the
+leasing inbox, `LEAD_TO`.
 
 ## Photos
 
