@@ -42,7 +42,6 @@ assets/css/main.css        the whole design system (tokens → components → se
 assets/js/main.js          header state, mobile drawer, reveal animations, ticker, plan filters, contact form
 assets/img/                favicon.svg, og.png, and the photo slots listed below
 assets/fonts/              self-hosted variable fonts + licenses
-.github/workflows/pages.yml   deploys to GitHub Pages on push to main
 site.webmanifest .nojekyll
 robots.txt sitemap.xml llms.txt      crawl surface (see SEO below)
 _redirects vercel.json .htaccess     301s + security headers, in three host dialects
@@ -64,12 +63,13 @@ python3 -m http.server 8000      # then open http://localhost:8000
 npx http-server -p 8000
 ```
 
-## Deploy (GitHub Pages)
+## Deploy
 
-1. Merge to `main`.
-2. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. The workflow in `.github/workflows/pages.yml` publishes the repo root on every push to `main` (and, during the mock-up phase, to `claude/dazzling-hypatia-ap7gcn`).
-4. For a custom domain, add a `CNAME` file containing the domain (for example `www.charlottesquareroc.com`), point DNS at GitHub Pages, then update the domain in `sitemap.xml` and `robots.txt`.
+The live site is the Cloudflare Worker `50charlottesquare` (setup in the launch
+runbook below). Cloudflare's Workers Builds deploys every push to the branch it
+is connected to, usually within a minute or two; nothing else needs to run. A
+GitHub Pages workflow from the mock-up phase was removed in October 2026: the
+site is not served from Pages, so it only failed on every push.
 
 The site also works on Netlify, Vercel, Cloudflare Pages, or any static host: run `sh scripts/stage.sh` and publish the `public/` folder it produces. Never publish the repository root — see *Publish the website, not the repository* below.
 
