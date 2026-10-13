@@ -21,7 +21,7 @@ three archived* below.
 |---|---|---|
 | `/` | `index.html` | Hero with the LEED Gold seal, at-a-glance stats, intro, certified-green badges, residences preview, amenity bento grid, East End ticker, management intro, tour CTA |
 | `/residences/` | `residences/index.html` | Filterable 1/2/3-bedroom floor plans, the open units from Rent Manager (`#available`), what's included, in-home features, FAQ |
-| `/availability/` | `availability/index.html` | **Availability** in the menu: the open units from Rent Manager, lowest rent first, with bedroom and furnished filters, a price sort and Apply on each, the three floor plans, and a "nothing listed this minute" note pointing to leasing when there are none |
+| `/availability/` | `availability/index.html` | **Availability** in the menu: the open units from Rent Manager, lowest rent first, with bedroom and furnished filters, a price or size sort and Apply on each, the three floor plans, and a "nothing listed this minute" note pointing to leasing when there are none |
 | `/residences/one-bedroom/` | `residences/one-bedroom/index.html` | One home type, in full: sizes, outdoor space, what comes with it, in-home features, the other two types, its own FAQ. Same for `two-bedroom/` and `three-bedroom/`; see *One page per home type* |
 | `/amenities/` | `amenities/index.html` | Bento overview, detail rows (terrace, fitness, community room, pocket park), sustainability, gallery with lightbox |
 | `/neighborhood/` | `neighborhood/index.html` | Walk/bike/transit, the Charlotte Street index, what's-near cards, near the Eastman School of Music (`#eastman`), Google map |
@@ -657,7 +657,7 @@ the filters. If the list cannot be read, the page goes out as built and
 
 Every list runs lowest rent first (a home without a rent last). The
 Availability page adds filters above it: bedrooms, furnished or unfurnished,
-and a price sort, low to high or high to low. The filters combine, and the
+and a sort by price or size, either way round (a home without that number goes last). The filters combine, and the
 furnished one shows only while a furnished home is on the list. Furnished homes
 also carry a **Furnished** tag beside the unit number. Rent Manager has no
 furnished field the site can read, so the leasing team marks one in the unit's

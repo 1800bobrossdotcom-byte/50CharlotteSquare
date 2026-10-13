@@ -41,6 +41,7 @@ function row(u, i) {
     u.beds != null ? ` data-beds="${esc(u.beds)}"` : '',
     ` data-furnished="${u.furnished ? 'yes' : 'no'}"`,
     u.rent > 0 ? ` data-rent="${esc(u.rent)}"` : '',
+    u.sqft > 0 ? ` data-sqft="${esc(Math.round(u.sqft))}"` : '',
     ` data-order="${i}"`,
   ].join('');
   const tag = u.furnished ? ' <span class="unit__tag">Furnished</span>' : '';

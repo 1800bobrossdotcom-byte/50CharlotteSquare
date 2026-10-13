@@ -528,6 +528,7 @@
         if (u.beds != null) row.dataset.beds = String(u.beds);
         row.dataset.furnished = u.furnished ? 'yes' : 'no';
         if (u.rent > 0) row.dataset.rent = String(u.rent);
+        if (u.sqft > 0) row.dataset.sqft = String(Math.round(u.sqft));
         row.dataset.order = String(i);
         const head = node('div', 'unit__head');
         const name = node('h3', 'unit__name', label(u));
@@ -565,11 +566,14 @@
     const none = host.querySelector('.units__none');
     const furnished = bar.querySelector('[data-units-filter="furnished"]');
     if (furnished) furnished.hidden = !rows.some((r) => r.dataset.furnished === 'yes');
-    const rent = (r) => Number(r.dataset.rent) || 0;
+    // Sort by rent or by size; a home without that number goes last either way.
+    const value = (r, key) => Number(key === 'size' ? r.dataset.sqft : r.dataset.rent) || 0;
 
     const update = () => {
-      const dir = sort && sort.value === 'desc' ? -1 : 1;
-      rows.sort((a, b) => (!rent(a) - !rent(b)) || dir * (rent(a) - rent(b)) || a.dataset.order - b.dataset.order)
+      const [key, way] = (sort && sort.value ? sort.value : 'price-asc').split('-');
+      const dir = way === 'desc' ? -1 : 1;
+      rows.sort((a, b) => (!value(a, key) - !value(b, key)) || dir * (value(a, key) - value(b, key))
+        || a.dataset.order - b.dataset.order)
         .forEach((r) => box.append(r));
       let shown = 0;
       rows.forEach((r) => {
