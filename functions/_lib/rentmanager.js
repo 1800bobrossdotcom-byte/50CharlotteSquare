@@ -494,8 +494,10 @@ const HIDDEN_UNITS = new Set(['321', '209']);
 // Prices changed by the leasing team before Rent Manager has them: shown only
 // while Rent Manager still reports the old price, so the moment its market
 // rent changes, Rent Manager wins and the entry does nothing. Unit: [old, new].
-// 308: $1,725 to $2,195, October 2026.
-const PRICE_UPDATES = { 308: [1725, 2195] };
+// 308: $1,725 to $2,195; 307: $2,495 to $2,695 (October 2026).
+const PRICE_UPDATES = { 308: [1725, 2195], 307: [2495, 2695] };
+// Furnished homes whose Rent Manager name does not end in "-F" yet.
+const FURNISHED_UNITS = new Set(['307']);
 const SHOW_ON_WEB = /show\s*on\s*(the\s*)?web/i;
 const SAYS_NO = /^(no|n|false|0|hide|hidden)$/i;
 
@@ -609,7 +611,7 @@ export async function publicListing(env) {
   if (!(await isPublished(env))) return { units: [] };
   const l = await getListing(env);
   if (!l || !l.ts || Date.now() / 1000 - l.ts > STALE_AFTER) return { units: [] };
-  const units = (l.units || []).map((u) => (FURNISHED.test(String(u.unit))
+  const units = (l.units || []).map((u) => (FURNISHED.test(String(u.unit)) || FURNISHED_UNITS.has(String(u.unit))
     ? { ...u, unit: String(u.unit).replace(FURNISHED, ''), furnished: true } : u));
   for (const u of units) {
     const p = PRICE_UPDATES[u.unit];
