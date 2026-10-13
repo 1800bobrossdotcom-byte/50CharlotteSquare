@@ -668,10 +668,10 @@ name: "322-F" shows as "Unit 322" with the tag (`FURNISHED` in
 on the site; it all follows Rent Manager within half an hour, or at once with
 **Refresh now** in the dashboard's Rent Manager panel.
 
-- *Rented, or simply not to be shown:* set the unit's **Show On Web**
-  user-defined field to No and it comes off on the next refresh, whatever its
-  status (read in a request of its own; only that field's value is looked at).
-  Entering the new resident's lease or move-in also takes the unit off.
+- *Rented:* entering the new resident's lease or move-in takes the unit off.
+  Rent Manager's **Show On Web** field cannot do it: it says No on every unit.
+  A unit that must come off before Rent Manager is updated goes in
+  `HIDDEN_UNITS` in `functions/_lib/rentmanager.js` (now 321).
   So does any status that says it is spoken for (Vacant-Rented, Notice-Rented,
   pre-leased), or one that takes it off the market (Model, Down, Hold).
 - *Price:* the site shows the unit's current market rent. A new amount with a

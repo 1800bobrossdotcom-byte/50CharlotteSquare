@@ -160,7 +160,7 @@ function describe(obj, depth = 0) {
 
 // Embeds worth asking for: the unit's type, rent and status. Never people.
 const WANTED_EMBED = /(type|rent|status|occup|vacan|market|avail|ready|notice|floor)/i;
-const DISCOVERY_VERSION = 9;   // 9: reads "Show On Web" too; a bump runs one check and refresh after deploy
+const DISCOVERY_VERSION = 10;   // a bump runs one check and refresh right after the deploy
 
 // Rent Manager sends a unit's ID, property, name and sort order and nothing
 // more unless fields are asked for by name, and the list of names is behind a
@@ -479,12 +479,17 @@ function publicUnit(env, n) {
   };
 }
 
-/* "Show On Web" is a user-defined field on the units in Rent Manager. A unit
-   set to No stays off the site whatever its status: the leasing team's switch
-   for a home that is spoken for before the lease is entered. It is read in a
-   request of its own, so a Rent Manager that refuses it cannot cost the
-   listing, and only that one field's value is ever looked at: the other
-   user-defined fields hold gate codes and meter numbers. */
+/* "Show On Web" is a user-defined field on the units in Rent Manager. It was
+   meant as the leasing team's switch for a home spoken for before its lease is
+   entered, but on its first live read it said No on all 72 units, so it cannot
+   mean "hide" here: it is read and counted, not acted on. Read in a request of
+   its own, so a Rent Manager that refuses it cannot cost the listing, and only
+   that one field's value is looked at: the other user-defined fields hold gate
+   codes and meter numbers.
+
+   Units kept off by hand until Rent Manager catches up go in HIDDEN_UNITS, by
+   unit number. 321: rented in October 2026, lease not yet entered. */
+const HIDDEN_UNITS = new Set(['321']);
 const SHOW_ON_WEB = /show\s*on\s*(the\s*)?web/i;
 const SAYS_NO = /^(no|n|false|0|hide|hidden)$/i;
 
@@ -536,8 +541,7 @@ export async function refresh(env) {
   };
   const today = new Date().toISOString().slice(0, 10);
   const web = await hiddenOnWeb(env, token).catch((err) => ({ read: false, found: false, hidden: [], code: err.status || 0, shape: null }));
-  const offWeb = new Set(web.hidden.map(String));
-  const open = all.filter((n) => !offWeb.has(String(n.id)))
+  const open = all.filter((n) => !HIDDEN_UNITS.has(String(n.unit).replace(/\s*-\s*F$/i, '')))
     .filter((n) => n.status === 'vacant' || n.status === 'making-ready'
     // A notice unit is listed only with a move-out date still to come:
     // without one there is nothing true to say about when it opens.
@@ -558,7 +562,8 @@ export async function refresh(env) {
     noRent: open.filter((n) => !n.rent).length, rate: r.rate,
     limited: onlyNumbers(found), needs: onlyNumbers(found) ? neededPrivilege(found) || 'Units' : null,
     plausible, summary,
-    web: { read: web.read, found: web.found, hidden: web.hidden.length, code: web.code, shape: web.shape },
+    web: { read: web.read, found: web.found, sayNo: web.hidden.length, code: web.code, shape: web.shape },
+    hiddenByHand: all.filter((n) => HIDDEN_UNITS.has(String(n.unit).replace(/\s*-\s*F$/i, ''))).length,
   });
   return listing;
 }
@@ -576,7 +581,7 @@ export async function publicStatus(env) {
     limited: Boolean(st && st.limited),
     code: st && !st.ok ? st.code || 0 : null,
     // Whether "Show On Web" could be read, and how many units it keeps off.
-    web: st && st.web ? { read: st.web.read, found: st.web.found, hidden: st.web.hidden, code: st.web.read ? null : st.web.code } : null,
+    web: st && st.web ? { read: st.web.read, found: st.web.found, sayNo: st.web.sayNo, code: st.web.read ? null : st.web.code } : null,
   };
 }
 
