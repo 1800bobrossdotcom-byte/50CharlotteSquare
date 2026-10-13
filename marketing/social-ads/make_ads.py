@@ -221,7 +221,7 @@ def legal(extra=""):
     more = f'<span>{extra}</span>' if extra else ''
     return f'<p class="legal">{EHO}<span>Equal Housing Opportunity · Managed by Evolution24 Properties</span>{more}</p>'
 
-RENT = "Rents from $1,750 a month as of September 2026, subject to availability."
+RENT = "Rents from $2,195 a month as of October 2026, subject to availability."
 ADS = []
 
 def ad(name, size, cls, body):
@@ -233,7 +233,7 @@ ad("01-now-leasing", (1080, 1080), "ad",
    top("NOW LEASING")
    + '<h1 class="hl">Luxury living,<br><i>parking included.</i></h1>'
    + '<p class="sub">One-, two- and three-bedroom apartments at 50 Charlotte Street,<br>a block from Main Street and East Avenue.</p>'
-   + stats([("$1,750+", "Per month · 1–3 bedrooms"), ("765–1,640", "Square feet"), ("Garage", "One space included")])
+   + stats([("$2,195+", "Per month · 1–3 bedrooms"), ("765–1,640", "Square feet"), ("Garage", "One space included")])
    + contact("At the heart of Rochester’s East End.", qr1) + legal(RENT))
 
 # 2. The block, typographic -------------------------------------------------
@@ -266,7 +266,7 @@ ad("05-now-leasing-story", (1080, 1920), "ad ad--story ad--photo",
    '<div class="shot"><img src="../../../assets/img/terrace.jpg" alt=""></div>' + top("NOW LEASING")
    + '<h1 class="hl">Luxury living,<br><i>parking included.</i></h1>'
    + '<p class="sub">One-, two- and three-bedroom apartments<br>in Rochester’s East End.</p>'
-   + stats([("$1,750+", "Per month"), ("1–3", "Bedrooms"), ("Garage", "Space included")])
+   + stats([("$2,195+", "Per month"), ("1–3", "Bedrooms"), ("Garage", "Space included")])
    + contact() + legal(RENT))
 
 # 6. The block, story -------------------------------------------------------

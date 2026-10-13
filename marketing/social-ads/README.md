@@ -47,7 +47,7 @@ Evolution24 Properties"; the two that state a rent say when it was listed.
 1. **Now leasing.** Luxury one-, two- and three-bedroom apartments at 50
    Charlotte Street, with a garage parking space in every lease. Tours by
    appointment. *Alt:* "Charlotte Square ad: Luxury living, parking included.
-   From $1,750 a month, 765 to 1,640 square feet, one garage space included."
+   From $2,195 a month, 765 to 1,640 square feet, one garage space included."
 2. **The East End.** Coffee at No. 89, dinner at No. 37, and the Eastman
    Theatre and The Little a short walk away. Come see the block. *Alt:*
    "Charlotte Square ad: Your whole East End, on foot. No. 37 Chick'n Out, No.
