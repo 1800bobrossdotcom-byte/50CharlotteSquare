@@ -160,7 +160,7 @@ function describe(obj, depth = 0) {
 
 // Embeds worth asking for: the unit's type, rent and status. Never people.
 const WANTED_EMBED = /(type|rent|status|occup|vacan|market|avail|ready|notice|floor)/i;
-const DISCOVERY_VERSION = 8;
+const DISCOVERY_VERSION = 9;   // 9: reads "Show On Web" too; a bump runs one check and refresh after deploy
 
 // Rent Manager sends a unit's ID, property, name and sort order and nothing
 // more unless fields are asked for by name, and the list of names is behind a
@@ -479,6 +479,41 @@ function publicUnit(env, n) {
   };
 }
 
+/* "Show On Web" is a user-defined field on the units in Rent Manager. A unit
+   set to No stays off the site whatever its status: the leasing team's switch
+   for a home that is spoken for before the lease is entered. It is read in a
+   request of its own, so a Rent Manager that refuses it cannot cost the
+   listing, and only that one field's value is ever looked at: the other
+   user-defined fields hold gate codes and meter numbers. */
+const SHOW_ON_WEB = /show\s*on\s*(the\s*)?web/i;
+const SAYS_NO = /^(no|n|false|0|hide|hidden)$/i;
+
+async function hiddenOnWeb(env, token) {
+  const out = { read: false, found: false, hidden: [], code: null, shape: null };
+  for (const qs of [
+    '&pagesize=1000&fields=UnitID,UserDefinedValues&embeds=UserDefinedValues',
+    '&pagesize=1000&fields=UnitID,UserDefinedValues&embeds=UserDefinedValues.UserDefinedField',
+  ]) {
+    const r = await unitsQuery(env, token, qs);
+    out.code = r.status;
+    if (!r.ok) continue;
+    out.read = true;
+    for (const u of asList(r.data)) {
+      const values = Array.isArray(u.UserDefinedValues) ? u.UserDefinedValues : [];
+      if (!out.shape && values[0] && typeof values[0] === 'object') out.shape = describe(values[0]);
+      for (const v of values) {
+        if (!v || typeof v !== 'object') continue;
+        const name = pick(v.Name, v.FieldName, v.UserDefinedFieldName, v.UserDefinedField && v.UserDefinedField.Name);
+        if (!SHOW_ON_WEB.test(String(name || ''))) continue;
+        out.found = true;
+        if (SAYS_NO.test(String(pick(v.Value, v.FieldValue, '')).trim())) out.hidden.push(pick(u.UnitID, u.Id, u.ID));
+      }
+    }
+    if (out.found) break;
+  }
+  return out;
+}
+
 export async function refresh(env) {
   const { token } = await authorize(env);
   const pid = propertyId(env);
@@ -500,7 +535,10 @@ export async function refresh(env) {
     read: all.reduce((m, n) => { m[n.status] = (m[n.status] || 0) + 1; return m; }, {}),
   };
   const today = new Date().toISOString().slice(0, 10);
-  const open = all.filter((n) => n.status === 'vacant' || n.status === 'making-ready'
+  const web = await hiddenOnWeb(env, token).catch((err) => ({ read: false, found: false, hidden: [], code: err.status || 0, shape: null }));
+  const offWeb = new Set(web.hidden.map(String));
+  const open = all.filter((n) => !offWeb.has(String(n.id)))
+    .filter((n) => n.status === 'vacant' || n.status === 'making-ready'
     // A notice unit is listed only with a move-out date still to come:
     // without one there is nothing true to say about when it opens.
     || (n.status === 'notice' && n.available && n.available > today))
@@ -520,6 +558,7 @@ export async function refresh(env) {
     noRent: open.filter((n) => !n.rent).length, rate: r.rate,
     limited: onlyNumbers(found), needs: onlyNumbers(found) ? neededPrivilege(found) || 'Units' : null,
     plausible, summary,
+    web: { read: web.read, found: web.found, hidden: web.hidden.length, code: web.code, shape: web.shape },
   });
   return listing;
 }
@@ -536,6 +575,8 @@ export async function publicStatus(env) {
     open: st && st.ok ? st.open : null,
     limited: Boolean(st && st.limited),
     code: st && !st.ok ? st.code || 0 : null,
+    // Whether "Show On Web" could be read, and how many units it keeps off.
+    web: st && st.web ? { read: st.web.read, found: st.web.found, hidden: st.web.hidden, code: st.web.read ? null : st.web.code } : null,
   };
 }
 
