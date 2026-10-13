@@ -672,6 +672,8 @@ on the site; it all follows Rent Manager within half an hour, or at once with
   Rent Manager's **Show On Web** field cannot do it: it says No on every unit.
   A unit that must come off before Rent Manager is updated goes in
   `HIDDEN_UNITS` in `functions/_lib/rentmanager.js` (now 321).
+- *A price ahead of Rent Manager:* `PRICE_UPDATES` in the same file shows a new
+  rent only while Rent Manager still reports the old one (308: $1,725 to $2,195).
   So does any status that says it is spoken for (Vacant-Rented, Notice-Rented,
   pre-leased), or one that takes it off the market (Model, Down, Hold).
 - *Price:* the site shows the unit's current market rent. A new amount with a
