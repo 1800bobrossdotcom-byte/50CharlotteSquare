@@ -674,6 +674,7 @@ on the site; it all follows Rent Manager within half an hour, or at once with
   `HIDDEN_UNITS` in `functions/_lib/rentmanager.js` (now 321).
 - *A price ahead of Rent Manager:* `PRICE_UPDATES` in the same file shows a new
   rent only while Rent Manager still reports the old one (308: $1,725 to $2,195).
+  Once Rent Manager has the new price, take the entry out.
   So does any status that says it is spoken for (Vacant-Rented, Notice-Rented,
   pre-leased), or one that takes it off the market (Model, Down, Hold).
 - *Price:* the site shows the unit's current market rent. A new amount with a
