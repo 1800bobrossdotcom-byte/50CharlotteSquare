@@ -488,8 +488,8 @@ function publicUnit(env, n) {
    codes and meter numbers.
 
    Units kept off by hand until Rent Manager catches up go in HIDDEN_UNITS, by
-   unit number. 321: rented in October 2026, lease not yet entered. */
-const HIDDEN_UNITS = new Set(['321']);
+   unit number. 321 and 209: rented in October 2026, leases not yet entered. */
+const HIDDEN_UNITS = new Set(['321', '209']);
 
 // Prices changed by the leasing team before Rent Manager has them: shown only
 // while Rent Manager still reports the old price, so the moment its market
@@ -615,7 +615,8 @@ export async function publicListing(env) {
     const p = PRICE_UPDATES[u.unit];
     if (p && u.rent === p[0]) u.rent = p[1];
   }
-  return { updated: l.ts, units };
+  // Also here, so a unit added to HIDDEN_UNITS comes off at once, not at the next refresh.
+  return { updated: l.ts, units: units.filter((u) => !HIDDEN_UNITS.has(String(u.unit))) };
 }
 
 /** The scheduled run: first a connection check if there has never been one,
