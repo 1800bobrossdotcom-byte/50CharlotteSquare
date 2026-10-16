@@ -23,7 +23,7 @@ for p in \
   _headers _redirects .well-known assets admin \
   residences availability amenities neighborhood story contact privacy terms \
   the-charlotte-story roc-the-east-end life-at-the-square contact-us \
-  tour-a tour-b tour-c
+  tour-a tour-b tour-c lobby
 do
   cp -R "$p" public/
 done

@@ -30,6 +30,7 @@ three archived* below.
 | `/privacy/` | `privacy/index.html` | Privacy policy, accessibility statement, fair housing |
 | `/tour/` | `tour-a/`, `tour-b/`, `tour-c/` | Booking page for ads, in three versions under test; see *The tour page test*. Not in the sitemap, `noindex` |
 | `/admin/` | `admin/index.html` | The dashboard, behind a password |
+| `/lobby/` | `lobby/index.html` | The lobby TV: photographs of Rochester, upcoming events, the time and weather, a news ticker. `noindex`, not linked; see *The lobby screen* |
 | `404.html` | | Self-contained not-found page in the site's own look (inline CSS, absolute links, so it works at any depth) |
 
 ## Structure
@@ -1520,6 +1521,56 @@ node tools/brand-kit/export.cjs           # PNGs, PDFs and the guide
 
 `brand/` and `tools/` are not on `scripts/stage.sh`'s allowlist, so none of this
 is published with the site.
+
+## The lobby screen
+
+`/lobby/` is a full-screen page for the TV in the lobby. It is not linked from the site, it is kept out of search (`noindex` in the page and in the `X-Robots-Tag` header), and it runs on its own: no clicks, no cursor.
+
+What it shows, on a loop:
+
+- **Photographs**: sixteen of Rochester, with the building's own four spread through them. Each fades in and drifts slowly for about eleven seconds, with a caption and, for the city photos, the credit their licences ask for.
+- **Events**, three at a time, after every two photographs: soonest first, with today's and this week's ahead of the long-running shows and exhibitions. From Visit Rochester's public events feed, with its pictures.
+- **The time, date and weather**, top right. The weather is the National Weather Service's forecast for downtown.
+- **A ticker** along the bottom: the building's notices first, then local headlines from RochesterFirst. Headlines about crime, accidents, illness, loss and the like are left out, since it plays in a lobby all day.
+
+How it is put together:
+
+| Part | File |
+|---|---|
+| The page | `lobby/index.html` |
+| Its look, laid out for a 16:9 screen in `vw` so 1080p and 4K match | `assets/css/lobby.css` |
+| The slides, clock and ticker; the photo list and credits | `assets/js/lobby.js` |
+| Events, headlines and weather, gathered on the server | `functions/api/lobby.js` → `GET /api/lobby` |
+| The city photographs, 1920×1080 | `assets/img/lobby/` |
+
+The screen makes one request to this site every ten minutes. The Worker fetches the three sources (eight seconds each at most), keeps the answer fifteen minutes in Cloudflare's cache, and keeps the last good copy in D1 (`rm_cache`, key `lobby`), so a source that is down leaves the screen as it was rather than empty. The page also keeps its last copy in the TV's browser, and reloads itself every six hours, but only when the site answers, so a dropped connection never leaves a blank screen.
+
+**To change the ticker's building notices**, edit `NOTICES` at the top of `functions/api/lobby.js`. **To add or swap a photograph**, put a 1920×1080 JPEG in `assets/img/lobby/` and add a line to `CITY` in `assets/js/lobby.js` with its caption, photographer and licence.
+
+**On the TV**: a Fire TV Stick 4K with Fully Kiosk Browser, start page `https://www.charlottesquareroc.com/lobby/`, set to launch on boot, keep the screen on, and reload on network reconnect. Any browser in full-screen mode works for a preview.
+
+### Lobby photo credits
+
+From Wikimedia Commons, resized to 1920×1080. The CC BY and CC BY-SA licences ask for the credit, which is on screen under each photo.
+
+| Photo | Photographer | Licence | File |
+|---|---|---|---|
+| [High Falls from the Pont de Rennes Bridge](https://commons.wikimedia.org/wiki/File:Genesee_River_High_Falls_View_from_Pont_de_Rennes_Bridge,_Rochester_NY.jpg) | Blbrett | CC BY-SA 4.0 | `high-falls-sunset.jpg` |
+| [Downtown Rochester at dawn](https://commons.wikimedia.org/wiki/File:DowntownRochesterAtDawn.jpg) | DanielPenfield | CC BY-SA 4.0 | `downtown-dawn.jpg` |
+| [The Lilac Festival in Highland Park](https://commons.wikimedia.org/wiki/File:Lilac_Festival_2007_-_Highland_Park,_Rochester,_New_York.jpg) | Matthew D. Wilson | CC BY-SA 2.5 | `lilac-festival.jpg` |
+| [Downtown from the Genesee River](https://commons.wikimedia.org/wiki/File:Rochester,_NY_from_the_Genesee_River_%285227640058%29.jpg) | Dominic Sherony | CC BY-SA 2.0 | `genesee-river.jpg` |
+| [The Eastman Theatre, before the show](https://commons.wikimedia.org/wiki/File:EastmanTheatre2021BeforeTheShow.jpg) | DanielPenfield | CC BY-SA 4.0 | `eastman-theatre-night.jpg` |
+| [High Falls](https://commons.wikimedia.org/wiki/File:RochesterNY_HighFallsPark.jpg) | Lew from Campbell, CA | CC BY 2.0 | `high-falls-park.jpg` |
+| [Autumn in Durand Eastman Park](https://commons.wikimedia.org/wiki/File:DurandEastmanParkFallFoliage2020Landscape.jpg) | DanielPenfield | CC BY-SA 4.0 | `durand-eastman-fall.jpg` |
+| [Rochester at night](https://commons.wikimedia.org/wiki/File:RocNight_Rochester_at_Night,_October_1st_2016_%2830023509206%29.jpg) | Maximilian Kapitonoff | CC BY 2.0 | `rochester-night.jpg` |
+| [Lilacs in Highland Park](https://commons.wikimedia.org/wiki/File:2013_Rochester_Lilac_Festival_-_Flower_City_Lilac_-_03.JPG) | LtPowers | CC BY-SA 3.0 | `lilacs.jpg` |
+| [High Falls and the city](https://commons.wikimedia.org/wiki/File:Rochester_High_Falls.jpg) | Evilarry | Public domain | `high-falls-day.jpg` |
+| [The Memorial Art Gallery](https://commons.wikimedia.org/wiki/File:Memorial_Art_Gallery_main_gallery_west_side.JPG) | DanielPenfield | CC BY-SA 3.0 | `memorial-art-gallery.jpg` |
+| [The Charlotte-Genesee Lighthouse](https://commons.wikimedia.org/wiki/File:Rochester_-_Charlotte-Genesee_Lighthouse.jpg) | Matthew D. Wilson | CC BY-SA 3.0 | `charlotte-lighthouse.jpg` |
+| [The Genesee River downtown](https://commons.wikimedia.org/wiki/File:Rochester_DT_08.JPG) | Evilarry | Public domain | `genesee-skyline.jpg` |
+| [The Eastman Theatre](https://commons.wikimedia.org/wiki/File:Rochester_Eastman_Theatre_-_Exterior.jpg) | Matthew D. Wilson | CC BY-SA 2.5 | `eastman-theatre.jpg` |
+| [Spring in Durand Eastman Park](https://commons.wikimedia.org/wiki/File:DurandEastmanParkForsythia.jpg) | DanielPenfield | CC BY-SA 4.0 | `durand-eastman-spring.jpg` |
+| [High Falls at night](https://commons.wikimedia.org/wiki/File:Rochester_HighFalls_Night.JPG) | Evilarry | Public domain | `high-falls-night.jpg` |
 
 ## A note on the terrace
 

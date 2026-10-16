@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Lobby · 50 Charlotte Square</title>
+<!-- The lobby TV. Not linked from the site and kept out of search. Full-screen
+     slides of Rochester and the building, upcoming events, the time and
+     weather, and a ticker; it runs itself. See assets/js/lobby.js. -->
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../assets/css/lobby.css">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<script src="../assets/js/lobby.js" defer></script>
+</head>
+<body>
+<main class="stage" aria-label="Charlotte Square lobby screen">
+  <div class="slides" data-slides></div>
+
+  <header class="top">
+    <div class="brand">
+      <svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#A93B3F"/><path d="M9 9 H55 V27 H45 V19 H19 V45 H55 V55 H9 Z" fill="#fff"/></svg>
+      <div class="brand__text"><span class="brand__name">Charlotte <i>Square</i></span><span class="brand__tag">At the East End</span></div>
+    </div>
+    <div class="now">
+      <div class="now__time" data-time>&nbsp;</div>
+      <div class="now__date" data-date>&nbsp;</div>
+      <div class="now__weather" data-weather></div>
+    </div>
+  </header>
+
+  <footer class="ticker">
+    <div class="ticker__label">Rochester</div>
+    <div class="ticker__track"><div class="ticker__run" data-ticker></div></div>
+  </footer>
+</main>
+</body>
+</html>

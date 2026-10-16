@@ -21,6 +21,7 @@ import * as emailEvents from '../functions/api/email-events.js';
 import * as inquiries from '../functions/api/inquiries.js';
 import * as inquiry from '../functions/api/inquiry.js';
 import * as insights from '../functions/api/insights.js';
+import * as lobby from '../functions/api/lobby.js';
 import * as login from '../functions/api/login.js';
 import * as logout from '../functions/api/logout.js';
 import * as rentmanager from '../functions/api/rentmanager.js';
@@ -76,6 +77,7 @@ const API = {
   '/api/inquiries': inquiries,
   '/api/inquiry': inquiry,
   '/api/insights': insights,
+  '/api/lobby': lobby,
   '/api/login': login,
   '/api/logout': logout,
   '/api/rentmanager': rentmanager,
@@ -178,11 +180,25 @@ async function unitPage(request, env) {
   return secure(new Response(request.method === 'HEAD' ? null : out.body, { status: 200, headers }), false);
 }
 
+/* The lobby TV. Its event pictures come from Visit Rochester's image service,
+   which the site-wide policy would block, so this one page gets its own; and
+   it is kept out of search. */
+async function lobbyPage(request, env) {
+  const res = await env.ASSETS.fetch(new Request(request.url, { method: 'GET' }));
+  if (res.status !== 200) return res;
+  const out = new Response(request.method === 'HEAD' ? null : res.body, res);
+  out.headers.set('Content-Security-Policy', "default-src 'self'; base-uri 'none'; object-src 'none'; form-action 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: https://assets.simpleviewinc.com; font-src 'self'; connect-src 'self'; frame-ancestors 'none'");
+  out.headers.set('X-Robots-Tag', 'noindex, nofollow');
+  out.headers.set('Cache-Control', 'no-cache');
+  return out;
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const verify = await searchConsoleFile(request, env, url);
     if (verify) return secure(verify, false);
+    if (url.pathname === '/lobby/' && (request.method === 'GET' || request.method === 'HEAD')) return lobbyPage(request, env);
     if ((request.method === 'GET' || request.method === 'HEAD') && UNIT_PAGES.test(url.pathname)) {
       return unitPage(request, env);
     }

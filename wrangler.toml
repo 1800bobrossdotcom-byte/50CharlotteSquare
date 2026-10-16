@@ -38,7 +38,7 @@ binding = "ASSETS"
 not_found_handling = "404-page"
 html_handling = "auto-trailing-slash"
 # Everything else is served as a file without running any code.
-run_worker_first = ["/api/*", "/admin", "/admin/*", "/tour", "/tour/*", "/r/*", "/unsubscribe/*", "/google*", "/", "/availability/", "/residences/*"]
+run_worker_first = ["/api/*", "/admin", "/admin/*", "/tour", "/tour/*", "/r/*", "/unsubscribe/*", "/google*", "/", "/availability/", "/residences/*", "/lobby/"]
 
 # The open units from Rent Manager, fetched into D1 every half hour so no
 # visitor ever waits on, or spends, a Rent Manager API call. Idle until
