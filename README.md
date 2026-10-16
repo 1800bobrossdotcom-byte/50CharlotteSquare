@@ -1530,7 +1530,7 @@ What it shows, on a loop:
 
 - **Photographs**: sixteen of Rochester, with the building's own four spread through them. Each fades in and drifts slowly for about eleven seconds, with a caption and, for the city photos, the credit their licences ask for.
 - **Events**, three at a time, after every two photographs: soonest first, with today's and this week's ahead of the long-running shows and exhibitions. From Visit Rochester's public events feed, with its pictures.
-- **The time, date and weather**, top right. The weather is the National Weather Service's forecast for downtown.
+- **The time, date and weather**, top right. The temperature and conditions are what the National Weather Service measured at the Rochester airport in the last hour or two, not a forecast; if the station hasn't reported for two hours, this hour's forecast for downtown stands in.
 - **A ticker** along the bottom: the building's notices first, then local headlines from RochesterFirst. Headlines about crime, accidents, illness, loss and the like are left out, since it plays in a lobby all day.
 
 How it is put together:
@@ -1538,7 +1538,7 @@ How it is put together:
 | Part | File |
 |---|---|
 | The page | `lobby/index.html` |
-| Its look, laid out for a 16:9 screen in `vw` so 1080p and 4K match | `assets/css/lobby.css` |
+| Its look, laid out for 16:9 so 1080p and 4K match, and scaled to fit a window of any other shape | `assets/css/lobby.css` |
 | The slides, clock and ticker; the photo list and credits | `assets/js/lobby.js` |
 | Events, headlines and weather, gathered on the server | `functions/api/lobby.js` → `GET /api/lobby` |
 | The city photographs, 1920×1080 | `assets/img/lobby/` |

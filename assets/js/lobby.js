@@ -208,10 +208,12 @@
     node.style.setProperty('--dur', `${dur + 2000}ms`);
     slidesEl.append(node);
     await ready(node);
-    requestAnimationFrame(() => node.classList.add('is-on'));
-    // The slide underneath fades out with this one fading in; then it goes.
+    // The old slide's words fade out first, then the pictures crossfade, then
+    // the new words come in (see lobby.css), so two captions never overlap.
     const old = [...slidesEl.children].filter((n) => n !== node);
-    setTimeout(() => old.forEach((n) => n.remove()), 2000);
+    old.forEach((n) => n.classList.add('is-leaving'));
+    setTimeout(() => requestAnimationFrame(() => node.classList.add('is-on')), old.length ? 500 : 0);
+    setTimeout(() => old.forEach((n) => n.remove()), 2600);
     setTimeout(next, dur);
   }
 

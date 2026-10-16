@@ -5,7 +5,9 @@
      events   Visit Rochester's public events feed
      news     RochesterFirst's community feed, with crime and tragedy left out:
               this plays in a lobby, all day
-     weather  the National Weather Service, for downtown Rochester
+     weather  the National Weather Service: the temperature measured at the
+              Rochester airport, or this hour's forecast for downtown if the
+              station has not reported for two hours
 
    Fetched here rather than by the screen, so the TV makes one request to one
    site. Kept fifteen minutes in Cloudflare's cache, and the last good copy of
@@ -18,6 +20,8 @@ const EVENTS_FEED = 'https://www.visitrochester.com/event/rss/';
 const NEWS_FEED = 'https://www.rochesterfirst.com/community/feed/';
 const FORECAST = 'https://api.weather.gov/gridpoints/BUF/77,65/forecast';
 const HOURLY = 'https://api.weather.gov/gridpoints/BUF/77,65/forecast/hourly';
+// What it is now, measured: the Rochester airport, four miles from the building.
+const OBSERVED = 'https://api.weather.gov/stations/KROC/observations/latest';
 const TTL = 15 * 60;
 
 // Notices from the building, shown first in the ticker. Edit here.
@@ -104,10 +108,20 @@ async function news() {
 }
 
 async function weather() {
-  const [hourly, daily] = await Promise.all([get(HOURLY, 'application/geo+json'), get(FORECAST, 'application/geo+json')]);
+  const [obs, hourly, daily] = await Promise.all([
+    get(OBSERVED, 'application/geo+json').catch(() => null),
+    get(HOURLY, 'application/geo+json').catch(() => null),
+    get(FORECAST, 'application/geo+json').catch(() => null),
+  ]);
+  const next = daily ? daily.properties.periods.slice(0, 2).map((p) => ({ name: p.name, temp: p.temperature, summary: p.shortForecast })) : [];
+  const o = obs && obs.properties;
+  const c = o && o.temperature && o.temperature.value;
+  if (typeof c === 'number' && Date.now() - Date.parse(o.timestamp) < 2 * 3600e3) {
+    return { temp: Math.round(c * 9 / 5 + 32), unit: 'F', summary: o.textDescription || '', observed: o.timestamp, next };
+  }
+  if (!hourly) throw new Error('no weather');
   const now = hourly.properties.periods[0];
-  const next = daily.properties.periods.slice(0, 2).map((p) => ({ name: p.name, temp: p.temperature, summary: p.shortForecast }));
-  return { temp: now.temperature, unit: now.temperatureUnit, summary: now.shortForecast, day: now.isDaytime, next };
+  return { temp: now.temperature, unit: now.temperatureUnit, summary: now.shortForecast, observed: null, next };
 }
 
 async function lastGood(env) {
