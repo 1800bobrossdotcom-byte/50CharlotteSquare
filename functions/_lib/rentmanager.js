@@ -527,6 +527,28 @@ async function hiddenOnWeb(env, token) {
   return out;
 }
 
+/** For each fix made by hand above, what Rent Manager says now, and whether
+ *  the fix is still doing anything: once it isn't, it can come out. Unit
+ *  numbers, prices and open or not only, the same facts the listing shows. */
+function overrideCheck(all, today) {
+  const byNumber = (num) => all.find((n) => String(n.unit).replace(FURNISHED, '') === num);
+  const isOpen = (n) => n.status === 'vacant' || n.status === 'making-ready' || (n.status === 'notice' && n.available && n.available > today);
+  return {
+    hidden: [...HIDDEN_UNITS].map((num) => {
+      const n = byNumber(num);
+      return { unit: num, rmOpen: n ? isOpen(n) : null, needed: Boolean(n && isOpen(n)) };
+    }),
+    prices: Object.entries(PRICE_UPDATES).map(([num, [was, now]]) => {
+      const n = byNumber(num);
+      return { unit: num, rmRent: n ? n.rent : null, site: now, needed: Boolean(n && n.rent === was) };
+    }),
+    furnished: [...FURNISHED_UNITS].map((num) => {
+      const n = byNumber(num);
+      return { unit: num, rmName: n ? String(n.unit) : null, needed: Boolean(n && !FURNISHED.test(String(n.unit))) };
+    }),
+  };
+}
+
 export async function refresh(env) {
   const { token } = await authorize(env);
   const pid = propertyId(env);
@@ -572,6 +594,7 @@ export async function refresh(env) {
     plausible, summary,
     web: { read: web.read, found: web.found, sayNo: web.hidden.length, code: web.code, shape: web.shape },
     hiddenByHand: all.filter((n) => HIDDEN_UNITS.has(String(n.unit).replace(/\s*-\s*F$/i, ''))).length,
+    overrides: overrideCheck(all, today),
   });
   return listing;
 }
@@ -590,6 +613,8 @@ export async function publicStatus(env) {
     code: st && !st.ok ? st.code || 0 : null,
     // Whether "Show On Web" could be read, and how many units it keeps off.
     web: st && st.web ? { read: st.web.read, found: st.web.found, sayNo: st.web.sayNo, code: st.web.read ? null : st.web.code } : null,
+    // The fixes made by hand, and whether Rent Manager has caught up with each.
+    overrides: st && st.overrides ? st.overrides : null,
   };
 }
 
