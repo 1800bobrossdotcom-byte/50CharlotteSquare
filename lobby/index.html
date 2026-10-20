@@ -7,17 +7,27 @@
 <title>Lobby · 50 Charlotte Square</title>
 <!-- The lobby TV. Not linked from the site and kept out of search. Full-screen
      slides of Rochester and the building, upcoming events, the time and
-     weather, and a ticker; it runs itself. See assets/js/lobby.js. -->
+     weather, and a ticker; it runs itself. See assets/js/lobby.js.
+     The welcome slide is written here, so a browser that cannot run the
+     script still shows it rather than a black screen. -->
 <link rel="stylesheet" href="../assets/fonts/fonts.css">
 <link rel="stylesheet" href="../assets/css/lobby.css">
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script src="../assets/js/lobby.js" defer></script>
 </head>
 <body>
-<main class="stage" aria-label="Charlotte Square lobby screen">
-  <div class="slides" data-slides></div>
+<div class="stage">
+  <div class="slides" data-slides>
+    <div class="slide slide--welcome is-on">
+      <div class="slide__img slide__img--home"></div>
+      <div class="welcome">
+        <div class="welcome__eyebrow">50 Charlotte Square · Rochester’s East End</div>
+        <h1 class="welcome__title">Welcome home.</h1>
+      </div>
+    </div>
+  </div>
 
-  <header class="top">
+  <div class="top">
     <div class="brand">
       <svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#A93B3F"/><path d="M9 9 H55 V27 H45 V19 H19 V45 H55 V55 H9 Z" fill="#fff"/></svg>
       <div class="brand__text"><span class="brand__name">Charlotte <i>Square</i></span><span class="brand__tag">At the East End</span></div>
@@ -27,12 +37,12 @@
       <div class="now__date" data-date>&nbsp;</div>
       <div class="now__weather" data-weather></div>
     </div>
-  </header>
+  </div>
 
-  <footer class="ticker">
+  <div class="ticker">
     <div class="ticker__label">Rochester</div>
     <div class="ticker__track"><div class="ticker__run" data-ticker></div></div>
-  </footer>
-</main>
+  </div>
+</div>
 </body>
 </html>

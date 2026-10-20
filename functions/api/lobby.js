@@ -80,12 +80,15 @@ async function events() {
     seen.add(title.toLowerCase());
     const img = /<img[^>]+src=['"]([^'"]+)['"]/.exec(desc);
     const para = /<p>([\s\S]*?)<\/p>/.exec(desc);
+    let blurb = para ? clip(text(para[1]).replace(/\S*(?:https?:\/\/|www\.|\.(?:com|org|net)\/)\S*/gi, '').replace(/\s+/g, ' ').trim(), 220) : '';
+    // Some listings' description is only their title again.
+    if (blurb.replace(/…$/, '').toLowerCase().startsWith(title.toLowerCase().slice(0, 24))) blurb = '';
     out.push({
       title, start, end,
       // When it is next on, and for how many days from then.
       from: start > today ? start : today,
       days: (Date.parse(end) - Date.parse(start > today ? start : today)) / 864e5,
-      blurb: para ? clip(text(para[1]).replace(/\S*(?:https?:\/\/|www\.|\.(?:com|org|net)\/)\S*/gi, '').replace(/\s+/g, ' ').trim(), 220) : '',
+      blurb,
       // Ask the image service for a size that holds up on a TV.
       image: img && /^https:\/\/assets\.simpleviewinc\.com\//.test(img[1])
         ? img[1].replace(/c_fill,h_\d+,q_\d+,w_\d+/, 'c_fill,h_540,q_80,w_810') : null,
@@ -144,7 +147,9 @@ export async function onRequestGet({ request, env, waitUntil }) {
   const cache = caches.default;
   const key = new Request(new URL('/api/lobby', request.url).toString());
   const hit = await cache.match(key);
-  if (hit) return json(await hit.json(), { 'Cache-Control': 'no-store' });
+  // now: the time at the site, so the screen's clock is right whatever the TV's says.
+  const now = () => Math.floor(Date.now() / 1000);
+  if (hit) return json({ ...(await hit.json()), now: now() }, { 'Cache-Control': 'no-store' });
 
   const [ev, nw, wx] = await Promise.all([events(), news(), weather()].map((p) => p.catch(() => null)));
   const prev = env.DB ? await lastGood(env) : {};
@@ -158,5 +163,5 @@ export async function onRequestGet({ request, env, waitUntil }) {
   };
   if (env.DB && (ev || nw || wx)) waitUntil(keep(env, data));
   waitUntil(cache.put(key, json(data, { 'Cache-Control': `public, max-age=${TTL}` })));
-  return json(data, { 'Cache-Control': 'no-store' });
+  return json({ ...data, now: now() }, { 'Cache-Control': 'no-store' });
 }

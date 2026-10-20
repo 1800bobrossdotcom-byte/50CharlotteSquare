@@ -1533,13 +1533,15 @@ What it shows, on a loop:
 - **The time, date and weather**, top right. The temperature and conditions are what the National Weather Service measured at the Rochester airport in the last hour or two, not a forecast; if the station hasn't reported for two hours, this hour's forecast for downtown stands in.
 - **A ticker** along the bottom: the building's notices first, then local headlines from RochesterFirst. Headlines about crime, accidents, illness, loss and the like are left out, since it plays in a lobby all day.
 
+The welcome slide is in the page itself, so a browser that cannot run the script still shows it.
+
 How it is put together:
 
 | Part | File |
 |---|---|
 | The page | `lobby/index.html` |
-| Its look, laid out for 16:9 so 1080p and 4K match, and scaled to fit a window of any other shape | `assets/css/lobby.css` |
-| The slides, clock and ticker; the photo list and credits | `assets/js/lobby.js` |
+| Its look, laid out for 16:9 so 1080p and 4K match, and scaled to fit a window of any other shape. Written for old browsers too: no custom properties, grid or `:is()` | `assets/css/lobby.css` |
+| The slides, clock and ticker; the photo list and credits. Plain ES5, because a TV's built-in browser can be years old and stops at the first modern line, leaving a black screen. The clock is Rochester's, set from the site's time (`now` in `/api/lobby`), so a TV with the wrong time or zone is still right | `assets/js/lobby.js` |
 | Events, headlines and weather, gathered on the server | `functions/api/lobby.js` → `GET /api/lobby` |
 | The city photographs, 1920×1080 | `assets/img/lobby/` |
 
