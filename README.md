@@ -1544,6 +1544,7 @@ How it is put together:
 | The slides, clock and ticker; the photo list and credits. Plain ES5, because a TV's built-in browser can be years old and stops at the first modern line, leaving a black screen. The clock is Rochester's, set from the site's time (`now` in `/api/lobby`), so a TV with the wrong time or zone is still right | `assets/js/lobby.js` |
 | Events, headlines and weather, gathered on the server | `functions/api/lobby.js` → `GET /api/lobby` |
 | The city photographs, 1920×1080 | `assets/img/lobby/` |
+| Its fonts: DM Sans at fixed weights (400, 600, 700) and Instrument Serif, each as WOFF2, WOFF and TTF, made from the site's own files with fontTools. An old TV browser cannot read WOFF2 or a variable font, and would fall back to a system font or fake the bold | `assets/fonts/lobby-fonts.css`, `assets/fonts/lobby-*` |
 
 The screen makes one request to this site every ten minutes. The Worker fetches the three sources (eight seconds each at most), keeps the answer fifteen minutes in Cloudflare's cache, and keeps the last good copy in D1 (`rm_cache`, key `lobby`), so a source that is down leaves the screen as it was rather than empty. The page also keeps its last copy in the TV's browser, and reloads itself every six hours, but only when the site answers, so a dropped connection never leaves a blank screen.
 

@@ -10,10 +10,10 @@
 html { font-size: 19.2px; font-size: 1vw; }
 * { -webkit-box-sizing: border-box; box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: #000; color: #fff; overflow: hidden; cursor: none; }
-body { font-family: "DM Sans", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { font-family: "Lobby Sans", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
 .stage { position: fixed; top: 0; right: 0; bottom: 0; left: 0; }
 .serif, .caption__title, .events__title, .event__name, .event__img--none, .welcome__title,
-.brand__name, .now__time, .now__weather b { font-family: "Instrument Serif", Georgia, "Times New Roman", serif; font-weight: 400; }
+.brand__name, .now__time, .now__weather b { font-family: "Lobby Serif", Georgia, "Times New Roman", serif; font-weight: 400; }
 
 /* ---- Slides: photographs, crossfaded, drifting slowly --------------------- */
 .slides, .slide, .slide__img, .slide:after { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }

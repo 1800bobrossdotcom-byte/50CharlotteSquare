@@ -1,0 +1,15 @@
+/* Fonts for the lobby TV (/lobby/) only, made from the site's own files with
+   fontTools: DM Sans at fixed weights (400, 600, 700) rather than one
+   variable file, and Instrument Serif as it is, each in WOFF2, WOFF and TTF.
+   A TV's built-in browser can be too old for WOFF2 or variable fonts, and
+   would otherwise fall back to a system font or fake the bold. Latin only. */
+@font-face { font-family: 'Lobby Sans'; font-style: normal; font-weight: 400;
+  src: url('lobby-sans-400.woff2') format('woff2'), url('lobby-sans-400.woff') format('woff'), url('lobby-sans-400.ttf') format('truetype'); }
+@font-face { font-family: 'Lobby Sans'; font-style: normal; font-weight: 600;
+  src: url('lobby-sans-600.woff2') format('woff2'), url('lobby-sans-600.woff') format('woff'), url('lobby-sans-600.ttf') format('truetype'); }
+@font-face { font-family: 'Lobby Sans'; font-style: normal; font-weight: 700;
+  src: url('lobby-sans-700.woff2') format('woff2'), url('lobby-sans-700.woff') format('woff'), url('lobby-sans-700.ttf') format('truetype'); }
+@font-face { font-family: 'Lobby Serif'; font-style: normal; font-weight: 400;
+  src: url('lobby-serif.woff2') format('woff2'), url('lobby-serif.woff') format('woff'), url('lobby-serif.ttf') format('truetype'); }
+@font-face { font-family: 'Lobby Serif'; font-style: italic; font-weight: 400;
+  src: url('lobby-serif-italic.woff2') format('woff2'), url('lobby-serif-italic.woff') format('woff'), url('lobby-serif-italic.ttf') format('truetype'); }
