@@ -672,12 +672,16 @@ on the site; it all follows Rent Manager within half an hour, or at once with
 - *Rented:* entering the new resident's lease or move-in takes the unit off.
   Rent Manager's **Show On Web** field cannot do it: it says No on every unit.
   A unit that must come off before Rent Manager is updated goes in
-  `HIDDEN_UNITS` in `functions/_lib/rentmanager.js` (now 321 and 209).
+  `HIDDEN_UNITS` in `functions/_lib/rentmanager.js` (now 321).
 - *A price ahead of Rent Manager:* `PRICE_UPDATES` in the same file shows a new
-  rent only while Rent Manager still reports the old one (308: $1,725 to $2,195;
-  307: $2,495 to $2,695). `FURNISHED_UNITS` tags a furnished home whose name
-  lacks the "-F" (307).
+  rent only while Rent Manager still reports the old one (307: $2,495 to $2,695;
+  212: $2,695 to $2,295, a special). `FURNISHED_UNITS` tags a furnished home whose
+  name lacks the "-F" (307).
   Once Rent Manager has the new price, take the entry out.
+- *A special:* `SPECIAL_UNITS` puts a filled **Special** tag beside the unit
+  number (212, at $2,295, from October 2026). Take it out when the deal ends.
+- `/api/units` reports, under `live.overrides`, what Rent Manager says for each
+  of these by hand and whether it still changes anything.
   So does any status that says it is spoken for (Vacant-Rented, Notice-Rented,
   pre-leased), or one that takes it off the market (Model, Down, Hold).
 - *Price:* the site shows the unit's current market rent. A new amount with a

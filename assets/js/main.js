@@ -532,6 +532,7 @@
         row.dataset.order = String(i);
         const head = node('div', 'unit__head');
         const name = node('h3', 'unit__name', label(u));
+        if (u.special) name.append(' ', node('span', 'unit__tag unit__tag--special', 'Special'));
         if (u.furnished) name.append(' ', node('span', 'unit__tag', 'Furnished'));
         head.append(name, node('p', 'unit__meta', facts(u)));
         const rent = node('p', 'unit__rent', u.rent ? money(u.rent) : 'Rent on request');

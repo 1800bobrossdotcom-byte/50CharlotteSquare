@@ -44,7 +44,8 @@ function row(u, i) {
     u.sqft > 0 ? ` data-sqft="${esc(Math.round(u.sqft))}"` : '',
     ` data-order="${i}"`,
   ].join('');
-  const tag = u.furnished ? ' <span class="unit__tag">Furnished</span>' : '';
+  const tag = (u.special ? ' <span class="unit__tag unit__tag--special">Special</span>' : '')
+    + (u.furnished ? ' <span class="unit__tag">Furnished</span>' : '');
   const rent = u.rent ? `${money(u.rent)}<span> a month</span>` : 'Rent on request';
   const apply = /^https:\/\//.test(u.apply || '')
     ? `<a class="btn btn--sm btn--primary unit__apply" href="${esc(u.apply)}" rel="noopener" aria-label="Apply for ${esc(label(u).toLowerCase())}">Apply</a>`

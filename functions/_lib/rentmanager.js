@@ -488,14 +488,17 @@ function publicUnit(env, n) {
    codes and meter numbers.
 
    Units kept off by hand until Rent Manager catches up go in HIDDEN_UNITS, by
-   unit number. 321 and 209: rented in October 2026, leases not yet entered. */
-const HIDDEN_UNITS = new Set(['321', '209']);
+   unit number. 321: rented in October 2026, lease not yet entered. */
+const HIDDEN_UNITS = new Set(['321']);
 
 // Prices changed by the leasing team before Rent Manager has them: shown only
 // while Rent Manager still reports the old price, so the moment its market
 // rent changes, Rent Manager wins and the entry does nothing. Unit: [old, new].
-// 308: $1,725 to $2,195; 307: $2,495 to $2,695 (October 2026).
-const PRICE_UPDATES = { 308: [1725, 2195], 307: [2495, 2695] };
+// 307: $2,495 to $2,695 (October 2026); 212: $2,695 to $2,295, a special.
+const PRICE_UPDATES = { 307: [2495, 2695], 212: [2695, 2295] };
+// Homes on a special, shown with a "Special" tag. Remove when the deal ends.
+// 212: $2,295 (October 2026).
+const SPECIAL_UNITS = new Set(['212']);
 // Furnished homes whose Rent Manager name does not end in "-F" yet.
 const FURNISHED_UNITS = new Set(['307']);
 const SHOW_ON_WEB = /show\s*on\s*(the\s*)?web/i;
@@ -641,6 +644,7 @@ export async function publicListing(env) {
   for (const u of units) {
     const p = PRICE_UPDATES[u.unit];
     if (p && u.rent === p[0]) u.rent = p[1];
+    if (SPECIAL_UNITS.has(String(u.unit))) u.special = true;
   }
   // Also here, so a unit added to HIDDEN_UNITS comes off at once, not at the next refresh.
   return { updated: l.ts, units: units.filter((u) => !HIDDEN_UNITS.has(String(u.unit))) };
