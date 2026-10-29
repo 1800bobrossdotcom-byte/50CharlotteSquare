@@ -1940,7 +1940,7 @@ means updating the policy first.
 Every enquiry can also land in a Google Sheet the leasing team shares, newest
 at the top. Each row has a **Status** dropdown (New, Contacted, Tour booked,
 Toured, Applied, Leased, Not a fit, No reply, each with its own colour), an
-**Owner** dropdown (Vicki, Tesa, Tatum, Gianni, Unassigned), a **Next step** date with a
+**Owner** dropdown (Tatum, Tesa, Gianni, Unassigned), a **Next step** date with a
 calendar, a **Replied** checkbox and a **Notes** column, plus everything from
 the form in words rather than codes. A new lead nobody has replied to after a
 day turns pale red, and a Next step date that has come round turns red. It is

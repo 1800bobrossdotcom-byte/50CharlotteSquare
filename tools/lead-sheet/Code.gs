@@ -80,7 +80,7 @@ const STATUS = [
 const CLOSED = ['Leased', 'Not a fit', 'No reply'];
 // The first Owner list for a new sheet. After that the list lives on the Lists
 // tab: add or remove a name there and every Owner dropdown follows.
-const OWNERS = ['Vicki', 'Tesa', 'Tatum', 'Gianni', 'Unassigned'];
+const OWNERS = ['Tatum', 'Tesa', 'Gianni', 'Unassigned'];
 // "Heard about us", worded as the website sends it.
 const SOURCES = ['Search', 'Apartment listing site', 'Social media', 'Walked by', 'Friend or resident'];
 
