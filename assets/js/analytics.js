@@ -103,6 +103,9 @@
     }
   }, { capture: true });
 
+  // The leasing special's dialog (main.js): seen, and clicked through.
+  window.cstrack = (kind) => { if (kind === 'deal_open' || kind === 'deal_click') send(kind); };
+
   // Which floor plan a visitor filtered to — the leasing-relevant one.
   document.addEventListener('click', (e) => {
     const chip = e.target.closest && e.target.closest('[data-filter-group] [data-filter]');

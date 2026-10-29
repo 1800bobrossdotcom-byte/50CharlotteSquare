@@ -1517,3 +1517,46 @@ html.with-intro .intro {
   .intro__mark, .intro__name { animation: intro-in .4s ease both; }
   .intro__mark rect, .intro__mark .brand__c { animation: none; }
 }
+
+/* ---- The leasing special: a dialog once a visit, and the header's "½ off" that
+   brings it back (main.js makes both, and removes neither: they simply stop
+   appearing after the last day). ---- */
+.deal { width: min(34rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); padding: 0; border: 0; border-radius: var(--radius);
+  background: var(--bg-elev); color: var(--fg); box-shadow: var(--shadow); overflow: auto; }
+.deal::backdrop { background: rgba(26, 22, 19, .6); backdrop-filter: blur(3px); }
+.deal[open] { animation: deal-in .45s var(--ease); }
+@keyframes deal-in { from { opacity: 0; transform: translateY(18px) scale(.98); } to { opacity: 1; transform: none; } }
+html:has(.deal[open]) { overflow: hidden; }
+.deal__box { position: relative; padding: clamp(1.5rem, 5vw, 2.25rem); }
+.deal__close { position: absolute; top: .6rem; right: .6rem; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border: 0; border-radius: 50%;
+  background: transparent; color: var(--fg-muted); cursor: pointer; }
+.deal__close:hover { color: var(--fg); background: var(--bg-sunken); }
+.deal__close svg { width: 1.35rem; height: 1.35rem; }
+.deal .eyebrow { padding-right: 2.75rem; }
+.deal__title { margin: .6rem 0 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(2.1rem, 7vw, 2.9rem); letter-spacing: -.035em; line-height: 1.02; }
+.deal__lead { margin: .9rem 0 0; font-size: 1.05rem; line-height: 1.5; }
+.deal__clock { margin: .8rem 0 0; }
+.deal__clock span { display: inline-block; padding: .4rem .8rem; border-radius: var(--pill); background: var(--accent); color: var(--accent-fg);
+  font-weight: 800; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; }
+.deal__special { margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--line); }
+.deal__special-head { margin: 0 0 .6rem; font-weight: 800; font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: var(--fg-muted); }
+.deal__home { display: grid; grid-template-columns: minmax(0, 1fr) auto 1.1rem; gap: .8rem; align-items: center; min-height: 3rem; padding: .7rem .9rem;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--fg); text-decoration: none; transition: border-color .25s, background .25s; }
+.deal__home:hover { border-color: var(--accent); background: var(--accent-tint); }
+.deal__home > span:first-child { color: var(--fg-muted); font-size: .92rem; }
+.deal__home b { color: var(--fg); margin-right: .3rem; }
+.deal__rent { font-family: var(--font-display); font-weight: 700; font-size: 1.45rem; letter-spacing: -.02em; white-space: nowrap; }
+.deal__rent small { font-family: var(--font-body); font-weight: 600; font-size: .78rem; color: var(--fg-muted); }
+.deal__home svg { width: 1.1rem; height: 1.1rem; color: var(--accent); }
+.deal__actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.4rem; }
+.deal__actions .btn svg { width: 1rem; height: 1rem; }
+.deal__small { margin: 1.1rem 0 0; font-size: .78rem; line-height: 1.5; color: var(--fg-subtle); }
+.deal-chip { display: inline-flex; align-items: center; gap: .25rem; min-height: 2.5rem; margin-left: auto; margin-right: .6rem; padding: 0 1rem;
+  border: 0; border-radius: var(--pill); background: var(--accent); color: var(--accent-fg); font: inherit; font-weight: 600; font-size: .88rem;
+  white-space: nowrap; cursor: pointer; transition: background .25s; }
+.deal-chip b { font-weight: 800; }
+.deal-chip:hover { background: var(--accent-hover); }
+@media (min-width: 1100px) { .deal-chip { margin-left: 0; } }
+.deal-chip span { display: none; }   /* the header is full: the words are for screen readers (aria-label) */
+@media (max-width: 520px) { .deal-chip { padding: 0 .8rem; } .deal__actions .btn { flex: 1 1 100%; } }
+@media (prefers-reduced-motion: reduce) { .deal[open] { animation: none; } }

@@ -398,6 +398,7 @@
     tour_request: 'Enquiry sent', phone_click: 'Phone tapped', portal_click: 'Resident portal',
     plan_view: 'Floor plan filtered', gallery_open: 'Photo opened', map_click: 'Map opened',
     outbound: 'Left the site', form_start: 'Started the form',
+    deal_open: 'Saw the leasing special', deal_click: 'Clicked through the leasing special',
   };
 
   function render() {

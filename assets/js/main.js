@@ -600,3 +600,107 @@
     update();   // a browser may have restored the sort from the last visit
   }
 })();
+
+/* =============================================================================
+   The leasing special: half off the first month on leases signed by its last
+   day, and unit 212 at a special rent (not combined). A dialog once a visit, a
+   little after the page (and the intro) has settled; the header's "½ off"
+   brings it back. It counts down by Rochester's date and is gone the day after,
+   with nothing to remove; 212 is offered only while /api/units lists it, which
+   stops on the same day (SPECIALS_UNTIL in functions/_lib/rentmanager.js).
+   ============================================================================= */
+(() => {
+  'use strict';
+  const DEAL = { until: '2026-11-15', unit: '212', who: 'Tatum', phone: '(585) 748-5588', tel: '+15857485588' };
+  if (typeof HTMLDialogElement !== 'function') return;
+  if (/^\/(privacy|terms)\//.test(location.pathname)) return;
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
+  if (today > DEAL.until) return;
+  const $ = (s, r = document) => r.querySelector(s);
+  const last = new Date(`${DEAL.until}T12:00:00`);
+  const day = last.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  const days = Math.round((Date.parse(DEAL.until) - Date.parse(today)) / 864e5);
+  const left = days === 0 ? 'Last day: ends tonight' : days === 1 ? 'Ends tomorrow' : `${days} days left`;
+  const track = (kind) => { if (window.cstrack) window.cstrack(kind); };
+  const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+  const dlg = document.createElement('dialog');
+  dlg.className = 'deal';
+  dlg.setAttribute('aria-labelledby', 'deal-title');
+  dlg.innerHTML = `<div class="deal__box">
+    <button type="button" class="deal__close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <p class="eyebrow">Limited time · Charlotte Square</p>
+    <h2 class="deal__title" id="deal-title">Half off your first month.</h2>
+    <p class="deal__lead">Sign a lease by <b>${day}</b> and your first month’s rent is half off.</p>
+    <p class="deal__clock"><span>${left}</span></p>
+    <div class="deal__special" hidden></div>
+    <div class="deal__actions">
+      <a class="btn btn--primary" href="/contact/?interest=tour">Schedule a tour ${arrow}</a>
+      <a class="btn btn--ghost" href="tel:${DEAL.tel}">Call ${DEAL.who} ${DEAL.phone}</a>
+    </div>
+    <p class="deal__small">Half off the first month’s rent on leases signed by ${day}, ${last.getFullYear()}. Unit ${DEAL.unit}’s special rent while available; not combined with half off. Equal Housing Opportunity.</p>
+  </div>`;
+  document.body.appendChild(dlg);
+
+  // 212, while it is still open: its size and rent from the site's own list.
+  fetch('/api/units', { headers: { Accept: 'application/json' } })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      const u = data && (data.units || []).find((x) => String(x.unit) === DEAL.unit && x.special);
+      if (!u) return;
+      const box = $('.deal__special', dlg);
+      const head = document.createElement('p');
+      head.className = 'deal__special-head';
+      head.textContent = `Or take unit ${DEAL.unit} at a special rent`;
+      const a = document.createElement('a');
+      a.className = 'deal__home';
+      a.href = '/availability/';
+      const where = document.createElement('span');
+      const b = document.createElement('b');
+      b.textContent = `Unit ${u.unit}`;
+      const bits = [u.beds ? `${u.beds} bed` : 'Studio', u.baths ? `${u.baths} bath` : '', u.sqft ? `${Number(u.sqft).toLocaleString('en-US')} sq ft` : ''].filter(Boolean);
+      where.append(b, ` ${bits.join(' · ')}`);
+      const rent = document.createElement('span');
+      rent.className = 'deal__rent';
+      rent.textContent = `$${Number(u.rent).toLocaleString('en-US')}`;
+      const mo = document.createElement('small');
+      mo.textContent = '/mo';
+      rent.append(mo);
+      a.append(where, rent);
+      a.insertAdjacentHTML('beforeend', arrow);
+      box.append(head, a);
+      box.hidden = false;
+    })
+    .catch(() => { /* the dialog reads as it is */ });
+
+  // The header's way back to it, on every size of screen.
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = 'deal-chip';
+  chip.setAttribute('aria-controls', 'deal');
+  chip.setAttribute('aria-label', 'Half off your first month: see the deal');
+  chip.innerHTML = '<b>½ off</b><span> first month</span>';
+  const inner = $('.topbar__inner');
+  if (inner) inner.insertBefore(chip, $('.topbar__actions', inner) || $('.menu-btn', inner));
+  dlg.id = 'deal';
+
+  const open = () => { if (dlg.open) return; dlg.showModal(); track('deal_open'); };
+  const KEY = 'cs-deal';
+  dlg.addEventListener('close', () => { try { sessionStorage.setItem(KEY, '1'); } catch (e) { /* fine */ } });
+  $('.deal__close', dlg).addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', (e) => {
+    if (e.target === dlg) dlg.close();                       // the backdrop
+    else if (e.target.closest('a')) { track('deal_click'); dlg.close(); }
+  });
+  chip.addEventListener('click', open);
+
+  let seen = true;
+  try { seen = sessionStorage.getItem(KEY) === '1'; } catch (e) { /* no storage: never nag; the header's button stays */ }
+  if (seen) return;
+  const later = () => setTimeout(() => {
+    if (!$('.intro') && !document.body.classList.contains('menu-open') && !$('dialog[open]')) open();
+    else later();
+  }, 2500);
+  if (document.prerendering) document.addEventListener('prerenderingchange', later, { once: true });
+  else later();
+})();

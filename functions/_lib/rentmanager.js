@@ -494,11 +494,17 @@ const HIDDEN_UNITS = new Set(['321']);
 // Prices changed by the leasing team before Rent Manager has them: shown only
 // while Rent Manager still reports the old price, so the moment its market
 // rent changes, Rent Manager wins and the entry does nothing. Unit: [old, new].
-// 307: $2,495 to $2,695 (October 2026); 212: $2,695 to $2,295, a special.
-const PRICE_UPDATES = { 307: [2495, 2695], 212: [2695, 2295] };
-// Homes on a special, shown with a "Special" tag. Remove when the deal ends.
-// 212: $2,295 (October 2026).
-const SPECIAL_UNITS = new Set(['212']);
+// 307: $2,495 to $2,695 (October 2026).
+const PRICE_UPDATES = { 307: [2495, 2695] };
+// Homes on a special: the special price, the same way, and a "Special" tag. They
+// end with the leasing special (half off the first month, the site's popup) on
+// SPECIALS_UNTIL, Rochester's date: from the next day Rent Manager's price shows
+// and the tag goes, with nothing to remove. 212: $2,695 to $2,295 (October 2026).
+const SPECIALS_UNTIL = '2026-11-15';
+const SPECIAL_PRICES = { 212: [2695, 2295] };
+const rochesterToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
+const specialsOn = () => rochesterToday() <= SPECIALS_UNTIL;
+const priceUpdates = () => (specialsOn() ? { ...PRICE_UPDATES, ...SPECIAL_PRICES } : PRICE_UPDATES);
 // Furnished homes whose Rent Manager name does not end in "-F" yet.
 const FURNISHED_UNITS = new Set(['307']);
 const SHOW_ON_WEB = /show\s*on\s*(the\s*)?web/i;
@@ -541,7 +547,7 @@ function overrideCheck(all, today) {
       const n = byNumber(num);
       return { unit: num, rmOpen: n ? isOpen(n) : null, needed: Boolean(n && isOpen(n)) };
     }),
-    prices: Object.entries(PRICE_UPDATES).map(([num, [was, now]]) => {
+    prices: Object.entries(priceUpdates()).map(([num, [was, now]]) => {
       const n = byNumber(num);
       return { unit: num, rmRent: n ? n.rent : null, site: now, needed: Boolean(n && n.rent === was) };
     }),
@@ -641,10 +647,12 @@ export async function publicListing(env) {
   if (!l || !l.ts || Date.now() / 1000 - l.ts > STALE_AFTER) return { units: [] };
   const units = (l.units || []).map((u) => (FURNISHED.test(String(u.unit)) || FURNISHED_UNITS.has(String(u.unit))
     ? { ...u, unit: String(u.unit).replace(FURNISHED, ''), furnished: true } : u));
+  const prices = priceUpdates();
+  const special = specialsOn();
   for (const u of units) {
-    const p = PRICE_UPDATES[u.unit];
+    const p = prices[u.unit];
     if (p && u.rent === p[0]) u.rent = p[1];
-    if (SPECIAL_UNITS.has(String(u.unit))) u.special = true;
+    if (special && SPECIAL_PRICES[u.unit]) u.special = true;
   }
   // Also here, so a unit added to HIDDEN_UNITS comes off at once, not at the next refresh.
   return { updated: l.ts, units: units.filter((u) => !HIDDEN_UNITS.has(String(u.unit))) };

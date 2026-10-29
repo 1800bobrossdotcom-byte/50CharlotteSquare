@@ -10,6 +10,7 @@ import { visitorHash, today, json } from '../_lib/auth.js';
 const KINDS = new Set([
   'pageview', 'tour_request', 'phone_click', 'portal_click',
   'plan_view', 'gallery_open', 'map_click', 'outbound', 'form_start',
+  'deal_open', 'deal_click',
 ]);
 
 const DEVICES = new Set(['mobile', 'tablet', 'desktop']);
