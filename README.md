@@ -1375,7 +1375,7 @@ for arrivals is `sessionStorage` key `cs-intro`.
 
 - **Copy** lives directly in each page's HTML. Search for the text you want to change.
 - **Header and footer** are repeated in every page for zero-dependency hosting. Change them in one page, then copy the block to the others (or search-and-replace across files).
-- **Leasing contact**: Tatum Hartmann, (585) 748-5588, appears in the hero, tour buttons, contact page, footer and structured data. Search for `748-5588` to change it. The Evolution24 office line (585) 245-3071 appears only on the contact page's management office card. No email address is printed anywhere on the pages; the contact form's delivery address is set by `EMAIL` in the generator and appears only as an attribute on the form.
+- **Leasing contact**: Tatum Hartmann, (585) 748-5588, appears in the hero, tour buttons, contact page, footer and structured data. Search for `748-5588` to change it. The Evolution24 office line (585) 759-7117 appears only on the contact page's management office card. No email address is printed anywhere on the pages; the contact form's delivery address is set by `EMAIL` in the generator and appears only as an attribute on the form.
 - **Floor plans**: each card is an `<article class="plan" data-beds="…">` in `residences/index.html` and `index.html`. Edit square footage, bullets and the price line there. The filter chips work off `data-beds`.
 - **Resident portal links** point at `https://evolution.twa.rentmanager.com/`.
 
