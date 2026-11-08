@@ -547,6 +547,61 @@
     return new Date(ts * 1000).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
   }
 
+  /* Held as spam (functions/_lib/spam.js): what the form caught, with why, so a real person
+     caught by mistake can be sent on as a normal enquiry. Their text, so textContent. */
+  const mk = (tag, cls, text) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined && text !== null) n.textContent = text;
+    return n;
+  };
+  function heldCard(h) {
+    const card = mk('article', 'lead lead--held');
+    const head = mk('div', 'lead__head');
+    head.append(mk('h3', 'lead__who', `${h.first_name || ''} ${h.last_name || ''}`.trim() || 'No name given'));
+    const when = mk('time', 'lead__when', ago(h.ts));
+    when.dateTime = new Date(h.ts * 1000).toISOString();
+    head.append(when);
+    card.append(head);
+    card.append(mk('p', 'lead__contact', [h.email, h.phone].filter(Boolean).join(' · ')));
+    card.append(mk('p', 'lead__why', `Held: ${h.reasons || 'it looked like spam'}.`));
+    if (h.message) card.append(mk('p', 'lead__msg', h.message));
+    const foot = mk('div', 'lead__foot');
+    const send = button('Not spam: send it on');
+    const drop = button('Delete');
+    const say = mk('span', 'lead__flag');
+    const act = async (body, doing) => {
+      send.disabled = drop.disabled = true;
+      say.textContent = doing;
+      try {
+        const res = await fetch('/api/inquiries', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ held: h.id, ...body }),
+        });
+        if (res.status === 401) { location.reload(); return; }
+        const out = await res.json().catch(() => ({}));
+        if (res.ok) { loadLeads(); return; }
+        say.textContent = out.error || 'That did not work. Try again.';
+      } catch {
+        say.textContent = 'That did not work. Try again.';
+      }
+      send.disabled = drop.disabled = false;
+    };
+    send.addEventListener('click', () => act({ release: true }, 'Sending…'));
+    drop.addEventListener('click', () => act({ discard: true }, 'Deleting…'));
+    foot.append(send, drop, say);
+    card.append(foot);
+    return card;
+  }
+
+  function renderHeld(list) {
+    const box = $('#held');
+    if (!box) return;
+    box.hidden = !list.length;
+    $('#held-sum').textContent = `Held as spam: ${num(list.length)} in the last 30 days`;
+    $('#held-list').replaceChildren(...list.map(heldCard));
+  }
+
   function leadCard(r) {
     const card = document.createElement('article');
     card.className = 'lead' + (r.handled ? ' lead--done' : '');
@@ -828,6 +883,7 @@
       const d = await res.json();
       leadAi = Boolean(d.ai);
       leadSheet = Boolean(d.sheet);
+      renderHeld(Array.isArray(d.held) ? d.held : []);
 
       host.replaceChildren();
       if (!d.inquiries.length) {

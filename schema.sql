@@ -157,6 +157,18 @@ CREATE TABLE IF NOT EXISTS lead_sync (
   ts         INTEGER NOT NULL
 );
 
+-- Enquiries held as spam (functions/_lib/spam.js): never emailed, never in the
+-- lead sheet or the counts. The dashboard lists them, with why, and can send one
+-- on; each is deleted 30 days after it arrived.
+CREATE TABLE IF NOT EXISTS held (
+  id      INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts      INTEGER NOT NULL,
+  score   INTEGER NOT NULL,
+  reasons TEXT,                        -- why, as the dashboard says it
+  data    TEXT    NOT NULL             -- the enquiry as it would have been stored (JSON)
+);
+CREATE INDEX IF NOT EXISTS idx_held_ts ON held(ts);
+
 -- Rent Manager: the latest list of open units, how the last refresh went, what
 -- the connection check found, and whether the list is on the site. One row per
 -- key. Unit details only: never a resident, a lease or a payment.

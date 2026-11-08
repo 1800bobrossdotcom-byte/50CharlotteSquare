@@ -2087,6 +2087,36 @@ minutes — all verified locally, including that the sixth is refused.
 Every inquiry is a row in `inquiries`, with `notified` recording whether the
 email also went and `handled` there for the dashboard to mark off.
 
+### Spam
+
+`functions/_lib/spam.js` (the same file as evolution24.net's `api/_lib/spam.js`)
+keeps bots out of the leasing inbox, in layers:
+
+1. **The post must come from this site:** its `Origin`, or failing that its
+   `Referer`. A script posting straight to `/api/inquiry` usually sends neither.
+2. **A form token.** The page fetches one from `/api/form-token` as it loads:
+   the time, signed with `SESSION_SECRET`. A post without a valid one, or sent
+   under three seconds after it, is refused with `retry: 'token'`; `main.js`
+   then gets a new token, waits three seconds and sends again by itself, so a
+   person never sees it. A token lasts a day; a tab left open longer gets a new
+   one when it is looked at again. Without `SESSION_SECRET`, tokens are not
+   checked rather than the form turning everyone away.
+3. **The honeypot** and **five sends per IP per ten minutes**, as before.
+4. **The words, scored.** Links, link markup, SEO and marketing pitches, crypto
+   and the like, text in other scripts, names of random letters or with digits,
+   a throwaway email domain. At 5 or more the enquiry is **held**: the sender is
+   told it went, but it is not saved as an enquiry, not emailed, not in the lead
+   sheet, not read by Claude and not counted. One link, one sales word or "your
+   website" alone never holds a message; it takes two, or one thing people never
+   do (link markup, a name of random letters).
+
+Held enquiries go to the `held` table (in `schema.sql`, which the Worker
+applies by itself) and are listed in the dashboard under **Enquiries → Held as
+spam**, with why. **Not spam: send it on** makes one a normal enquiry, emailed
+and in the sheet as if it had never been held; **Delete** removes it. Each is
+deleted 30 days after it arrived. To tune what is caught, edit the word lists
+and weights in `spam.js`, and copy the file to evolution24.net.
+
 ### Reading the enquiries
 
 `/admin/` opens on them, above Traffic, because that is what a leasing team

@@ -230,6 +230,17 @@
     const phone = form.dataset.phone || '';
     const status = $('.form__status', form);
 
+    // The form token (functions/_lib/spam.js): fetched as the page loads and sent with the
+    // enquiry, so the server knows this page was open, and for more than three seconds.
+    // Refused for want of one, the post gets a new token here and goes again by itself.
+    let formToken = '';
+    let tokenAt = 0;
+    const getToken = () => fetch('/api/form-token', { headers: { Accept: 'application/json' }, cache: 'no-store' })
+      .then((r) => r.json()).then((d) => { formToken = d.token || ''; tokenAt = Date.now(); }).catch(() => {});
+    getToken();
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - tokenAt > 6 * 3600e3) getToken(); });
+    const pause = (ms) => new Promise((done) => setTimeout(done, ms));
+
     // Prefill from the query string, e.g. contact/?plan=2&interest=tour. Only
     // into a select, and only a value it offers: on the tour page interest is a
     // hidden field that the page itself sets.
@@ -314,7 +325,16 @@
       // enquiry server-side and notifies from there.
       try {
         if (endpoint) {
-          const res = await fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+          const post = () => { data.set('token', formToken); return fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } }); };
+          let res = await post();
+          if (res.status === 400 || res.status === 425) {
+            const out = await res.clone().json().catch(() => ({}));
+            if (out.retry === 'token') {      // no token yet, an old one, or sent within seconds
+              if (out.reason !== 'fast') await getToken();
+              await pause(3200);
+              res = await post();
+            }
+          }
           if (res.status === 429) {
             showStatus(false, 'We’ve had a few messages from you already.', 'To add anything, call ', phoneLink(), ' and we’ll take it from there.');
             return;

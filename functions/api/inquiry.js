@@ -29,6 +29,7 @@ import { sendEmail, leadTo, logEmail } from '../_lib/email.js';
 import { confirmAndRecord } from '../_lib/confirm.js';
 import { label, cameVia } from '../_lib/labels.js';
 import { sheetEnabled, sheetAndRecord } from '../_lib/sheet.js';
+import { checkToken, spamCheck, HOLD_DAYS } from '../_lib/spam.js';
 
 /* Submissions per IP per window. High enough that a couple sent in earnest, or
    a shared office NAT, never trips it; low enough to be useless to a script. */
@@ -166,6 +167,20 @@ export async function onRequestPost({ request, env, waitUntil }) {
   // arrives with it filled in did not come from the form.
   if (clean(form.get('website'), 200)) return json({ ok: true }, 202);
 
+  // Only this site's own pages may post here. Browsers say where a post came from (Origin, or
+  // at least the Referer); a script posting straight to this address usually says nothing.
+  let fromHost = '';
+  try { fromHost = new URL(request.headers.get('Origin') || request.headers.get('Referer') || '').host; } catch { /* refused below */ }
+  if (fromHost !== new URL(request.url).host) return json({ error: 'Please send the form from our website, or call us.' }, 403);
+
+  // The form token (_lib/spam.js): a page of this site was loaded, at least three seconds ago.
+  // main.js reads retry: 'token', fetches a new one and sends again, so a person never sees this.
+  const token = await checkToken(form.get('token'), env.SESSION_SECRET || '');
+  if (!token.ok) {
+    return json({ retry: 'token', reason: token.reason, error: 'Please reload the page and send the form again, or call us.' },
+      token.reason === 'fast' ? 425 : 400);
+  }
+
   const now = Math.floor(Date.now() / 1000);
   const ip = request.headers.get('CF-Connecting-IP') || '0.0.0.0';
   if (await overLimit(env, ip, now)) {
@@ -190,6 +205,44 @@ export async function onRequestPost({ request, env, waitUntil }) {
     return json({ error: 'Please check your name and email address.' }, 400);
   }
 
+  // The words: held as spam, it is kept for the dashboard and sent nowhere. The sender is
+  // told it went, as a person would be, so a script learns nothing from the answer.
+  const country = (request.cf && request.cf.country) || null;
+  const verdict = spamCheck(row);
+  if (verdict.hold) {
+    await hold(env, { ...row, ts: now, country }, verdict);
+    return json({ ok: true }, 202);
+  }
+
+  const out = await deliver(env, row, {
+    ts: now, country, ip, ua: request.headers.get('User-Agent') || '', origin: new URL(request.url).origin, waitUntil,
+  });
+  // The one genuine failure: nothing was stored, so do not tell the visitor
+  // it arrived. The form shows the phone number when this comes back.
+  if (!out.ok) return json({ error: 'We could not save your message. Please call us.' }, 500);
+  // 202 regardless: the lead is safe. notified and notify_err are what the
+  // dashboard's banner reads, and they are the only place this failure shows —
+  // from the visitor's side both outcomes look identical.
+  return json({ ok: true, notified: out.notified }, 202);
+}
+
+/* Held as spam (_lib/spam.js): never emailed, never in the lead sheet or the counts. The
+   dashboard lists them, with why, and can send one on; they are deleted after 30 days. The
+   held table is in schema.sql, which the Worker applies by itself. */
+async function hold(env, row, verdict) {
+  try {
+    await env.DB.prepare('DELETE FROM held WHERE ts < ?').bind(row.ts - HOLD_DAYS * 86400).run();
+    await env.DB.prepare('INSERT INTO held (ts, score, reasons, data) VALUES (?, ?, ?, ?)')
+      .bind(row.ts, verdict.score, verdict.reasons.join('; '), JSON.stringify(row)).run();
+  } catch (err) {
+    console.error('inquiry: could not keep a held enquiry:', err && err.message);
+  }
+}
+
+/** One enquiry, saved and sent on: the table, the team's email, then (after the response)
+ *  the visitor's confirmation, the lead sheet and Claude's read. Also how the dashboard sends
+ *  on an enquiry that was held as spam by mistake (with no ip, so no first-touch lookup). */
+export async function deliver(env, row, { ts, country = null, ip = null, ua = '', origin, waitUntil }) {
   let id;
   try {
     const res = await env.DB.prepare(
@@ -197,23 +250,21 @@ export async function onRequestPost({ request, env, waitUntil }) {
          (ts, day, first_name, last_name, email, phone, interest, plan, move_in, source, message, country)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(
-      now, today(new Date()),
+      ts, today(new Date(ts * 1000)),
       row.first_name, row.last_name, row.email, row.phone,
       row.interest, row.plan, row.move_in, row.source, row.message,
-      (request.cf && request.cf.country) || null,
+      country,
     ).run();
     id = res.meta && res.meta.last_row_id;
   } catch {
-    // The one genuine failure: nothing was stored, so do not tell the visitor
-    // it arrived. The form shows the phone number when this comes back.
-    return json({ error: 'We could not save your message. Please call us.' }, 500);
+    return { ok: false };
   }
 
   /* Attribution, written in its own statement after the lead is safe. A
      database from before these columns existed then still takes the lead; it
      just arrives without the "came via" line. */
   try {
-    const t = (await firstTouch(env, ip, request.headers.get('User-Agent') || '')) || {};
+    const t = (ip ? await firstTouch(env, ip, ua) : null) || {};
     Object.assign(row, {
       utm_source: t.utm_source || null, utm_medium: t.utm_medium || null,
       utm_campaign: t.utm_campaign || null, referrer: t.ref || null, landing: t.path || null,
@@ -226,7 +277,6 @@ export async function onRequestPost({ request, env, waitUntil }) {
       row.utm_campaign, row.referrer, row.landing, id).run();
   } catch { /* stored either way */ }
 
-  const origin = new URL(request.url).origin;
   const sent = await notify(env, { ...row, id }, origin);
   await logEmail(env, 'notification', id, sent);
   try {
@@ -239,13 +289,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
   // The visitor's own branded confirmation, with its unsubscribe link:
   if (waitUntil) waitUntil(confirmAndRecord(env, { ...row, id }, origin));
   // And a row in the leasing team's Google Sheet, when one is connected.
-  if (sheetEnabled(env) && waitUntil) waitUntil(sheetAndRecord(env, { ...row, id, ts: now }));
+  if (sheetEnabled(env) && waitUntil) waitUntil(sheetAndRecord(env, { ...row, id, ts }));
   if (aiEnabled(env) && waitUntil) waitUntil(triageInquiry(env, id));
-
-  // 202 regardless: the lead is safe. notified and notify_err are what the
-  // dashboard's banner reads, and they are the only place this failure shows —
-  // from the visitor's side both outcomes look identical.
-  return json({ ok: true, notified: sent.ok }, 202);
+  return { ok: true, id, notified: sent.ok };
 }
 
 // No generic onRequest export: in Pages Functions it takes over every method

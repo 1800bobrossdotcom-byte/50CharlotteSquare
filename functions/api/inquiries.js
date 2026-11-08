@@ -2,7 +2,11 @@
    /api/inquiries — the leads themselves, for the dashboard.
 
    GET  ?limit=50&all=1   newest first. Without `all` only the unhandled ones.
+                          Also `held`: the last month's held as spam (_lib/spam.js).
    POST {id, handled}     tick one off, or put it back.
+   POST {held, release}   one held as spam was a person: make it an enquiry and
+                          send it on, as if it had never been held.
+   POST {held, discard}   delete one held as spam now.
 
    Both are session-gated. The POST needs no CSRF token of its own: the session
    cookie is SameSite=Strict, so it is never attached to a request that started
@@ -14,7 +18,25 @@
    ============================================================================= */
 import { requireSession, json } from '../_lib/auth.js';
 import { aiEnabled } from '../_lib/ai.js';
-import { notify } from './inquiry.js';
+import { notify, deliver } from './inquiry.js';
+import { HOLD_DAYS } from '../_lib/spam.js';
+
+/** The last month's enquiries held as spam (_lib/spam.js), newest first: who, what and why. */
+async function heldList(env) {
+  try {
+    const since = Math.floor(Date.now() / 1000) - HOLD_DAYS * 86400;
+    const { results } = await env.DB.prepare('SELECT id, ts, score, reasons, data FROM held WHERE ts >= ? ORDER BY ts DESC LIMIT 100')
+      .bind(since).all();
+    return (results || []).map((h) => {
+      let d = {};
+      try { d = JSON.parse(h.data) || {}; } catch { /* shown with what there is */ }
+      return { id: h.id, ts: h.ts, score: h.score, reasons: h.reasons || '', first_name: d.first_name || '', last_name: d.last_name || '',
+        email: d.email || '', phone: d.phone || '', message: d.message || '', form: d.form || 'contact' };
+    });
+  } catch {
+    return [];
+  }
+}
 import { logEmail } from '../_lib/email.js';
 import { sheetEnabled, sheetAndRecord } from '../_lib/sheet.js';
 import { confirmAndRecord } from '../_lib/confirm.js';
@@ -76,7 +98,10 @@ export async function onRequestGet({ request, env }) {
                 ORDER BY ts DESC LIMIT 1)      AS last_error
          FROM inquiries`,
     ).first()) || {};
+    const held = await heldList(env);
     return json({
+      // Held as spam: never emailed or counted; listed so a person caught by mistake is not lost.
+      held,
       // ai is stored as JSON text; hand it over parsed so the page never has to.
       inquiries: (rows.results || []).map((r) => {
         if (typeof r.ai !== 'string') return r;
@@ -103,13 +128,35 @@ export async function onRequestGet({ request, env }) {
   }
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   const denied = await requireSession(request, env);
   if (denied) return denied;
   if (!env.DB) return json({ error: 'No database bound.' }, 503);
 
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Bad JSON.' }, 400); }
+
+  if (body && body.held) {
+    const hid = Number.parseInt(body.held, 10);
+    if (!Number.isInteger(hid) || hid < 1) return json({ error: 'Which one?' }, 400);
+    let rec = null;
+    try {
+      rec = await env.DB.prepare('SELECT id, data FROM held WHERE id = ?').bind(hid).first();
+    } catch { /* answered below */ }
+    if (!rec) return json({ error: 'It is not held any more.' }, 404);
+    if (body.discard) {
+      await env.DB.prepare('DELETE FROM held WHERE id = ?').bind(hid).run();
+      return json({ ok: true });
+    }
+    if (!body.release) return json({ error: 'Send it on, or delete it?' }, 400);
+    let row;
+    try { row = JSON.parse(rec.data); } catch { return json({ error: 'It could not be read.' }, 500); }
+    const { ts, country, ...fields } = row;
+    const out = await deliver(env, fields, { ts: ts || Math.floor(Date.now() / 1000), country, origin: new URL(request.url).origin, waitUntil });
+    if (!out.ok) return json({ error: 'It could not be saved as an enquiry. Try again in a minute.' }, 502);
+    try { await env.DB.prepare('DELETE FROM held WHERE id = ?').bind(hid).run(); } catch { /* sent on either way */ }
+    return json({ ok: true, id: out.id, notified: out.notified });
+  }
 
   const id = Number.parseInt(body.id, 10);
   if (!Number.isInteger(id) || id < 1) return json({ error: 'Which enquiry?' }, 400);

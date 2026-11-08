@@ -18,6 +18,7 @@
 import * as admin from '../functions/admin/_middleware.js';
 import * as collect from '../functions/api/collect.js';
 import * as emailEvents from '../functions/api/email-events.js';
+import * as formToken from '../functions/api/form-token.js';
 import * as inquiries from '../functions/api/inquiries.js';
 import * as inquiry from '../functions/api/inquiry.js';
 import * as insights from '../functions/api/insights.js';
@@ -74,6 +75,7 @@ function ensureSchema(env) {
 const API = {
   '/api/collect': collect,
   '/api/email-events': emailEvents,
+  '/api/form-token': formToken,
   '/api/inquiries': inquiries,
   '/api/inquiry': inquiry,
   '/api/insights': insights,
