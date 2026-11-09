@@ -669,9 +669,14 @@ name: "322-F" shows as "Unit 322" with the tag (`FURNISHED` in
 on the site; it all follows Rent Manager within half an hour, or at once with
 **Refresh now** in the dashboard's Rent Manager panel.
 
-- *Rented:* entering the new resident's lease or move-in takes the unit off.
-  Rent Manager's **Show On Web** field cannot do it: it says No on every unit.
-  A unit that must come off before Rent Manager is updated goes in
+- *Rented:* turning the unit's **Show On Web** to No in Rent Manager takes it
+  off, whatever its status says (it is a user-defined field on the unit, beside
+  *Show on Zillow?*); Yes, or blank, lists it again by its status. Entering the
+  new resident's lease or move-in takes it off too. Show On Web counts only
+  while some unit says Yes, so one left at No everywhere, as it was at first,
+  cannot empty the list; if it cannot be read, the refresh stops and the list
+  stays as it was. The dashboard's Rent Manager status names the homes it kept
+  off (`web.keptOff`). A unit that must come off by hand goes in
   `HIDDEN_UNITS` in `functions/_lib/rentmanager.js` (now 321).
 - *A price ahead of Rent Manager:* `PRICE_UPDATES` in the same file shows a new
   rent only while Rent Manager still reports the old one (307: $2,495 to $2,695;

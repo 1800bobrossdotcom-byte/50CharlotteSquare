@@ -160,7 +160,7 @@ function describe(obj, depth = 0) {
 
 // Embeds worth asking for: the unit's type, rent and status. Never people.
 const WANTED_EMBED = /(type|rent|status|occup|vacan|market|avail|ready|notice|floor)/i;
-const DISCOVERY_VERSION = 10;   // a bump runs one check and refresh right after the deploy
+const DISCOVERY_VERSION = 11;   // a bump runs one check and refresh right after the deploy
 
 // Rent Manager sends a unit's ID, property, name and sort order and nothing
 // more unless fields are asked for by name, and the list of names is behind a
@@ -507,11 +507,16 @@ const specialsOn = () => rochesterToday() <= SPECIALS_UNTIL;
 const priceUpdates = () => (specialsOn() ? { ...PRICE_UPDATES, ...SPECIAL_PRICES } : PRICE_UPDATES);
 // Furnished homes whose Rent Manager name does not end in "-F" yet.
 const FURNISHED_UNITS = new Set(['307']);
+// "Show On Web": a user-defined field on each unit, which the leasing team turns to No when a
+// home is rented, often before the lease or move-in is entered. A No keeps the home off the
+// site whatever its status says, once the field is in use (some unit says Yes): one left at
+// No on every unit, as it was at first, would otherwise empty the list. Blank is not No.
 const SHOW_ON_WEB = /show\s*on\s*(the\s*)?web/i;
 const SAYS_NO = /^(no|n|false|0|hide|hidden)$/i;
+const SAYS_YES = /^(yes|y|true|1|show)$/i;
 
 async function hiddenOnWeb(env, token) {
-  const out = { read: false, found: false, hidden: [], code: null, shape: null };
+  const out = { read: false, found: false, hidden: [], shown: 0, code: null, shape: null };
   for (const qs of [
     '&pagesize=1000&fields=UnitID,UserDefinedValues&embeds=UserDefinedValues',
     '&pagesize=1000&fields=UnitID,UserDefinedValues&embeds=UserDefinedValues.UserDefinedField',
@@ -528,7 +533,9 @@ async function hiddenOnWeb(env, token) {
         const name = pick(v.Name, v.FieldName, v.UserDefinedFieldName, v.UserDefinedField && v.UserDefinedField.Name);
         if (!SHOW_ON_WEB.test(String(name || ''))) continue;
         out.found = true;
-        if (SAYS_NO.test(String(pick(v.Value, v.FieldValue, '')).trim())) out.hidden.push(pick(u.UnitID, u.Id, u.ID));
+        const said = String(pick(v.Value, v.FieldValue, '')).trim();
+        if (SAYS_NO.test(said)) out.hidden.push(pick(u.UnitID, u.Id, u.ID));
+        else if (SAYS_YES.test(said)) out.shown += 1;
       }
     }
     if (out.found) break;
@@ -579,8 +586,13 @@ export async function refresh(env) {
     read: all.reduce((m, n) => { m[n.status] = (m[n.status] || 0) + 1; return m; }, {}),
   };
   const today = new Date().toISOString().slice(0, 10);
-  const web = await hiddenOnWeb(env, token).catch((err) => ({ read: false, found: false, hidden: [], code: err.status || 0, shape: null }));
+  const web = await hiddenOnWeb(env, token).catch((err) => ({ read: false, found: false, hidden: [], shown: 0, code: err.status || 0, shape: null }));
+  // Show On Web unreadable: keep the list as it was rather than let a switched-off home back on.
+  if (!web.read) throw new RMError(`Rent Manager's Show On Web field could not be read (${web.code || 'no answer'}); the list was left as it was.`, web.code || 0);
+  const webOn = web.found && web.shown > 0;
+  const offWeb = new Set(webOn ? web.hidden.map(String) : []);
   const open = all.filter((n) => !HIDDEN_UNITS.has(String(n.unit).replace(/\s*-\s*F$/i, '')))
+    .filter((n) => !offWeb.has(String(n.id)))
     .filter((n) => n.status === 'vacant' || n.status === 'making-ready'
     // A notice unit is listed only with a move-out date still to come:
     // without one there is nothing true to say about when it opens.
@@ -601,7 +613,10 @@ export async function refresh(env) {
     noRent: open.filter((n) => !n.rent).length, rate: r.rate,
     limited: onlyNumbers(found), needs: onlyNumbers(found) ? neededPrivilege(found) || 'Units' : null,
     plausible, summary,
-    web: { read: web.read, found: web.found, sayNo: web.hidden.length, code: web.code, shape: web.shape },
+    web: { read: web.read, found: web.found, sayNo: web.hidden.length, sayYes: web.shown, inUse: webOn, code: web.code, shape: web.shape,
+      // Homes open by their status but kept off because Show On Web says No: numbers only.
+      keptOff: all.filter((n) => offWeb.has(String(n.id)) && (n.status === 'vacant' || n.status === 'making-ready'
+        || (n.status === 'notice' && n.available && n.available > today))).map((n) => String(n.unit)) },
     hiddenByHand: all.filter((n) => HIDDEN_UNITS.has(String(n.unit).replace(/\s*-\s*F$/i, ''))).length,
     overrides: overrideCheck(all, today),
   });
@@ -621,7 +636,7 @@ export async function publicStatus(env) {
     limited: Boolean(st && st.limited),
     code: st && !st.ok ? st.code || 0 : null,
     // Whether "Show On Web" could be read, and how many units it keeps off.
-    web: st && st.web ? { read: st.web.read, found: st.web.found, sayNo: st.web.sayNo, code: st.web.read ? null : st.web.code } : null,
+    web: st && st.web ? { read: st.web.read, found: st.web.found, inUse: Boolean(st.web.inUse), sayNo: st.web.sayNo, code: st.web.read ? null : st.web.code } : null,
     // The fixes made by hand, and whether Rent Manager has caught up with each.
     overrides: st && st.overrides ? st.overrides : null,
   };
