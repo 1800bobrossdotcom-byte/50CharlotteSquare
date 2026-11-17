@@ -2012,10 +2012,33 @@ totalled the same way and the CAM detail lines rolled into CAM. The P&L tabs
 are only read. Which GL account goes in which P&L line is the **RM Mapping**
 tab, filled with a suggested line the first time an account appears; a line
 can name alternatives ("Turnover | Repairs"), since the tabs word them a little
-differently. It reads exports, not Rent Manager's API: the website's Rent
-Manager user can read units only, and accounting needs no new login this way.
-The spreadsheet itself holds pay, vendor and account details and never goes in
-this repository.
+differently. The spreadsheet itself holds pay, vendor and account details and
+never goes in this repository.
+
+**Straight from Rent Manager, through the Worker.** The sheet can also ask
+Rent Manager itself, without an export. The accounting login is kept in
+Cloudflare, not in the sheet: `/api/pl` (`functions/api/pl.js`,
+`functions/_lib/rm-accounting.js`) signs in with it and answers only a request
+carrying `PL_SHEET_TOKEN`. It is a separate login from the website's
+`RM_USERNAME`, so the unit listings never carry accounting access.
+
+| Secret on the Worker | What it is |
+|---|---|
+| `RM_ACCT_USERNAME`, `RM_ACCT_PASSWORD` | A Rent Manager user with Web API access and read access to properties and the general ledger. Best a user made for this, not a person's own login |
+| `RM_ACCT_LOCATION_ID` | Optional, as `RM_LOCATION_ID` |
+| `PL_SHEET_TOKEN` | Long random text (24 characters or more; `openssl rand -hex 32`). The sheet sends it; nothing else gets in |
+
+Then, in the sheet: **Rent Manager → Connect to Rent Manager (via the
+website)**, paste the same `PL_SHEET_TOKEN`, and **Check Rent Manager
+connection**. The check signs in, lists the properties (matched to their P&L
+tabs on the **RM Connection** tab), loads the income and expense GL accounts
+into **RM Mapping** with suggested lines, and asks the likely accounting
+resources (`/JournalEntries`, `/Bills`, `/Reports`, ...) for one record each,
+keeping their status and field names, and sample values only for dates,
+amounts and IDs: never a person's details or a note. About seventeen API
+calls, reused for a minute. Rent Manager's field reference is behind a login,
+so the monthly pull is written from what that table shows, as the unit
+listing's was.
 
 ### 5. DNS, from GoDaddy to Cloudflare
 

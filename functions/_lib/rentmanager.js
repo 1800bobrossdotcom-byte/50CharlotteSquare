@@ -57,7 +57,7 @@ function rateFrom(res) {
   return { limit: n('X-RateLimit'), remaining: n('X-RateRemaining'), resetIn: n('X-RateTimeLeft') };
 }
 
-async function call(env, path, { method = 'GET', token, body } = {}) {
+export async function call(env, path, { method = 'GET', token, body } = {}) {
   const headers = { Accept: 'application/json' };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (token) headers['X-RM12Api-ApiToken'] = token;
@@ -99,12 +99,12 @@ export async function authorize(env) {
   return { token, rate: r.rate };
 }
 
-const asList = (data) => (Array.isArray(data) ? data
+export const asList = (data) => (Array.isArray(data) ? data
   : data && Array.isArray(data.Items) ? data.Items
   : data && typeof data === 'object' ? [data] : []);
 
 /* ---- Storage: one row per key in rm_cache ---------------------------------- */
-async function getKey(env, key) {
+export async function getKey(env, key) {
   try {
     const row = await env.DB.prepare('SELECT ts, body FROM rm_cache WHERE key = ?').bind(key).first();
     return row ? { ...JSON.parse(row.body), ts: row.ts } : null;
@@ -113,7 +113,7 @@ async function getKey(env, key) {
   }
 }
 
-async function putKey(env, key, body) {
+export async function putKey(env, key, body) {
   const ts = Math.floor(Date.now() / 1000);
   await env.DB.prepare(
     `INSERT INTO rm_cache (key, ts, body) VALUES (?, ?, ?)

@@ -23,6 +23,7 @@ import * as inquiries from '../functions/api/inquiries.js';
 import * as inquiry from '../functions/api/inquiry.js';
 import * as insights from '../functions/api/insights.js';
 import * as lobby from '../functions/api/lobby.js';
+import * as pl from '../functions/api/pl.js';
 import * as login from '../functions/api/login.js';
 import * as logout from '../functions/api/logout.js';
 import * as rentmanager from '../functions/api/rentmanager.js';
@@ -80,6 +81,7 @@ const API = {
   '/api/inquiry': inquiry,
   '/api/insights': insights,
   '/api/lobby': lobby,
+  '/api/pl': pl,
   '/api/login': login,
   '/api/logout': logout,
   '/api/rentmanager': rentmanager,

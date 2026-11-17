@@ -23,7 +23,10 @@
  *      app isn't verified: Advanced → Go to the project). The script only
  *      touches this spreadsheet.
  *
- * EACH MONTH
+ * STRAIGHT FROM RENT MANAGER (no export): see "Rent Manager directly" below
+ *   and "Rent Manager's P&L" in the website's README for the Cloudflare secrets.
+ *
+ * EACH MONTH, FROM AN EXPORT
  *   1. In Rent Manager: Reports → Income Statement, one property, a
  *      12-month (month-by-month) layout, the year to date. Export to Excel.
  *   2. In the sheet: File → Import → Upload the file → "Insert new sheet(s)".
@@ -349,6 +352,9 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('Rent Manager')
     .addItem('Reconcile this export', 'reconcileActiveExport')
     .addItem('Open the RM Mapping tab', 'openMapping')
+    .addSeparator()
+    .addItem('Connect to Rent Manager (via the website)', 'connectRm')
+    .addItem('Check Rent Manager connection', 'checkRmConnection')
     .addToUi();
 }
 
@@ -508,6 +514,109 @@ function writeComparison(ss, tabName, srcName, result) {
   sh.setColumnWidths(2, months.length * 3, 96);
   sh.setColumnWidth(width, 420);
   return sh;
+}
+
+/* ---------------------------------------------------------------------------
+   Rent Manager directly, through the website's Worker
+
+   The Rent Manager accounting login is a secret on the website's Cloudflare
+   Worker (RM_ACCT_USERNAME, RM_ACCT_PASSWORD), never in this sheet. The sheet
+   holds only the address and the token (PL_SHEET_TOKEN) that lets it ask the
+   Worker, in this script's Script Properties: anyone who can edit the script
+   can see them, and they can read the P&L numbers, nothing else.
+   --------------------------------------------------------------------------- */
+
+const CONN_TAB = 'RM Connection';
+const DEFAULT_API = 'https://www.charlottesquareroc.com/api/pl';
+
+function connectRm() {
+  const ui = SpreadsheetApp.getUi();
+  const props = PropertiesService.getScriptProperties();
+  const res = ui.prompt('Connect to Rent Manager',
+    'Paste the PL_SHEET_TOKEN that was added on the website\'s Worker in Cloudflare.', ui.ButtonSet.OK_CANCEL);
+  if (res.getSelectedButton() !== ui.Button.OK) return;
+  const token = res.getResponseText().trim();
+  if (token.length < 24) { ui.alert('That token is too short. It should be the same long random text as PL_SHEET_TOKEN in Cloudflare.'); return; }
+  props.setProperty('PL_SHEET_TOKEN', token);
+  if (!props.getProperty('PL_API_URL')) props.setProperty('PL_API_URL', DEFAULT_API);
+  ui.alert('Saved. Now: Rent Manager → Check Rent Manager connection.');
+}
+
+function plApi(query) {
+  const props = PropertiesService.getScriptProperties();
+  const token = props.getProperty('PL_SHEET_TOKEN');
+  if (!token) throw new Error('Not connected yet: Rent Manager → Connect to Rent Manager (via the website).');
+  const res = UrlFetchApp.fetch((props.getProperty('PL_API_URL') || DEFAULT_API) + query, {
+    headers: { Authorization: 'Bearer ' + token }, muteHttpExceptions: true,
+  });
+  let body = {};
+  try { body = JSON.parse(res.getContentText()); } catch (e) { body = { error: res.getContentText().slice(0, 300) }; }
+  if (res.getResponseCode() === 401) throw new Error('The website did not accept the token. Run Connect again with the PL_SHEET_TOKEN from Cloudflare.');
+  if (res.getResponseCode() >= 400) throw new Error(body.error || ('The website answered ' + res.getResponseCode() + '.'));
+  return body;
+}
+
+/** GL accounts worth a P&L line: income and expense, or any whose type is unknown. */
+function plAccounts(accounts) {
+  return accounts.filter((a) => !/asset|liabilit|equity|bank|cash|receivable|payable|deposit held/i.test(a.type || ''));
+}
+
+function checkRmConnection() {
+  const ss = SpreadsheetApp.getActive();
+  const ui = SpreadsheetApp.getUi();
+  let r;
+  try { r = plApi('?check'); } catch (err) { ui.alert(err.message); return; }
+
+  let sh = ss.getSheetByName(CONN_TAB);
+  if (sh) sh.clear(); else sh = ss.insertSheet(CONN_TAB);
+  const tabs = ss.getSheets().filter(isPLTab).map((s) => ({ name: s.getName(), b1: String(s.getRange('B1').getValue()) }));
+  const rows = [];
+  const W = 5;
+  const pad = (row) => { while (row.length < W) row.push(''); return row.slice(0, W); };
+  rows.push(pad(['Rent Manager connection, ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'MMM d, yyyy h:mm a') +
+    (r.note ? ' (' + r.note + ')' : '')]));
+  rows.push(pad(['Company: ' + r.company + (r.rate && r.rate.remaining !== null ? ' · Rent Manager API calls left this hour: ' + r.rate.remaining : '')]));
+  rows.push(pad(['']));
+  rows.push(pad(['Properties (' + r.properties.length + ')', 'Rent Manager ID', 'Short name', 'P&L tab (check, and correct if wrong)', 'Active']));
+  const header1 = rows.length;
+  r.properties.forEach((p) => {
+    const g = guessTab(tabs, p.name + ' ' + p.short);
+    rows.push(pad([p.name, p.id, p.short, g.length === 1 ? g[0] : '', p.active === null ? '' : String(p.active)]));
+  });
+  if (!r.properties.length) rows.push(pad(['None read (Rent Manager answered ' + r.propertiesStatus + (r.propertiesSaid ? ': ' + r.propertiesSaid : '') + ')']));
+  rows.push(pad(['']));
+  rows.push(pad(['What Rent Manager answers (for whoever maintains this script)', 'Status', 'Records', 'Message', 'Fields']));
+  const header2 = rows.length;
+  r.probes.forEach((p) => rows.push(pad([p.path, p.status, p.count, p.said || '', p.fields ? JSON.stringify(p.fields) : ''])));
+  sh.getRange(1, 1, rows.length, W).setValues(rows);
+  sh.getRange(1, 1).setFontWeight('bold').setFontSize(13);
+  [header1, header2].forEach((h) => sh.getRange(h, 1, 1, W).setFontWeight('bold').setBackground('#1A1613').setFontColor('#F5F1E9'));
+  sh.setColumnWidth(1, 320); sh.setColumnWidths(2, 2, 110); sh.setColumnWidth(4, 300); sh.setColumnWidth(5, 600);
+  sh.getRange(header2 + 1, 5, Math.max(r.probes.length, 1), 1).setWrap(false);
+
+  // The chart of accounts into RM Mapping, with a suggested line for each new one.
+  const mapSh = mappingSheet(ss);
+  const have = {};
+  if (mapSh.getLastRow() > 1) {
+    mapSh.getRange(2, 1, mapSh.getLastRow() - 1, 2).getValues().forEach((v) => {
+      if (String(v[0]).trim()) have[String(v[0]).trim()] = 1; else if (v[1]) have['name:' + norm(v[1])] = 1;
+    });
+  }
+  const add = plAccounts(r.accounts || [])
+    .filter((a) => !(a.number ? have[a.number] : have['name:' + norm(a.name)]))
+    .map((a) => {
+      const s = suggest(a.name);
+      return [a.number, a.name, s, (s ? 'Suggested: check' : 'Not placed: choose a line') + (a.type ? ' · ' + a.type : '')];
+    });
+  if (add.length) {
+    mapSh.getRange(mapSh.getLastRow() + 1, 1, add.length, 4).setValues(add);
+    mapSh.getRange(mapSh.getLastRow() - add.length + 1, 4, add.length, 1).setBackground('#FFF2CC');
+  }
+  ss.setActiveSheet(sh);
+  ui.alert('Connected to Rent Manager.\n\n' + r.properties.length + ' properties and ' + (r.accounts || []).length +
+    ' GL accounts read. ' + add.length + ' accounts added to "' + MAP_TAB + '" with a suggested P&L line.\n\n' +
+    'Check the P&L tab beside each property on "' + CONN_TAB + '", and send that tab to whoever maintains this script: ' +
+    'its last table says how Rent Manager hands out the monthly numbers.');
 }
 
 // Lets the pure helpers be tested in Node; Apps Script ignores this.
