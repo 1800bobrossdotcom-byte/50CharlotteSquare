@@ -1999,6 +1999,24 @@ the Workspace's admin settings do not allow web apps open to anyone, which
 is the Workspace admin's to change. After changing `Code.gs`, **Deploy → Manage
 deployments → edit → New version** keeps the same address.
 
+### Rent Manager's P&L beside accounting's P&L sheets
+
+Not part of the website: a Google Apps Script for Evolution24's P&L Google
+Sheet, kept here with the lead sheet's. `tools/pl-sheet/Code.gs` (setup and
+monthly steps are at its top) adds a **Rent Manager** menu. Accounting imports
+Rent Manager's month-by-month Income Statement for one property as a new tab,
+chooses **Reconcile this export**, and gets a tab "RM vs <property's P&L tab>":
+for each month, the sheet's number, Rent Manager's and the difference,
+highlighted at $1 or more, with gross income, operating expenses and NOI
+totalled the same way and the CAM detail lines rolled into CAM. The P&L tabs
+are only read. Which GL account goes in which P&L line is the **RM Mapping**
+tab, filled with a suggested line the first time an account appears; a line
+can name alternatives ("Turnover | Repairs"), since the tabs word them a little
+differently. It reads exports, not Rent Manager's API: the website's Rent
+Manager user can read units only, and accounting needs no new login this way.
+The spreadsheet itself holds pay, vendor and account details and never goes in
+this repository.
+
 ### 5. DNS, from GoDaddy to Cloudflare
 
 Add the site in the **same Cloudflare account as the Worker**: **Add a domain →
