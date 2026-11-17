@@ -20,8 +20,8 @@
  *      file in (in place of any sample code) and press Save.
  *   2. Back in the sheet, reload the page. A "Rent Manager" menu appears.
  *      The first time it is used, Google asks to allow access (if it says the
- *      app isn't verified: Advanced → Go to the project). The script only
- *      touches this spreadsheet.
+ *      app isn't verified: Advanced → Go to the project). The script works
+ *      in this spreadsheet and, once connected, calls only the website's /api/pl.
  *
  * STRAIGHT FROM RENT MANAGER (no export): see "Rent Manager directly" below
  *   and "Rent Manager's P&L" in the website's README for the Cloudflare secrets.
