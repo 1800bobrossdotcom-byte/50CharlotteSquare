@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080">
+<meta name="ad-size" content="1080x1350">
+<meta name="safe" content="58,159,1022,1191">
+
+<title>02-leasing</title>
+<link rel="stylesheet" href="../../../assets/fonts/fonts.css">
+<style>
+:root {
+  --bg: #1A1613; --cream: #F1ECE1; --paper: #EDE6D8; --body: #BEB6A7; --muted: #8F877A;
+  --sand: #E2B07A; --line: rgba(241, 236, 225, .17); --brick: #A93B3F; --ink: #1A1613;
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { background: transparent; }
+i { font-style: italic; }
+.post {
+  position: relative; overflow: hidden; width: 1080px; height: 1350px;
+  background: var(--bg); color: var(--cream);
+  font-family: 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+  padding: 170px 96px 170px; display: flex; flex-direction: column;
+}
+.serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; }
+.caps { font-size: 15px; font-weight: 600; letter-spacing: .32em; text-transform: uppercase; }
+.mark { width: 64px; height: 64px; border-radius: 6px; flex: none; display: block; }
+.ghost { position: absolute; right: -120px; bottom: -150px; width: 620px; height: 620px; color: var(--cream); opacity: .045; pointer-events: none; }
+
+/* ---- Photographs: full bleed, a shade at the foot for the caption. */
+.post--photo { padding: 0; }
+.post--photo img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.post--photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 560px;
+  background: linear-gradient(to top, rgba(18,14,12,.86), rgba(18,14,12,.5) 45%, rgba(18,14,12,0)); }
+.cap { position: absolute; left: 96px; right: 96px; bottom: 170px; z-index: 2; }
+.cap .caps { color: var(--sand); text-shadow: 0 1px 12px rgba(0,0,0,.5); }
+.cap h2 { margin-top: 16px; font-size: 76px; line-height: 1; letter-spacing: -.01em; text-wrap: balance; text-shadow: 0 2px 24px rgba(0,0,0,.35); }
+.cap h2 i { color: var(--sand); }
+.corner { position: absolute; top: 160px; left: 96px; z-index: 2; width: 52px; height: 52px; }
+.corner .mark { width: 52px; height: 52px; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+.badge { position: absolute; top: 166px; right: 96px; z-index: 2; display: flex; align-items: center; gap: 12px;
+  padding: 14px 22px 14px 18px; border-radius: 999px; background: rgba(26,22,19,.78); color: var(--cream);
+  font-size: 15px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; }
+.badge svg { width: 24px; height: 24px; color: #D9B45A; }
+
+/* ---- The brand panel */
+.brandpanel { justify-content: center; align-items: center; text-align: center; }
+.brandpanel .mark { width: 120px; height: 120px; border-radius: 10px; }
+.brandpanel .wm { margin-top: 56px; font-size: 128px; line-height: .9; letter-spacing: -.015em; }
+.brandpanel .wm i { color: var(--sand); }
+.brandpanel .rule { width: 120px; height: 1px; background: var(--line); margin: 52px auto 0; }
+.brandpanel .caps { margin-top: 44px; color: var(--sand); line-height: 2; }
+.brandpanel .small { margin-top: 10px; color: var(--body); font-size: 22px; }
+
+/* ---- Facts, on paper */
+.post--paper { background: var(--paper); color: var(--ink); }
+.post--paper .ghost { color: var(--ink); opacity: .05; }
+.post--paper .caps { color: var(--brick); }
+.facts h2 { margin-top: 64px; font-size: 132px; line-height: .92; letter-spacing: -.015em; }
+.facts h2 i { color: var(--brick); }
+.facts dl { margin-top: auto; border-top: 1px solid rgba(26,22,19,.18); }
+.facts dl div { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; padding: 26px 0; border-bottom: 1px solid rgba(26,22,19,.18); }
+.facts dt { font-size: 15px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: #6E665B; }
+.facts dd { font-family: 'Instrument Serif', Georgia, serif; font-size: 64px; line-height: 1; white-space: nowrap; }
+
+/* ---- Brick: one strong colour block */
+.post--brick { background: var(--brick); }
+.post--brick .caps { color: #F6D9B8; }
+.post--brick h2 { margin-top: auto; font-size: 150px; line-height: .9; letter-spacing: -.02em; }
+.post--brick h2 i { color: #F6D9B8; }
+.post--brick p.sub { margin-top: 40px; font-size: 30px; line-height: 1.4; color: #F7E7DA; max-width: 760px; }
+.post--brick .ghost { opacity: .06; }
+.post--brick .top { display: flex; justify-content: space-between; align-items: center; }
+
+/* ---- Now leasing */
+.lease .caps.k { color: var(--sand); }
+.lease h2 { margin-top: 72px; font-size: 150px; line-height: .9; letter-spacing: -.02em; }
+.lease h2 i { color: var(--sand); }
+.lease .from { margin-top: 60px; padding: 30px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  display: flex; align-items: baseline; gap: 22px; }
+.lease .from .fig { font-family: 'Instrument Serif', Georgia, serif; font-size: 92px; line-height: 1; }
+.lease .from .lab { font-size: 22px; color: var(--body); line-height: 1.35; }
+.lease .call { margin-top: auto; }
+.lease .call .caps { color: var(--sand); }
+.lease .call .num { margin-top: 10px; font-size: 64px; font-weight: 500; letter-spacing: -.01em; }
+.lease .call .site { margin-top: 12px; font-size: 26px; color: var(--body); }
+.legal { margin-top: 40px; display: flex; align-items: center; gap: 12px; font-size: 14px; letter-spacing: .02em; color: var(--muted); }
+.eho { width: 20px; height: 20px; flex: none; }
+
+/* ---- Reels: 1080x1920, captions in the space Instagram's buttons leave free
+   (clear of the top 220 px, the bottom 380 px and the right-hand 140 px). */
+.reelcap { width: 1080px; height: 1920px; position: relative; font-family: 'DM Sans', system-ui, sans-serif; color: var(--cream); -webkit-font-smoothing: antialiased; }
+.reelcap .shade { position: absolute; inset: auto 0 0 0; height: 1000px;
+  background: linear-gradient(to top, rgba(18,14,12,.0) 0, rgba(18,14,12,.72) 30%, rgba(18,14,12,.4) 62%, rgba(18,14,12,0)); }
+.reelcap .box { position: absolute; left: 84px; right: 160px; bottom: 444px; }
+.reelcap .caps { color: var(--sand); font-size: 18px; text-shadow: 0 1px 14px rgba(0,0,0,.55); }
+.reelcap h2 { margin-top: 18px; font-size: 104px; line-height: .96; letter-spacing: -.012em; text-wrap: balance; text-shadow: 0 2px 28px rgba(0,0,0,.4); }
+.reelcap h2 i { color: var(--sand); }
+.reelcap .brand { position: absolute; top: 240px; left: 84px; display: flex; align-items: center; gap: 18px; }
+.reelcap .brand .mark { width: 56px; height: 56px; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+.reelcap .brand .wm { font-size: 40px; text-shadow: 0 2px 18px rgba(0,0,0,.5); }
+.reelcap .brand .wm i { color: var(--sand); }
+
+.endcard { width: 1080px; height: 1920px; position: relative; overflow: hidden; background: var(--bg); color: var(--cream);
+  font-family: 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; padding: 300px 160px 420px 84px; display: flex; flex-direction: column; }
+.endcard .ghost { width: 900px; height: 900px; right: -220px; bottom: 120px; }
+.endcard .mark { width: 96px; height: 96px; border-radius: 8px; }
+.endcard .caps { margin-top: 64px; color: var(--sand); font-size: 18px; }
+.endcard h2 { margin-top: 28px; font-size: 170px; line-height: .88; letter-spacing: -.02em; }
+.endcard h2 i { color: var(--sand); }
+.endcard .from { margin-top: 64px; padding: 34px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 30px; color: var(--body); line-height: 1.45; }
+.endcard .from b { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 84px; color: var(--cream); display: block; line-height: 1; margin-bottom: 10px; }
+.endcard .call { margin-top: auto; }
+.endcard .call .caps { margin-top: 0; }
+.endcard .num { margin-top: 12px; font-size: 76px; font-weight: 500; letter-spacing: -.01em; }
+.endcard .site { margin-top: 14px; font-size: 30px; color: var(--body); }
+.endcard .legal { margin-top: 36px; font-size: 17px; }
+.endcard .eho { width: 22px; height: 22px; }
+
+/* ---- Reel covers: what the profile grid shows for each Reel. Everything
+   sits in the middle square, the smallest crop Instagram has used. */
+.cover { width: 1080px; height: 1920px; position: relative; overflow: hidden; background: var(--bg); color: var(--cream);
+  font-family: 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.cover img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cover::after { content: ""; position: absolute; inset: 0; background: rgba(18,14,12,.5); }
+.cover .in { position: absolute; z-index: 2; left: 96px; right: 96px; top: 444px; height: 1032px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.cover .mark { width: 96px; height: 96px; border-radius: 8px; }
+.cover .caps { margin-top: 48px; color: var(--sand); font-size: 20px; text-shadow: 0 1px 14px rgba(0,0,0,.5); }
+.cover h2 { margin-top: 24px; font-size: 150px; line-height: .9; letter-spacing: -.02em; text-shadow: 0 2px 30px rgba(0,0,0,.45); }
+.cover h2 i { color: var(--sand); }
+</style>
+</head>
+<body>
+<div class="post lease"><svg class="ghost" viewBox="9 9 46 46" aria-hidden="true"><path d="M9 9 H55 V27 H45 V19 H19 V45 H55 V55 H9 Z" fill="currentColor"/></svg><p class="caps k">Charlotte Square</p>
+      <h2 class="serif">Now<br><i>leasing.</i></h2>
+      <div class="from"><span class="fig">From $2,195</span><span class="lab">a month.<br>A garage space included.</span></div>
+      <div class="call"><p class="caps">Call Tatum to tour</p><p class="num">(585) 748-5588</p><p class="site">charlottesquareroc.com</p></div>
+      <p class="legal"><svg class="eho" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><path d="M7 20v-6h10v6"/><path d="M9 17h6"/></svg><span>Equal Housing Opportunity · Managed by Evolution24 Properties · Rent as listed, November 2026</span></p></div>
+</body>
+</html>
